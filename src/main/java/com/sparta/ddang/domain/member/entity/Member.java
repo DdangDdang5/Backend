@@ -1,0 +1,47 @@
+package com.sparta.ddang.domain.member.entity;
+
+import com.sparta.ddang.util.Timestamped;
+import lombok.Builder;
+import lombok.Getter;
+
+import javax.persistence.*;
+
+@Entity
+@Table(name = "member")
+@Getter
+public class Member extends Timestamped {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "member_id")
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(nullable = false, unique = true)
+    private String nickName;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false, unique = true)
+    private String phoneNum;
+
+    @Column
+    private String profileImgUrl;
+
+//    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+//    private List<Auction> auctionList;
+
+    @Builder
+    public Member(String email, String nickName, String password, String phoneNum, String profileImgUrl) {
+        this.email = email;
+        this.nickName = nickName;
+        this.password = password;
+        this.phoneNum = phoneNum;
+        this.profileImgUrl = profileImgUrl;
+    }
+
+    public Member() {}
+}
