@@ -23,6 +23,6 @@ public class MemberDetailsServcie implements UserDetailsService {
         Optional<Member> member = memberRepository.findByEmail(username);
         return member
                 .map(MemberDetails::new)
-                .orElseThrow(() -> new UsernameNotFoundException("nickname not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("nickName not found"));
     }
 }
