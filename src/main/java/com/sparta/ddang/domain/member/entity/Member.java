@@ -41,8 +41,12 @@ public class Member extends Timestamped {
         return getClass().hashCode();
     }
 
-    public void update(String profileImgUrl) {
+    public void update(String nickName, String phoneNum, String profileImgUrl) {
+
+        this.nickName = nickName;
+        this.phoneNum = phoneNum;
         this.profileImgUrl = profileImgUrl;
+
     }
 
 
