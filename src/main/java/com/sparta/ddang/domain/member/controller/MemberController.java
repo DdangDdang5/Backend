@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
@@ -28,4 +29,15 @@ public class MemberController {
                                 HttpServletResponse response) {
         return memberService.login(requestDto, response);
     }
+
+    @GetMapping("/{memberId}/mypage")
+    public ResponseDto<?> getMypage(@PathVariable Long memberId, HttpServletRequest request) {
+        return memberService.getMypage(memberId, request);
+    }
+
+    @PatchMapping("/{memberId}/mypage")
+    public ResponseDto<?> editMypage(@PathVariable Long memberId, @RequestPart("data")MemberRequestDto requestDto, @RequestPart("profileImg") MultipartFile multipartFile) throws IOException {
+        return memberService.editMypage(memberId, requestDto, multipartFile);
+    }
+
 }
