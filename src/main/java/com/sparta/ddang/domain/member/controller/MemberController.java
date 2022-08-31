@@ -1,6 +1,7 @@
 package com.sparta.ddang.domain.member.controller;
 
 import com.sparta.ddang.domain.dto.ResponseDto;
+import com.sparta.ddang.domain.member.dto.LoginRequestDto;
 import com.sparta.ddang.domain.member.dto.MemberRequestDto;
 import com.sparta.ddang.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +23,9 @@ public class MemberController {
         return memberService.createMember(requestDto);
     }
 
-//    @PostMapping("/login")
-//    public ResponseDto<?> login(@RequestBody LoginRequestDto requestDto,
-//                                HttpServletResponse response) {
-//        return memberService.login(requestDto, response);
-//    }
+    @PostMapping("/login")
+    public ResponseDto<?> login(@RequestBody LoginRequestDto requestDto,
+                                HttpServletResponse response) {
+        return memberService.login(requestDto, response);
+    }
 }
