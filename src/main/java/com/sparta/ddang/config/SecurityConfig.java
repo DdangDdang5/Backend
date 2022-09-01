@@ -19,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @RequiredArgsConstructor
 @ConditionalOnDefaultWebSecurity
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
@@ -64,6 +64,9 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .antMatchers("/").permitAll()
                 .antMatchers("/member/**").permitAll()
+                .antMatchers("/auction/**").permitAll()
+                .antMatchers("/auction/category/**").permitAll()
+                .antMatchers("/auction/region/**").permitAll()
                 .anyRequest().authenticated()
 
                 .and()
