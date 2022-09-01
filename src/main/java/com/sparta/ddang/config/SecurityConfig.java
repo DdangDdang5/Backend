@@ -64,6 +64,9 @@ public class SecurityConfig {
                 .authorizeRequests()
                 .antMatchers("/").permitAll()
                 .antMatchers("/member/**").permitAll()
+                .antMatchers("/auction/**").permitAll()
+                .antMatchers("/auction/category/**").permitAll()
+                .antMatchers("/auction/region/**").permitAll()
                 .anyRequest().authenticated()
 
                 .and()
