@@ -3,6 +3,7 @@ package com.sparta.ddang.jwt;
 import com.sparta.ddang.domain.member.entity.Member;
 import com.sparta.ddang.domain.member.entity.MemberDetails;
 import com.sparta.ddang.domain.member.service.MemberDetailsServcie;
+import com.sparta.ddang.util.Authority;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -44,17 +45,17 @@ public class TokenProvider {
     this.key = Keys.hmacShaKeyFor(keyBytes);
   }
 
-  public TokenDto generateTokenDto(Authentication authentication) {
-    String authorities = authentication.getAuthorities().stream()
-        .map(GrantedAuthority::getAuthority)
-        .collect(Collectors.joining(","));
+  public TokenDto generateTokenDto(Member member) {
+//    String authorities = authentication.getAuthorities().stream()
+//        .map(GrantedAuthority::getAuthority)
+//        .collect(Collectors.joining(","));
 
     long now = (new Date().getTime());
 
     Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
     String accessToken = Jwts.builder()
-        .setSubject(authentication.getName())
-        .claim(AUTHORITIES_KEY, authorities)
+        .setSubject(member.getEmail())
+        .claim(AUTHORITIES_KEY, Authority.ROLE_MEMBER.toString())
         .setExpiration(accessTokenExpiresIn)
         .signWith(key, SignatureAlgorithm.HS256)
         .compact();
