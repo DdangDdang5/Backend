@@ -1,5 +1,6 @@
 package com.sparta.ddang.domain.member.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta.ddang.domain.dto.ResponseDto;
 import com.sparta.ddang.domain.member.dto.request.EmailRequestDto;
 import com.sparta.ddang.domain.member.dto.request.LoginRequestDto;
@@ -43,11 +44,25 @@ public class MemberController {
         return memberService.login(requestDto, response);
     }
 
+    //  <button id="login-kakao-btn" onclick="location.href='https://kauth.kakao.com/oauth/authorize?client_id=0e615a5250af79c8016d4690ed0abe7c&redirect_uri=http://localhost:8080/member/kakao/callback&response_type=code'">
+    //        카카오로 로그인하기
+    //    </button>
+
+    @GetMapping("/kakao/callback")
+    public ResponseDto<?> kakaoLogin(@RequestParam String code,
+                                     HttpServletResponse response) throws JsonProcessingException {
+
+        return memberService.kakaoLogin(code,response);
+
+
+    }
+
     @GetMapping("/{memberId}/mypage")
     public ResponseDto<?> getMypage(@PathVariable Long memberId, HttpServletRequest request) {
         return memberService.getMypage(memberId, request);
     }
 
+    // 카카오 로그인 되면 그냥 여기서 카카오 멤버도 수정하면 될 것 같다.
     @PatchMapping("/{memberId}/mypage")
     public ResponseDto<?> editMypage(@PathVariable Long memberId, @RequestPart("data")MemberRequestDto requestDto, @RequestPart("profileImg") MultipartFile multipartFile) throws IOException {
         return memberService.editMypage(memberId, requestDto, multipartFile);

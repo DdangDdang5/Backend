@@ -33,6 +33,9 @@ public class Member extends Timestamped {
     @Column
     private String profileImgUrl;
 
+    @Column
+    private boolean isKakao;
+
 //    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
 //    private List<Auction> auctionList;
 
@@ -48,14 +51,14 @@ public class Member extends Timestamped {
 
     }
 
-
     @Builder
-    public Member(Long id, String email, String nickName, String password, String profileImgUrl) {
-        this.id = id;
+    public Member(String email, String nickName, String password, String profileImgUrl, boolean isKakao) {
+        //this.id = id;
         this.email = email;
         this.nickName = nickName;
         this.password = password;
         this.profileImgUrl = profileImgUrl;
+        this.isKakao = isKakao;
     }
 
     public Member() {}
