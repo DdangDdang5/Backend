@@ -1,8 +1,10 @@
 package com.sparta.ddang.domain.member.controller;
 
 import com.sparta.ddang.domain.dto.ResponseDto;
-import com.sparta.ddang.domain.member.dto.LoginRequestDto;
-import com.sparta.ddang.domain.member.dto.MemberRequestDto;
+import com.sparta.ddang.domain.member.dto.request.EmailRequestDto;
+import com.sparta.ddang.domain.member.dto.request.LoginRequestDto;
+import com.sparta.ddang.domain.member.dto.request.NicknameRequestDto;
+import com.sparta.ddang.domain.member.dto.response.MemberRequestDto;
 import com.sparta.ddang.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,17 @@ public class MemberController {
     public ResponseDto<?> signup(@RequestBody MemberRequestDto requestDto) throws IOException {
         return memberService.createMember(requestDto);
     }
+
+    @RequestMapping(value = "/emailcheck", method = RequestMethod.POST)
+    public ResponseDto<?> emailCheck(@RequestBody EmailRequestDto emailRequestDto) {
+        return memberService.emailCheck(emailRequestDto);
+    }
+
+    @RequestMapping(value = "/nicknamecheck", method = RequestMethod.POST)
+    public ResponseDto<?> nickNameCheck(@RequestBody NicknameRequestDto nicknameRequestDto) {
+        return memberService.nickNameCheck(nicknameRequestDto);
+    }
+
 
     @PostMapping("/login")
     public ResponseDto<?> login(@RequestBody LoginRequestDto requestDto,

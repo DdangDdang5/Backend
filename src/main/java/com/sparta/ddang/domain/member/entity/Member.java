@@ -1,13 +1,11 @@
 package com.sparta.ddang.domain.member.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sparta.ddang.util.Authority;
 import com.sparta.ddang.util.Timestamped;
 import lombok.Builder;
 import lombok.Getter;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Entity
 @Table(name = "member")
@@ -29,8 +27,8 @@ public class Member extends Timestamped {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, unique = true)
-    private String phoneNum;
+//    @Column(nullable = false, unique = true)
+//    private String phoneNum;
 
     @Column
     private String profileImgUrl;
@@ -43,22 +41,20 @@ public class Member extends Timestamped {
         return getClass().hashCode();
     }
 
-    public void update(String nickName, String phoneNum, String profileImgUrl) {
+    public void update(String nickName, String profileImgUrl) {
 
         this.nickName = nickName;
-        this.phoneNum = phoneNum;
         this.profileImgUrl = profileImgUrl;
 
     }
 
 
     @Builder
-    public Member(Long id, String email, String nickName, String password, String phoneNum, String profileImgUrl) {
+    public Member(Long id, String email, String nickName, String password, String profileImgUrl) {
         this.id = id;
         this.email = email;
         this.nickName = nickName;
         this.password = password;
-        this.phoneNum = phoneNum;
         this.profileImgUrl = profileImgUrl;
     }
 

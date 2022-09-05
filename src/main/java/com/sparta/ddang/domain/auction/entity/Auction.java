@@ -50,6 +50,7 @@ public class Auction extends Timestamped { // 19개
 
 
     @Column(nullable = false)
+    @ColumnDefault("0")
     private Long startPrice;
 
     @Column
@@ -57,6 +58,7 @@ public class Auction extends Timestamped { // 19개
     private Long nowPrice;
 
     @Column(nullable = false)
+    @ColumnDefault("0")
     private Long auctionPeriod;
 
     @Column(nullable = false) //10개
@@ -87,8 +89,8 @@ public class Auction extends Timestamped { // 19개
     @Column
     private boolean participantStatus;
 
-    @Column
-    private boolean favoriteStatus;
+//    @Column
+//    private boolean favoriteStatus;
 
     public Auction(){
 
@@ -108,6 +110,7 @@ public class Auction extends Timestamped { // 19개
         this.region = auctionRequestDto.getRegion();
         this.direct = auctionRequestDto.isDirect();
         this.delivery = auctionRequestDto.isDelivery();
+        this.auctionStatus = true;
     }
 
     public Auction(List<MultiImage> multiImages){
@@ -125,11 +128,26 @@ public class Auction extends Timestamped { // 19개
         this.content = auctionUpdateRequestDto.getContent();
         this.region = auctionUpdateRequestDto.getRegion();
 
+
     }
 
     public void cntAuction(){
 
         this.viewerCnt +=1;
+
+    }
+
+    public void updateParticipantStatusOn() {
+        this.participantStatus = true;
+    }
+
+    public void updateParticipantStatusOff() {
+        this.participantStatus = false;
+    }
+
+    public void updateParticipantCnt(Long participantCnt) {
+
+        this.participantCnt = participantCnt;
 
     }
 }
