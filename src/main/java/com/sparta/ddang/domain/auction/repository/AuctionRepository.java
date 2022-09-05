@@ -13,4 +13,7 @@ public interface AuctionRepository extends JpaRepository<Auction,Long> {
     List<Auction> findAllByRegion(String region);
 
     List<Auction> findAllByCategoryAndRegion(String category,String region);
+
+    List<Auction> findAllByMember_Id(Long memberId);
+
 }

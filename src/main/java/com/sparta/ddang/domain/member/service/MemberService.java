@@ -1,16 +1,19 @@
 package com.sparta.ddang.domain.member.service;
 
 import com.sparta.ddang.domain.dto.ResponseDto;
-import com.sparta.ddang.domain.member.dto.LoginRequestDto;
-import com.sparta.ddang.domain.member.dto.MemberRequestDto;
-import com.sparta.ddang.domain.member.dto.MemberResponseDto;
-import com.sparta.ddang.domain.member.dto.MypageResponseDto;
+import com.sparta.ddang.domain.member.dto.request.EmailRequestDto;
+import com.sparta.ddang.domain.member.dto.request.LoginRequestDto;
+import com.sparta.ddang.domain.member.dto.request.NicknameRequestDto;
+import com.sparta.ddang.domain.member.dto.response.MemberRequestDto;
+import com.sparta.ddang.domain.member.dto.response.MemberResponseDto;
+import com.sparta.ddang.domain.member.dto.response.MypageResponseDto;
 import com.sparta.ddang.domain.member.entity.Member;
 import com.sparta.ddang.domain.member.repository.MemberRepository;
 import com.sparta.ddang.jwt.TokenDto;
 import com.sparta.ddang.jwt.TokenProvider;
 import com.sparta.ddang.util.S3UploadService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -24,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -46,7 +50,7 @@ public class MemberService {
                 .email(requestDto.getEmail())
                 .nickName(requestDto.getNickName())
                 .password(passwordEncoder.encode(requestDto.getPassword()))
-                .phoneNum(requestDto.getPhoneNum())
+                //.phoneNum(requestDto.getPhoneNum())
                 .build();
 
         memberRepository.save(member);
@@ -61,6 +65,55 @@ public class MemberService {
 
 
     }
+
+
+    // 이메일 중복확인.
+    @Transactional
+    public ResponseDto<?> emailCheck(EmailRequestDto email) {
+
+        String emailCheck = email.getEmail();
+
+        if (emailCheck.equals("")) {
+
+            return ResponseDto.success("이메일을 입력해주세요.");
+
+        }
+        if (!emailCheck.contains("@")) {
+            return ResponseDto.success("이메일 형식이 아닙니다.");
+        }
+
+        if (null != checkEmail(emailCheck)) { // 이메일 중복이면
+            return ResponseDto.success(false);
+        } else { // 이메일 중복 아니면
+            return ResponseDto.success(true);
+        }
+    }
+
+
+    // 닉네임 중복확인.
+    @Transactional
+    public ResponseDto<?> nickNameCheck(NicknameRequestDto nickname) {
+
+        String nickNameCheck = nickname.getNickName();
+
+        if (nickNameCheck.equals("")) {
+            log.info("빈값이다.");
+            return ResponseDto.success("닉네임을 입력해주세요");
+
+        } else {
+            log.info("빈값이 아니다.");
+            if (null != checkNickname(nickNameCheck)) { // 넥네임 중복이면
+                return ResponseDto.success(false);
+            } else { // 닉네임 중복 아니면
+                return ResponseDto.success(true);
+            }
+
+        }
+
+
+    }
+
+
     @Transactional
     public ResponseDto<?> login(LoginRequestDto requestDto, HttpServletResponse response) {
         Member member = checkEmail(requestDto.getEmail());
@@ -104,7 +157,7 @@ public class MemberService {
                         .email(member.getEmail())
                         .nickname(member.getNickName())
                         .profileImgUrl(member.getProfileImgUrl())
-                        .phoneNum(member.getPhoneNum())
+                        //.phoneNum(member.getPhoneNum())
                         .build()
         );
     }
@@ -124,7 +177,7 @@ public class MemberService {
             profileImgUrl = null;
         }
 
-        member.update(requestDto.getNickName(),requestDto.getPhoneNum(),profileImgUrl);
+        member.update(requestDto.getNickName(),profileImgUrl);
 
         return ResponseDto.success(
                 MypageResponseDto.builder()
@@ -132,41 +185,20 @@ public class MemberService {
                         .email(member.getEmail())
                         .nickname(member.getNickName())
                         .profileImgUrl(member.getProfileImgUrl())
-                        .phoneNum(member.getPhoneNum())
+                        //.phoneNum(member.getPhoneNum())
                         .build()
         );
     }
-//    @Transactional
-//    public ResponseDto<?> deleteMember(Long memberId, HttpServletRequest request) {
-//
-//        if (null == request.getHeader("Authorization")) {
-//            return ResponseDto.fail("로그인이 필요합니다.");
-//        }
-//
-//        Member member = validateMember();
-//        if (null == member) {
-//            return ResponseDto.fail("INVALID_TOKEN", "Token이 유효하지 않습니다.");
-//        }
-//
-//        Post post = isPresentPost(postId);
-//        if (null == post) {
-//            return ResponseDto.fail("NOT_FOUND", "존재하지 않는 게시글 id 입니다.");
-//        }
-//
-//        if (post.validateMember(member)) {
-//            return ResponseDto.fail("BAD_REQUEST", "작성자만 삭제할 수 있습니다.");
-//        }
-//
-//        postRepository.delete(post);
-//
-//        return ResponseDto.success(null);
-//    }
-
-
 
     @Transactional(readOnly = true)
     public Member checkEmail(String email) {
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
+        return optionalMember.orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public Member checkNickname(String nickname) {
+        Optional<Member> optionalMember = memberRepository.findByNickName(nickname);
         return optionalMember.orElse(null);
     }
 
