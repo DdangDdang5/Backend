@@ -62,7 +62,6 @@ public class MemberController {
         return memberService.getMypage(memberId, request);
     }
 
-    // 카카오 로그인 되면 그냥 여기서 카카오 멤버도 수정하면 될 것 같다.
     @PatchMapping("/{memberId}/mypage")
     public ResponseDto<?> editMypage(@PathVariable Long memberId, @RequestPart("data")MemberRequestDto requestDto, @RequestPart("profileImg") MultipartFile multipartFile) throws IOException {
         return memberService.editMypage(memberId, requestDto, multipartFile);
