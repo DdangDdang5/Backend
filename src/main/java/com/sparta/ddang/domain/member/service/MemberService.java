@@ -7,10 +7,7 @@ import com.sparta.ddang.domain.dto.ResponseDto;
 import com.sparta.ddang.domain.member.dto.request.EmailRequestDto;
 import com.sparta.ddang.domain.member.dto.request.LoginRequestDto;
 import com.sparta.ddang.domain.member.dto.request.NicknameRequestDto;
-import com.sparta.ddang.domain.member.dto.response.KakaoUserInfoDto;
-import com.sparta.ddang.domain.member.dto.response.MemberRequestDto;
-import com.sparta.ddang.domain.member.dto.response.MemberResponseDto;
-import com.sparta.ddang.domain.member.dto.response.MypageResponseDto;
+import com.sparta.ddang.domain.member.dto.response.*;
 import com.sparta.ddang.domain.member.entity.Member;
 import com.sparta.ddang.domain.member.entity.MemberDetails;
 import com.sparta.ddang.domain.member.repository.MemberRepository;
@@ -137,10 +134,6 @@ public class MemberService {
             return ResponseDto.fail("존재하지 않는 아이디입니다.");
         }
 
-//        UsernamePasswordAuthenticationToken authenticationToken =
-//                new UsernamePasswordAuthenticationToken(requestDto.getEmail(), requestDto.getPassword());
-//        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-
         TokenDto tokenDto = tokenProvider.generateTokenDto(member);
         tokenToHeaders(tokenDto, response);
 
@@ -158,7 +151,7 @@ public class MemberService {
 
 
     @Transactional
-    public ResponseDto<?> kakaoLogin(String code,HttpServletResponse response) throws JsonProcessingException {
+    public ResponseDto<?> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
 
         String accessToken = getAccessToken(code);
 
@@ -169,23 +162,21 @@ public class MemberService {
         // 4. 강제 로그인 처리
         forceLogin(member);
 
-//        TokenDto tokenDto = tokenProvider.generateTokenDto(member);
-//        tokenToHeaders(tokenDto, response);
+        TokenDto tokenDto = tokenProvider.generateTokenDto(member);
+        tokenToHeaders(tokenDto, response);
 
         return ResponseDto.success(
-                KakaoUserInfoDto.builder()
+                KakaoLoginResponseDto.builder()
                         .email(member.getEmail())
                         .nickname(member.getNickName())
                         .kakaoProImg(member.getProfileImgUrl())
                         .isKakao(member.isKakao())
+                        .tokenDto(tokenDto)
                         .build()
         );
 
 
-
     }
-
-
 
 
     @Transactional
@@ -219,6 +210,7 @@ public class MemberService {
 
         return accessToken;
     }
+
     @Transactional
     public KakaoUserInfoDto getKakaoUserInfo(String accessToken) throws JsonProcessingException {
 
@@ -239,42 +231,46 @@ public class MemberService {
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
+
+        System.out.println(jsonNode);
+
         Long id = jsonNode.get("id").asLong();
         String nickname = jsonNode.get("properties")
                 .get("nickname").asText();
         String email = jsonNode.get("kakao_account")
                 .get("email").asText();
-        String profileImg = jsonNode.get("properties")
-                .get("profile_image_url").asText();
+
+        String profileImg = jsonNode.get("properties").get("profile_image").asText();
 
         System.out.println("카카오 사용자 정보: " + id + ", " + nickname + ", " + email + "," + profileImg);
 
-        KakaoUserInfoDto kakaoUserInfoDto = new KakaoUserInfoDto(nickname, email, profileImg,true);
+        KakaoUserInfoDto kakaoUserInfoDto = new KakaoUserInfoDto(nickname, email, profileImg, true);
 
         return kakaoUserInfoDto;
 
     }
+
     @Transactional
     public Member registerKakaoUserIfNeeded(KakaoUserInfoDto kakaoUserInfoDto) {
-//        Long kakoId = kakaoUserInfoDto.getId();
-//        KakaoMember kakaoMember = kakaomemberRepository.findByKakaoId(kakoId)
-//                .orElse(null);
 
         String femail = kakaoUserInfoDto.getEmail();
-//        Member kakaoMember = memberRepository.findByEmail(femail)
-//                .orElse(null);
+        Member kakaoMember = memberRepository.findByEmail(femail)
+                .orElse(null);
 
-        Member kakaoMember = memberRepository.findByEmail(femail).orElseThrow(
-                () -> new IllegalArgumentException("이미 가입한 이메일입니다.")
-        );
+//        Member kakaoMember = memberRepository.findByEmail(femail).orElseThrow(
+//                () -> new IllegalArgumentException("이미 가입한 이메일입니다.")
+//        );
 
         // 회원가입
         // username: kakao nickname
         if (kakaoMember == null) {
 
-            String nickname = kakaoUserInfoDto.getNickname() +"kakao"+UUID.randomUUID().toString();
+            String nickname = kakaoUserInfoDto.getNickname() + "kakao" + UUID.randomUUID().toString();
 
             String password = UUID.randomUUID().toString();
+
+            System.out.println("aaa" + UUID.randomUUID());
+
             String encodedpassword = passwordEncoder.encode(password);
 
             String email = kakaoUserInfoDto.getEmail();
@@ -283,7 +279,7 @@ public class MemberService {
 
             //UserRoleEnum role = UserRoleEnum.USER;
 
-            kakaoMember = new Member(nickname, encodedpassword, email, profileImg, true);
+            kakaoMember = new Member(email, nickname, encodedpassword, profileImg, true);
 
             memberRepository.save(kakaoMember);
 
@@ -291,6 +287,7 @@ public class MemberService {
 
         return kakaoMember;
     }
+
     @Transactional
     public void forceLogin(Member kakaoMember) {
         UserDetails userDetails = new MemberDetails(kakaoMember);
@@ -299,7 +296,6 @@ public class MemberService {
                 null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
-
 
 
     @Transactional
@@ -340,7 +336,7 @@ public class MemberService {
             profileImgUrl = null;
         }
 
-        member.update(requestDto.getNickName(),profileImgUrl);
+        member.update(requestDto.getNickName(), profileImgUrl);
 
         return ResponseDto.success(
                 MypageResponseDto.builder()
@@ -372,7 +368,6 @@ public class MemberService {
 
     public void tokenToHeaders(TokenDto tokenDto, HttpServletResponse response) {
         response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
-//    response.addHeader("Refresh-Token", "Bearer " + tokenDto.getRefreshToken());
         response.addHeader("Access-Token-Expire-Time", tokenDto.getAccessTokenExpiresIn().toString());
     }
 
