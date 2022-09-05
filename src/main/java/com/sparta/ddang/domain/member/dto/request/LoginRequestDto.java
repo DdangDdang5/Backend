@@ -1,6 +1,5 @@
-package com.sparta.ddang.domain.member.dto;
+package com.sparta.ddang.domain.member.dto.request;
 
-import lombok.Builder;
 import lombok.Getter;
 
 import javax.validation.constraints.NotBlank;

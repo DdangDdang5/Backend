@@ -8,11 +8,22 @@ import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
 import com.sparta.ddang.domain.auction.dto.resposne.AuctionResponseDto;
 import com.sparta.ddang.domain.auction.entity.Auction;
 import com.sparta.ddang.domain.auction.repository.AuctionRepository;
+import com.sparta.ddang.domain.category.dto.CategoryResponseDto;
+import com.sparta.ddang.domain.category.entity.Category;
+import com.sparta.ddang.domain.category.repository.CategoryRepository;
 import com.sparta.ddang.domain.dto.ResponseDto;
+import com.sparta.ddang.domain.favorite.dto.FavoriteResponseDto;
+import com.sparta.ddang.domain.favorite.entity.Favorite;
+import com.sparta.ddang.domain.favorite.repository.FavoriteRespository;
 import com.sparta.ddang.domain.member.entity.Member;
 import com.sparta.ddang.domain.mulltiimg.awsS3exceptionhandler.FileTypeErrorException;
 import com.sparta.ddang.domain.mulltiimg.entity.MultiImage;
 import com.sparta.ddang.domain.mulltiimg.repository.MultiImgRepository;
+import com.sparta.ddang.domain.participant.entity.Participant;
+import com.sparta.ddang.domain.participant.repository.ParticipantRepository;
+import com.sparta.ddang.domain.region.dto.RegionResponseDto;
+import com.sparta.ddang.domain.region.entity.Region;
+import com.sparta.ddang.domain.region.repository.RegionRepository;
 import com.sparta.ddang.domain.viewcnt.entity.ViewCnt;
 import com.sparta.ddang.domain.viewcnt.repository.ViewCntRepository;
 import com.sparta.ddang.jwt.TokenProvider;
@@ -49,6 +60,13 @@ public class AuctionService {
 
     private final ViewCntRepository viewCntRepository;
 
+    private final ParticipantRepository participantRepository;
+
+    private final CategoryRepository categoryRepository;
+
+    private final RegionRepository regionRepository;
+
+    private final FavoriteRespository favoriteRespository;
 
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;  // S3 버킷 이름
@@ -56,7 +74,48 @@ public class AuctionService {
     @Transactional
     public ResponseDto<?> getAllAuction() {
 
-        return ResponseDto.success(auctionRepository.findAllByOrderByModifiedAtDesc());
+
+        List<Auction> auctionList = auctionRepository.findAllByOrderByModifiedAtDesc();
+
+        List<AuctionResponseDto> auctionResponseDtoList = new ArrayList<>();
+
+        for (Auction auction : auctionList){
+
+            auctionResponseDtoList.add(
+
+                    AuctionResponseDto.builder()
+                            .auctionId(auction.getId())
+                            .productName(auction.getProductName())
+                            .memberId(auction.getMember().getId())
+                            .nickname(auction.getMember().getNickName())
+                            .profileImgUrl(auction.getMember().getProfileImgUrl())
+                            .title(auction.getTitle())
+                            .content(auction.getContent())
+                            .multiImages(auction.getMultiImages())
+                            .startPrice(auction.getStartPrice())
+                            .nowPrice(auction.getNowPrice())
+                            .auctionPeriod(auction.getAuctionPeriod())
+                            .category(auction.getCategory())
+                            .region(auction.getRegion())
+                            .direct(auction.isDirect())
+                            .delivery(auction.isDelivery())
+                            .viewerCnt(auction.getViewerCnt())
+                            .auctionStatus(true)
+                            .participantCnt(auction.getParticipantCnt())
+                            .participantStatus(auction.isParticipantStatus())
+                            //.favoriteStatus(auction.isFavoriteStatus())
+                            .createdAt(auction.getCreatedAt())
+                            .modifiedAt(auction.getModifiedAt())
+                            .build()
+            );
+
+
+        }
+
+
+
+        //return ResponseDto.success(auctionRepository.findAllByOrderByModifiedAtDesc());
+        return ResponseDto.success(auctionResponseDtoList);
 
     }
 
@@ -69,7 +128,7 @@ public class AuctionService {
 
         Auction auction = checkAuction(auctionId);
 
-        if (auction == null){
+        if (auction == null) {
 
             return ResponseDto.fail("해당 경매 게시글이 없습니다.");
 
@@ -86,21 +145,22 @@ public class AuctionService {
         }
 
         // 만약 댓글사용시 댓글 로직 추가.
-        
+
         // 회원일경우 멤버 고유 번호를 가져옴
         Long memId = member.getId();
-        
+
         // 해당 경매 게시글 번호를 가져옴
         Long aucId = auctionId;
-        
+
         // 만약 해당 게시글에 방문한적이 있으면 그냥 해당 게시글만 보여줌
-        if (viewCntRepository.existsByMemberIdAndAuctionId(memId,aucId)){
+        if (viewCntRepository.existsByMemberIdAndAuctionId(memId, aucId)) {
 
             return ResponseDto.success(auction);
 
         }
+
         // 처음 방문하면 ViewCnt테이블에 회원 정보와 해당 게시글 정보를 저장함.
-        ViewCnt viewCnt = new ViewCnt(memId,aucId);
+        ViewCnt viewCnt = new ViewCnt(memId, aucId);
 
         viewCntRepository.save(viewCnt);
 
@@ -112,24 +172,52 @@ public class AuctionService {
 
 
 
+        // 카테고리 viewer 추가
+        String cate = auction.getCategory();
+        Long cateCnt = auction.getViewerCnt();
 
+        Category category= checkCategory(cate);
 
-//        ViewCnt viewCnt = new ViewCnt();
-//
-//        viewCnt.cntView(auctionId);
-//
-//        viewCntRepository.save(viewCnt);
-//
-//        //List<ViewCnt> optionalViewCnt = viewCntRepository.findByAuctionId(auctionId);
-//        ViewCnt optionalViewCnt = viewCntRepository.findByAuctionId(auctionId);
-//
-//
-//        Long viewCnt1 = optionalViewCnt.getViewCnt();
-//
-//        auction.cntAuction(viewCnt1);
-//
-//        auctionRepository.save(auction);
+        if (categoryRepository.existsByCategory(cate)) {
 
+            category.updateCateCnt(cate);
+
+            categoryRepository.save(category);
+
+        }
+
+        if (category == null) {
+
+            category = new Category(cate, cateCnt);
+
+            categoryRepository.save(category);
+
+        }
+
+        //Category category = new Category(cate, cateCnt);
+
+        // 지역 viewer 추가
+
+        String regi = auction.getRegion();
+        Long regionCnt = auction.getViewerCnt();
+
+        Region region= checkRegion(regi);
+
+        if (regionRepository.existsByRegion(regi)) {
+
+            region.updateRegionCnt(regi);
+
+            regionRepository.save(region);
+
+        }
+
+        if (region == null) {
+
+            region = new Region(regi, regionCnt);
+
+            regionRepository.save(region);
+
+        }
 
         return ResponseDto.success(auction);
 
@@ -137,12 +225,12 @@ public class AuctionService {
     }
 
 
-
-
     @Transactional
     public ResponseDto<?> createAuction(List<MultipartFile> multipartFile,
                                         AuctionRequestDto auctionRequestDto,
                                         HttpServletRequest request) throws IOException {
+
+
         System.out.println("==================================================");
         System.out.println(auctionRequestDto.getTitle());
         System.out.println(auctionRequestDto.getProductName());
@@ -159,7 +247,6 @@ public class AuctionService {
         System.out.println("==================================================");
 
 
-
         if (null == request.getHeader("Authorization")) {
             return ResponseDto.fail("로그인이 필요합니다.");
         }
@@ -174,7 +261,7 @@ public class AuctionService {
 
         List<MultiImage> multiImages = new ArrayList<>();
 
-        Auction auction = new Auction(multiImages,member,auctionRequestDto);
+        Auction auction = new Auction(multiImages, member, auctionRequestDto);
 
         auctionRepository.save(auction);
 
@@ -203,6 +290,9 @@ public class AuctionService {
 
         }
 
+        //auction.getCategory()
+        //auction.getViewerCnt()
+
         //auction = new Auction(multiImages);
 
         return ResponseDto.success(
@@ -224,8 +314,9 @@ public class AuctionService {
                         .delivery(auction.isDelivery())
                         .viewerCnt(auction.getViewerCnt())
                         .auctionStatus(true)
+                        .participantCnt(auction.getParticipantCnt())
                         .participantStatus(auction.isParticipantStatus())
-                        .favoriteStatus(auction.isFavoriteStatus())
+                        //.favoriteStatus(auction.isFavoriteStatus())
                         .createdAt(auction.getCreatedAt())
                         .modifiedAt(auction.getModifiedAt())
                         .build()
@@ -250,18 +341,18 @@ public class AuctionService {
 
         Auction auction = checkAuction(auctionId);
 
-        if (auction == null){
+        if (auction == null) {
 
             return ResponseDto.fail("해당 경매 게시글이 없습니다.");
 
         }
-        
+
         //수정시 해당 경매게시글에 있는 이미지 전체 삭제
         multiImgRepository.deleteAllByMemberIdAndAuctionId(member.getId(), auctionId);
-        
+
         List<MultiImage> multiImages = new ArrayList<>();
 
-        auction.updateAuction(multiImages,member,auctionUpdateRequestDto);
+        auction.updateAuction(multiImages, member, auctionUpdateRequestDto);
 
         auctionRepository.save(auction);
 
@@ -304,9 +395,10 @@ public class AuctionService {
                         .direct(auction.isDirect())
                         .delivery(auction.isDelivery())
                         .viewerCnt(auction.getViewerCnt())
-                        .auctionStatus(true)
+                        .auctionStatus(auction.isAuctionStatus())
+                        .participantCnt(auction.getParticipantCnt())
                         .participantStatus(auction.isParticipantStatus())
-                        .favoriteStatus(auction.isFavoriteStatus())
+                        //.favoriteStatus(auction.isFavoriteStatus())
                         .createdAt(auction.getCreatedAt())
                         .modifiedAt(auction.getModifiedAt())
                         .build()
@@ -332,7 +424,7 @@ public class AuctionService {
 
         auctionRepository.deleteById(auctionId);
 
-        return ResponseDto.successToMessage(200,"게시물이 성공적으로 삭제되었습니다",null);
+        return ResponseDto.successToMessage(200, "게시물이 성공적으로 삭제되었습니다", null);
 
 
     }
@@ -351,15 +443,388 @@ public class AuctionService {
 
     }
 
-
+    @Transactional
     public ResponseDto<?> findCategoryAndRegionAuction(String category, String region) {
 
-        return ResponseDto.success(auctionRepository.findAllByCategoryAndRegion(category,region));
+        return ResponseDto.success(auctionRepository.findAllByCategoryAndRegion(category, region));
+
+    }
+    
+    // 경매 참여하기
+    @Transactional
+    public ResponseDto<?> joinAuction(Long auctionId,
+                                      HttpServletRequest request) {
+
+        if (null == request.getHeader("Authorization")) {
+            return ResponseDto.fail("로그인이 필요합니다.");
+        }
+
+        Member member = validateMember(request);
+        if (null == member) {
+            return ResponseDto.fail("Token이 유효하지 않습니다.");
+        }
+
+        Auction auction = checkAuction(auctionId);
+
+        if (auction == null) {
+
+            return ResponseDto.fail("해당 경매 게시글이 없습니다.");
+
+        }
+
+        if (participantRepository.existsByMemberIdAndAuctionId(member.getId(), auctionId)) {
+
+            participantRepository.deleteByMemberIdAndAuctionId(member.getId(), auctionId);
+
+            Long participantCnt = participantRepository.countAllByAuctionId(auctionId);
+
+            if (participantCnt > 0) {
+
+                auction.updateParticipantStatusOn();
+
+            } else {
+
+                auction.updateParticipantStatusOff();
+
+            }
+
+            auction.updateParticipantCnt(participantCnt);
+
+            auctionRepository.save(auction);
+
+
+            // 아래 리턴문이랑 동일하게 고치기 false로 해서 --> 고침
+            return ResponseDto.success(
+                    AuctionResponseDto.builder()
+                            .auctionId(auction.getId())
+                            .productName(auction.getProductName())
+                            .memberId(auction.getMember().getId())
+                            .nickname(auction.getMember().getNickName())
+                            .profileImgUrl(auction.getMember().getProfileImgUrl())
+                            .title(auction.getTitle())
+                            .content(auction.getContent())
+                            .multiImages(auction.getMultiImages())
+                            .startPrice(auction.getStartPrice())
+                            .nowPrice(auction.getNowPrice())
+                            .auctionPeriod(auction.getAuctionPeriod())
+                            .category(auction.getCategory())
+                            .region(auction.getRegion())
+                            .direct(auction.isDirect())
+                            .delivery(auction.isDelivery())
+                            .viewerCnt(auction.getViewerCnt())
+                            .auctionStatus(auction.isAuctionStatus())
+                            .participantCnt(auction.getParticipantCnt())
+                            .participantStatus(false) // 사용자에게 보여지는 부분
+                            //.favoriteStatus(auction.isFavoriteStatus())
+                            .createdAt(auction.getCreatedAt())
+                            .modifiedAt(auction.getModifiedAt())
+                            .build()
+            );
+
+        }
+
+        // 객체로 저장 But 기본키 인덱스 번호로 저장함
+        // 따라서 participant 컬럼명을 member_id, auction_id로 저장함.
+        Participant participant = new Participant(member, auction);
+
+        participantRepository.save(participant);
+
+        Long participantCnt = participantRepository.countAllByAuctionId(auctionId);
+
+        if (participantCnt > 0) {
+
+            auction.updateParticipantStatusOn();
+
+        } else {
+
+            auction.updateParticipantStatusOff();
+
+        }
+
+        auction.updateParticipantCnt(participantCnt);
+
+        auctionRepository.save(auction);
+
+        return ResponseDto.success(
+                AuctionResponseDto.builder()
+                        .auctionId(auction.getId())
+                        .productName(auction.getProductName())
+                        .memberId(auction.getMember().getId())
+                        .nickname(auction.getMember().getNickName())
+                        .profileImgUrl(auction.getMember().getProfileImgUrl())
+                        .title(auction.getTitle())
+                        .content(auction.getContent())
+                        .multiImages(auction.getMultiImages())
+                        .startPrice(auction.getStartPrice())
+                        .nowPrice(auction.getNowPrice())
+                        .auctionPeriod(auction.getAuctionPeriod())
+                        .category(auction.getCategory())
+                        .region(auction.getRegion())
+                        .direct(auction.isDirect())
+                        .delivery(auction.isDelivery())
+                        .viewerCnt(auction.getViewerCnt())
+                        .auctionStatus(auction.isAuctionStatus())
+                        .participantCnt(auction.getParticipantCnt())
+                        .participantStatus(true) // 사용자에게 보여지는 부분
+                        //.favoriteStatus(auction.isFavoriteStatus())
+                        .createdAt(auction.getCreatedAt())
+                        .modifiedAt(auction.getModifiedAt())
+                        .build()
+        );
+
+
+    }
+
+    // 내가 참여한 경매 
+    @Transactional
+    public ResponseDto<?> getAlljoinAuction(Long memberId, HttpServletRequest request) {
+
+        if (null == request.getHeader("Authorization")) {
+            return ResponseDto.fail("Authorization이 없습니다.");
+        }
+
+        Member member = validateMember(request);
+        if (null == member) {
+            return ResponseDto.fail("Token이 유효하지 않습니다.");
+        }
+
+        if (participantRepository.countAllByMemberId(memberId) == 0) {
+
+            return ResponseDto.fail("참여한 경매 상품이 없습니다.");
+
+        }
+
+        List<Participant> participantList = participantRepository.findAllByMember_Id(memberId);
+
+        ArrayList<AuctionResponseDto> auctionArrayList = new ArrayList<>();
+
+        for (Participant participant : participantList) {
+
+            auctionArrayList.add(
+                    AuctionResponseDto.builder()
+                            .auctionId(participant.getAuction().getId())
+                            .memberId(participant.getAuction().getMember().getId())
+                            .nickname(participant.getAuction().getMember().getNickName())
+                            .profileImgUrl(participant.getAuction().getMember().getProfileImgUrl())
+                            .title(participant.getAuction().getTitle())
+                            .content(participant.getAuction().getContent())
+                            .multiImages(participant.getAuction().getMultiImages())
+                            .startPrice(participant.getAuction().getStartPrice())
+                            .nowPrice(participant.getAuction().getNowPrice())
+                            .auctionPeriod(participant.getAuction().getAuctionPeriod())
+                            .category(participant.getAuction().getCategory())
+                            .region(participant.getAuction().getRegion())
+                            .direct(participant.getAuction().isDirect())
+                            .delivery(participant.getAuction().isDelivery())
+                            .viewerCnt(participant.getAuction().getViewerCnt())
+                            .participantCnt(participant.getAuction().getParticipantCnt())
+                            .participantStatus(participant.getAuction().isParticipantStatus())
+                            .auctionStatus(participant.getAuction().isAuctionStatus())
+                            .createdAt(participant.getAuction().getCreatedAt())
+                            .modifiedAt(participant.getAuction().getModifiedAt())
+                            .build()
+            );
+
+        }
+
+        return ResponseDto.success(auctionArrayList);
+
+
+    }
+
+    // 경매 찜하기
+    @Transactional
+    public ResponseDto<?> addfavoriteAuction(Long auctionId, HttpServletRequest request) {
+
+        if (null == request.getHeader("Authorization")) {
+            return ResponseDto.fail("로그인이 필요합니다.");
+        }
+
+        Member member = validateMember(request);
+        if (null == member) {
+            return ResponseDto.fail("Token이 유효하지 않습니다.");
+        }
+
+        Auction auction = checkAuction(auctionId);
+
+        if (auction == null) {
+
+            return ResponseDto.fail("해당 경매 게시글이 없습니다.");
+
+        }
+
+        if(favoriteRespository.existsByMemberIdAndAuctionId(member.getId(), auctionId)){
+
+            favoriteRespository.deleteByMemberIdAndAuctionId(member.getId(), auctionId);
+
+            return ResponseDto.success(
+                    FavoriteResponseDto.builder()
+                            .autionId(auction.getId())
+                            .memberId(auction.getMember().getId())
+                            .nickname(member.getNickName())
+                            .favoriteStatus(false)
+                            .build()
+            );
+
+        }
+
+        Favorite favorite = new Favorite(member,auction);
+
+        favoriteRespository.save(favorite);
+
+        return ResponseDto.success(
+                FavoriteResponseDto.builder()
+                        .autionId(auction.getId())
+                        .memberId(auction.getMember().getId())
+                        .nickname(member.getNickName())
+                        .favoriteStatus(true)
+                        .build()
+        );
+
+
+    }
+
+    // 내가 관심이있는 경매 목록
+    @Transactional
+    public ResponseDto<?> myfavoriteAuction(HttpServletRequest request) {
+
+        if (null == request.getHeader("Authorization")) {
+            return ResponseDto.fail("Authorization이 없습니다.");
+        }
+
+        Member member = validateMember(request);
+        if (null == member) {
+            return ResponseDto.fail("Token이 유효하지 않습니다.");
+        }
+
+        List<Favorite> favorites = favoriteRespository.findAllByMember_Id(member.getId());
+
+        List<AuctionResponseDto> auctionResponseDtoList = new ArrayList<>();
+
+        for (Favorite favorite : favorites){
+
+            auctionResponseDtoList.add(
+                    AuctionResponseDto.builder()
+
+                            .auctionId(favorite.getAuction().getId())
+                            .memberId(favorite.getAuction().getMember().getId())
+                            .nickname(favorite.getAuction().getMember().getNickName())
+                            .profileImgUrl(favorite.getAuction().getMember().getProfileImgUrl())
+                            .title(favorite.getAuction().getTitle())
+                            .content(favorite.getAuction().getContent())
+                            .multiImages(favorite.getAuction().getMultiImages())
+                            .startPrice(favorite.getAuction().getStartPrice())
+                            .nowPrice(favorite.getAuction().getNowPrice())
+                            .auctionPeriod(favorite.getAuction().getAuctionPeriod())
+                            .category(favorite.getAuction().getCategory())
+                            .region(favorite.getAuction().getRegion())
+                            .direct(favorite.getAuction().isDirect())
+                            .delivery(favorite.getAuction().isDelivery())
+                            .viewerCnt(favorite.getAuction().getViewerCnt())
+                            .participantCnt(favorite.getAuction().getParticipantCnt())
+                            .participantStatus(favorite.getAuction().isParticipantStatus())
+                            .auctionStatus(favorite.getAuction().isAuctionStatus())
+                            .createdAt(favorite.getAuction().getCreatedAt())
+                            .modifiedAt(favorite.getAuction().getModifiedAt())
+                            .build()
+
+            );
+
+        }
+
+        return ResponseDto.success(auctionResponseDtoList);
+
+
+    }
+    
+    
+
+    //내가 시작한 경매
+    @Transactional
+    public ResponseDto<?> getMyAuction(HttpServletRequest request) {
+
+        if (null == request.getHeader("Authorization")) {
+            return ResponseDto.fail("Authorization이 없습니다.");
+        }
+
+        Member member = validateMember(request);
+        if (null == member) {
+            return ResponseDto.fail("Token이 유효하지 않습니다.");
+        }
+
+
+        return ResponseDto.success(auctionRepository.findAllByMember_Id(member.getId()));
+
 
     }
 
 
+    // 카테고리별 인기순 조회
+    @Transactional
+    public ResponseDto<?> getAllHitCategory() {
 
+        if (categoryRepository.count() == 0){
+
+            return ResponseDto.fail("카테고리가 없습니다.");
+
+        }
+
+        List<Category> categoryList = categoryRepository.findAllByOrderByViewerCntDesc();
+
+        List<CategoryResponseDto> categories = new ArrayList<>();
+
+        for (Category category : categoryList){
+
+            categories.add(
+                    CategoryResponseDto.builder()
+                            .categoryId(category.getId())
+                            .categoryName(category.getCategory())
+                            .viewerCnt(category.getViewerCnt())
+                            .build()
+            );
+
+        }
+
+        return ResponseDto.success(categories);
+
+
+    }
+
+    // 지역별 인기순 조회
+    @Transactional
+    public ResponseDto<?> getAllHitRegion() {
+
+        if (regionRepository.count() == 0){
+
+            return ResponseDto.fail("지역이 없습니다.");
+
+        }
+
+        List<Region> regionList = regionRepository.findAllByOrderByViewerCntDesc();
+
+        List<RegionResponseDto> regions  = new ArrayList<>();
+
+        for (Region region : regionList){
+
+            regions.add(
+                    RegionResponseDto.builder()
+                            .regionId(region.getId())
+                            .regionName(region.getRegion())
+                            .viewerCnt(region.getViewerCnt())
+                            .build()
+            );
+
+
+        }
+
+        return ResponseDto.success(regions);
+        
+    }
+
+
+    
+    
+    
 
 
 //======================== 회원 정보 및 경매 정보 ========================
@@ -377,6 +842,19 @@ public class AuctionService {
         return optionalAuction.orElse(null);
     }
 
+    // category확인
+    @Transactional(readOnly = true)
+    public Category checkCategory(String cate) {
+        Optional<Category> optionalCategory = categoryRepository.findByCategory(cate);
+        return optionalCategory.orElse(null);
+    }
+
+    //region 확인
+    @Transactional(readOnly = true)
+    public Region checkRegion(String regi) {
+        Optional<Region> optionalRegion = regionRepository.findByRegion(regi);
+        return optionalRegion.orElse(null);
+    }
 
 
     // ========================= 파일업로드 관련 메서드 ==========================
@@ -445,7 +923,6 @@ public class AuctionService {
         }
         log.info("File delete fail");
     }
-
 
 
 }

@@ -1,7 +1,5 @@
 package com.sparta.ddang.domain.viewcnt.entity;
 
-import com.sparta.ddang.domain.auction.entity.Auction;
-import com.sparta.ddang.domain.member.entity.Member;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
 

@@ -2,12 +2,10 @@ package com.sparta.ddang.domain.auction.dto.resposne;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.ddang.domain.mulltiimg.entity.MultiImage;
-import com.sparta.ddang.util.Timestamped;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -55,8 +53,10 @@ public class AuctionResponseDto {
     private boolean auctionStatus;
     //”participantStatus”: false,
     private boolean participantStatus;
+
     //”favoriteStatus”: false,
-    private boolean favoriteStatus;
+    //private boolean favoriteStatus;
+
     //”createdAt”: “2022-08-27 15:30:00”,
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createdAt;
