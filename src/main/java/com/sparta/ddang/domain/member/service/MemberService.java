@@ -7,10 +7,7 @@ import com.sparta.ddang.domain.dto.ResponseDto;
 import com.sparta.ddang.domain.member.dto.request.EmailRequestDto;
 import com.sparta.ddang.domain.member.dto.request.LoginRequestDto;
 import com.sparta.ddang.domain.member.dto.request.NicknameRequestDto;
-import com.sparta.ddang.domain.member.dto.response.KakaoUserInfoDto;
-import com.sparta.ddang.domain.member.dto.response.MemberRequestDto;
-import com.sparta.ddang.domain.member.dto.response.MemberResponseDto;
-import com.sparta.ddang.domain.member.dto.response.MypageResponseDto;
+import com.sparta.ddang.domain.member.dto.response.*;
 import com.sparta.ddang.domain.member.entity.Member;
 import com.sparta.ddang.domain.member.entity.MemberDetails;
 import com.sparta.ddang.domain.member.repository.MemberRepository;
@@ -165,12 +162,16 @@ public class MemberService {
         // 4. 강제 로그인 처리
         forceLogin(member);
 
+        TokenDto tokenDto = tokenProvider.generateTokenDto(member);
+        tokenToHeaders(tokenDto, response);
+
         return ResponseDto.success(
-                KakaoUserInfoDto.builder()
+                KakaoLoginResponseDto.builder()
                         .email(member.getEmail())
                         .nickname(member.getNickName())
                         .kakaoProImg(member.getProfileImgUrl())
                         .isKakao(member.isKakao())
+                        .tokenDto(tokenDto)
                         .build()
         );
 
