@@ -15,6 +15,7 @@ public class KakaoUserInfoDto {
     private String kakaoProImg;
     private boolean isKakao;
 
+
     public KakaoUserInfoDto(){
 
     }
