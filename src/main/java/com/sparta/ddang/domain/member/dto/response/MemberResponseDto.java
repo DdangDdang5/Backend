@@ -1,4 +1,4 @@
-package com.sparta.ddang.domain.member.dto;
+package com.sparta.ddang.domain.member.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
