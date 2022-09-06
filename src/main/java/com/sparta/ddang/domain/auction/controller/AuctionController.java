@@ -42,7 +42,7 @@ public class AuctionController {
     // 경매 생성
     @RequestMapping(value = "/auction", method = RequestMethod.POST)
     public ResponseDto<?> createAuction(@RequestPart(value = "images",required = false) List<MultipartFile> multipartFile,
-                                        @RequestPart(value = "auctionReqeustDto")AuctionRequestDto auctionRequestDto,
+                                        @RequestPart(value = "auctionRequestDto")AuctionRequestDto auctionRequestDto,
                                         HttpServletRequest request) throws IOException {
         return auctionService.createAuction(multipartFile, auctionRequestDto,request);
 
@@ -93,4 +93,79 @@ public class AuctionController {
 
         return auctionService.findCategoryAndRegionAuction(category,region);
     }
+
+    // 경매 참여
+    // /auction/{auctionId}/join
+    @RequestMapping(value = "/auction/{auctionId}/join", method = RequestMethod.GET)
+    public ResponseDto<?> joinAuction(@PathVariable Long auctionId,
+                                         HttpServletRequest request){
+
+        return auctionService.joinAuction(auctionId,request);
+
+
+    }
+
+    // 내가 참여중인 경매 조회
+    // /member/{memberId}/mypage/participant
+    @RequestMapping(value = "/member/{memberId}/mypage/participant",
+            method = RequestMethod.GET)
+    public ResponseDto<?> getAlljoinAuction(@PathVariable Long memberId,
+                                      HttpServletRequest request){
+
+
+        return auctionService.getAlljoinAuction(memberId,request);
+
+    }
+
+    // 관심있는 경매 찜하기
+    // /auction/{auctionId}/favorite
+    @RequestMapping(value = "/auction/{auctionId}/favorite",
+            method = RequestMethod.GET)
+    public ResponseDto<?> addfavoriteAuction(@PathVariable Long auctionId,
+                                      HttpServletRequest request){
+
+        return auctionService.addfavoriteAuction(auctionId,request);
+
+
+    }
+
+    // 내가 관심 있는 경매
+    // /member/{memberId}/favorite
+    @RequestMapping(value = "/member/favorite", method = RequestMethod.GET)
+    public ResponseDto<?> myfavoriteAuction(HttpServletRequest request){
+
+        return auctionService.myfavoriteAuction(request);
+
+
+    }
+
+    // 내가 시작한 경매
+    // /member/{memberId}/mypage/myauction
+        @RequestMapping(value = "/member/mypage/myauction", method = RequestMethod.GET)
+        public ResponseDto<?> getMyAuction(HttpServletRequest request){
+
+            return auctionService.getMyAuction(request);
+
+        }
+
+    // 카테고리별 인기순 조회
+    // /category/hit
+    @RequestMapping(value = "/category/hit", method = RequestMethod.GET)
+    public ResponseDto<?> getAllHitCategory(){
+
+        return auctionService.getAllHitCategory();
+
+    }
+
+    // 지역별 인기순 조회
+    // /region/hit
+    @RequestMapping(value = "/region/hit", method = RequestMethod.GET)
+    public ResponseDto<?> getAllHitRegion(){
+
+        return auctionService.getAllHitRegion();
+
+    }
+
+
+
 }

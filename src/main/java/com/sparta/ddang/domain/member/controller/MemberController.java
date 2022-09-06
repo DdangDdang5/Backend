@@ -1,8 +1,11 @@
 package com.sparta.ddang.domain.member.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta.ddang.domain.dto.ResponseDto;
-import com.sparta.ddang.domain.member.dto.LoginRequestDto;
-import com.sparta.ddang.domain.member.dto.MemberRequestDto;
+import com.sparta.ddang.domain.member.dto.request.EmailRequestDto;
+import com.sparta.ddang.domain.member.dto.request.LoginRequestDto;
+import com.sparta.ddang.domain.member.dto.request.NicknameRequestDto;
+import com.sparta.ddang.domain.member.dto.response.MemberRequestDto;
 import com.sparta.ddang.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -24,10 +27,34 @@ public class MemberController {
         return memberService.createMember(requestDto);
     }
 
+    @RequestMapping(value = "/emailcheck", method = RequestMethod.POST)
+    public ResponseDto<?> emailCheck(@RequestBody EmailRequestDto emailRequestDto) {
+        return memberService.emailCheck(emailRequestDto);
+    }
+
+    @RequestMapping(value = "/nicknamecheck", method = RequestMethod.POST)
+    public ResponseDto<?> nickNameCheck(@RequestBody NicknameRequestDto nicknameRequestDto) {
+        return memberService.nickNameCheck(nicknameRequestDto);
+    }
+
+
     @PostMapping("/login")
     public ResponseDto<?> login(@RequestBody LoginRequestDto requestDto,
                                 HttpServletResponse response) {
         return memberService.login(requestDto, response);
+    }
+
+    //  <button id="login-kakao-btn" onclick="location.href='https://kauth.kakao.com/oauth/authorize?client_id=0e615a5250af79c8016d4690ed0abe7c&redirect_uri=http://localhost:8080/member/kakao/callback&response_type=code'">
+    //        카카오로 로그인하기
+    //    </button>
+
+    @GetMapping("/kakao/callback")
+    public ResponseDto<?> kakaoLogin(@RequestParam String code,
+                                     HttpServletResponse response) throws JsonProcessingException {
+
+        return memberService.kakaoLogin(code,response);
+
+
     }
 
     @GetMapping("/{memberId}/mypage")
