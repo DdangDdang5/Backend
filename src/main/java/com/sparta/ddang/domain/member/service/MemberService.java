@@ -59,7 +59,7 @@ public class MemberService {
     public ResponseDto<?> createMember(MemberRequestDto requestDto) throws IOException {
 
         if (null != checkEmail(requestDto.getEmail())) {
-            return ResponseDto.fail("이미 존재하는 아이디입니다.");
+            return ResponseDto.fail("이미 존재하는 이메일입니다.");
         }
 
         Member member = Member.builder()
@@ -135,7 +135,7 @@ public class MemberService {
     public ResponseDto<?> login(LoginRequestDto requestDto, HttpServletResponse response) {
         Member member = checkEmail(requestDto.getEmail());
         if (null == member) {
-            return ResponseDto.fail("존재하지 않는 아이디입니다.");
+            return ResponseDto.fail("존재하지 않는 이메일입니다.");
         }
 
         TokenDto tokenDto = tokenProvider.generateTokenDto(member);
