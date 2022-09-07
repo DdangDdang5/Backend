@@ -4,8 +4,10 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.ddang.domain.auction.dto.request.AuctionRequestDto;
+import com.sparta.ddang.domain.auction.dto.request.AuctionTagsRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
 import com.sparta.ddang.domain.auction.dto.resposne.AuctionResponseDto;
+import com.sparta.ddang.domain.auction.dto.resposne.AuctionTagsResponseDto;
 import com.sparta.ddang.domain.auction.entity.Auction;
 import com.sparta.ddang.domain.auction.repository.AuctionRepository;
 import com.sparta.ddang.domain.category.dto.CategoryResponseDto;
@@ -24,6 +26,8 @@ import com.sparta.ddang.domain.participant.repository.ParticipantRepository;
 import com.sparta.ddang.domain.region.dto.RegionResponseDto;
 import com.sparta.ddang.domain.region.entity.Region;
 import com.sparta.ddang.domain.region.repository.RegionRepository;
+import com.sparta.ddang.domain.tag.entity.Tags;
+import com.sparta.ddang.domain.tag.repository.TagsRepository;
 import com.sparta.ddang.domain.viewcnt.entity.ViewCnt;
 import com.sparta.ddang.domain.viewcnt.repository.ViewCntRepository;
 import com.sparta.ddang.jwt.TokenProvider;
@@ -67,6 +71,8 @@ public class AuctionService {
     private final RegionRepository regionRepository;
 
     private final FavoriteRespository favoriteRespository;
+
+    private final TagsRepository tagsRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;  // S3 버킷 이름
@@ -170,8 +176,6 @@ public class AuctionService {
         // 적용된 변경사항을 저장함.
         auctionRepository.save(auction);
 
-
-
         // 카테고리 viewer 추가
         String cate = auction.getCategory();
         Long cateCnt = auction.getViewerCnt();
@@ -228,6 +232,7 @@ public class AuctionService {
     @Transactional
     public ResponseDto<?> createAuction(List<MultipartFile> multipartFile,
                                         AuctionRequestDto auctionRequestDto,
+                                        AuctionTagsRequestDto auctionTagsRequestDto,
                                         HttpServletRequest request) throws IOException {
 
 
@@ -258,12 +263,25 @@ public class AuctionService {
 
         //List<Auction> auctionList = auctionRepository.findAll();
 
-
         List<MultiImage> multiImages = new ArrayList<>();
 
         Auction auction = new Auction(multiImages, member, auctionRequestDto);
 
+        Tags tags = new Tags(member.getId(), auction.getId(), auctionTagsRequestDto);
+
+        auction.addAuctionTags(tags);
+
+        tagsRepository.save(tags);
+
         auctionRepository.save(auction);
+
+        tags.addAuctionId(auction.getId());
+
+        tagsRepository.save(tags);
+
+        auctionRepository.save(auction);
+
+
 
         List<String> imgUrlList = new ArrayList<>();
 
@@ -296,11 +314,12 @@ public class AuctionService {
         //auction = new Auction(multiImages);
 
         return ResponseDto.success(
-                AuctionResponseDto.builder()
+                AuctionTagsResponseDto.builder()
                         .auctionId(auction.getId())
                         .productName(auction.getProductName())
                         .memberId(member.getId())
                         .nickname(member.getNickName())
+                        .tags(auction.getTags())
                         .profileImgUrl(member.getProfileImgUrl())
                         .title(auction.getTitle())
                         .content(auction.getContent())
@@ -328,6 +347,7 @@ public class AuctionService {
     public ResponseDto<?> updateAuction(List<MultipartFile> multipartFile,
                                         Long auctionId,
                                         AuctionUpdateRequestDto auctionUpdateRequestDto,
+                                        AuctionTagsRequestDto auctionTagsRequestDto,
                                         HttpServletRequest request) throws IOException {
 
         if (null == request.getHeader("Authorization")) {
@@ -347,12 +367,21 @@ public class AuctionService {
 
         }
 
+        Tags tags = checkTags(auctionId);
+
+        tags.updateTags(auctionTagsRequestDto);
+
+        tagsRepository.save(tags);
+
+
         //수정시 해당 경매게시글에 있는 이미지 전체 삭제
         multiImgRepository.deleteAllByMemberIdAndAuctionId(member.getId(), auctionId);
 
         List<MultiImage> multiImages = new ArrayList<>();
 
         auction.updateAuction(multiImages, member, auctionUpdateRequestDto);
+
+        auction.addAuctionTags(tags);
 
         auctionRepository.save(auction);
 
@@ -378,9 +407,10 @@ public class AuctionService {
 
 
         return ResponseDto.success(
-                AuctionResponseDto.builder()
+                AuctionTagsResponseDto.builder()
                         .auctionId(auction.getId())
                         .productName(auction.getProductName())
+                        .tags(auction.getTags())
                         .memberId(member.getId())
                         .nickname(member.getNickName())
                         .profileImgUrl(member.getProfileImgUrl())
@@ -423,6 +453,8 @@ public class AuctionService {
         //multiImgRepository.deleteAllByMemberIdAndAuctionId(member.getId(), auctionId);
 
         auctionRepository.deleteById(auctionId);
+
+        //tagsRepository.deleteByAuctionId(auctionId);
 
         return ResponseDto.successToMessage(200, "게시물이 성공적으로 삭제되었습니다", null);
 
@@ -705,7 +737,6 @@ public class AuctionService {
 
             auctionResponseDtoList.add(
                     AuctionResponseDto.builder()
-
                             .auctionId(favorite.getAuction().getId())
                             .memberId(favorite.getAuction().getMember().getId())
                             .nickname(favorite.getAuction().getMember().getNickName())
@@ -821,6 +852,50 @@ public class AuctionService {
         
     }
 
+    // 경매 검색
+    @Transactional
+    public ResponseDto<?> getSearchTitle(String title) {
+
+        List<Auction> auctionList = auctionRepository.findByTitleContaining(title);
+
+        List<AuctionResponseDto> auctionResponseDtoList =  new ArrayList<>();
+
+        for (Auction auction : auctionList){
+
+            auctionResponseDtoList.add(
+                    AuctionResponseDto.builder()
+                            .auctionId(auction.getId())
+                            .memberId(auction.getMember().getId())
+                            .nickname(auction.getMember().getNickName())
+                            .profileImgUrl(auction.getMember().getProfileImgUrl())
+                            .title(auction.getTitle())
+                            .content(auction.getContent())
+                            .multiImages(auction.getMultiImages())
+                            .startPrice(auction.getStartPrice())
+                            .nowPrice(auction.getNowPrice())
+                            .auctionPeriod(auction.getAuctionPeriod())
+                            .category(auction.getCategory())
+                            .region(auction.getRegion())
+                            .direct(auction.isDirect())
+                            .delivery(auction.isDelivery())
+                            .viewerCnt(auction.getViewerCnt())
+                            .participantCnt(auction.getParticipantCnt())
+                            .participantStatus(auction.isParticipantStatus())
+                            .auctionStatus(auction.isAuctionStatus())
+                            .createdAt(auction.getCreatedAt())
+                            .modifiedAt(auction.getModifiedAt())
+                            .build()
+            );
+
+
+        }
+
+
+        return ResponseDto.success(auctionResponseDtoList);
+
+
+    }
+
 
     
     
@@ -854,6 +929,12 @@ public class AuctionService {
     public Region checkRegion(String regi) {
         Optional<Region> optionalRegion = regionRepository.findByRegion(regi);
         return optionalRegion.orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public Tags checkTags(Long auctionId) {
+        Optional<Tags> optionalTags = tagsRepository.findByAuctionId(auctionId);
+        return optionalTags.orElse(null);
     }
 
 
@@ -923,6 +1004,7 @@ public class AuctionService {
         }
         log.info("File delete fail");
     }
+
 
 
 }
