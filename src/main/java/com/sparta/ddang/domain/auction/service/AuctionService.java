@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.ddang.domain.auction.dto.request.AuctionRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionTagsRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
+import com.sparta.ddang.domain.auction.dto.resposne.AuctionIdResponseDto;
 import com.sparta.ddang.domain.auction.dto.resposne.AuctionResponseDto;
 import com.sparta.ddang.domain.auction.dto.resposne.AuctionTagsResponseDto;
 import com.sparta.ddang.domain.auction.entity.Auction;
@@ -124,7 +125,7 @@ public class AuctionService {
         return ResponseDto.success(auctionResponseDtoList);
 
     }
-
+    // 토큰값 없어도 됨.
     // 시큐리티에서 상세페이지의 권한을 풀어줌
     // 일반 사용자는 조회수에 영향을 미치면 안됨
     // 회원들만 조회수에 영향을 미침
@@ -281,8 +282,6 @@ public class AuctionService {
 
         auctionRepository.save(auction);
 
-
-
         List<String> imgUrlList = new ArrayList<>();
 
         for (MultipartFile imgFile : multipartFile) {
@@ -314,30 +313,8 @@ public class AuctionService {
         //auction = new Auction(multiImages);
 
         return ResponseDto.success(
-                AuctionTagsResponseDto.builder()
+                AuctionIdResponseDto.builder()
                         .auctionId(auction.getId())
-                        .productName(auction.getProductName())
-                        .memberId(member.getId())
-                        .nickname(member.getNickName())
-                        .tags(auction.getTags())
-                        .profileImgUrl(member.getProfileImgUrl())
-                        .title(auction.getTitle())
-                        .content(auction.getContent())
-                        .multiImages(auction.getMultiImages())
-                        .startPrice(auction.getStartPrice())
-                        .nowPrice(auction.getNowPrice())
-                        .auctionPeriod(auction.getAuctionPeriod())
-                        .category(auction.getCategory())
-                        .region(auction.getRegion())
-                        .direct(auction.isDirect())
-                        .delivery(auction.isDelivery())
-                        .viewerCnt(auction.getViewerCnt())
-                        .auctionStatus(true)
-                        .participantCnt(auction.getParticipantCnt())
-                        .participantStatus(auction.isParticipantStatus())
-                        //.favoriteStatus(auction.isFavoriteStatus())
-                        .createdAt(auction.getCreatedAt())
-                        .modifiedAt(auction.getModifiedAt())
                         .build()
         );
 
@@ -609,7 +586,7 @@ public class AuctionService {
 
     // 내가 참여한 경매 
     @Transactional
-    public ResponseDto<?> getAlljoinAuction(Long memberId, HttpServletRequest request) {
+    public ResponseDto<?> getAlljoinAuction(HttpServletRequest request) {
 
         if (null == request.getHeader("Authorization")) {
             return ResponseDto.fail("Authorization이 없습니다.");
@@ -620,13 +597,13 @@ public class AuctionService {
             return ResponseDto.fail("Token이 유효하지 않습니다.");
         }
 
-        if (participantRepository.countAllByMemberId(memberId) == 0) {
+        if (participantRepository.countAllByMemberId(member.getId()) == 0) {
 
             return ResponseDto.fail("참여한 경매 상품이 없습니다.");
 
         }
 
-        List<Participant> participantList = participantRepository.findAllByMember_Id(memberId);
+        List<Participant> participantList = participantRepository.findAllByMember_Id(member.getId());
 
         ArrayList<AuctionResponseDto> auctionArrayList = new ArrayList<>();
 

@@ -39,7 +39,7 @@ public class AuctionController {
         return auctionService.getDetailAuction(auctionId,request);
 
     }
-
+    // 토큰값 없어도 됨.
     // 경매 생성
     @RequestMapping(value = "/auction", method = RequestMethod.POST)
     public ResponseDto<?> createAuction(@RequestPart(value = "images",required = false) List<MultipartFile> multipartFile,
@@ -110,13 +110,12 @@ public class AuctionController {
 
     // 내가 참여중인 경매 조회
     // /member/{memberId}/mypage/participant
-    @RequestMapping(value = "/member/{memberId}/mypage/participant",
+    @RequestMapping(value = "/member/mypage/participant",
             method = RequestMethod.GET)
-    public ResponseDto<?> getAlljoinAuction(@PathVariable Long memberId,
-                                      HttpServletRequest request){
+    public ResponseDto<?> getAlljoinAuction(HttpServletRequest request){
 
 
-        return auctionService.getAlljoinAuction(memberId,request);
+        return auctionService.getAlljoinAuction(request);
 
     }
 
