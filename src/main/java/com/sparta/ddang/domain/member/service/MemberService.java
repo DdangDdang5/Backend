@@ -16,6 +16,7 @@ import com.sparta.ddang.jwt.TokenProvider;
 import com.sparta.ddang.util.S3UploadService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -50,6 +51,9 @@ public class MemberService {
     private final S3UploadService s3UploadService;
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+
+    @Value("${kakao.appkey}")
+    private String kakaoAppKey;
 
     @Transactional
     public ResponseDto<?> createMember(MemberRequestDto requestDto) throws IOException {
@@ -189,8 +193,9 @@ public class MemberService {
         // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
-        body.add("client_id", "0e615a5250af79c8016d4690ed0abe7c");
-        body.add("redirect_uri", "http://localhost:8080/member/kakao/callback");
+        body.add("client_id", kakaoAppKey);
+        //body.add("redirect_uri", "http://localhost:8080/member/kakao/callback");
+        body.add("redirect_uri", "https://localhost:3000/member/kakao/callback");
         body.add("code", code);
         // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =

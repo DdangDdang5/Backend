@@ -16,4 +16,6 @@ public interface AuctionRepository extends JpaRepository<Auction,Long> {
 
     List<Auction> findAllByMember_Id(Long memberId);
 
+    List<Auction> findByTitleContaining(String title);
+
 }
