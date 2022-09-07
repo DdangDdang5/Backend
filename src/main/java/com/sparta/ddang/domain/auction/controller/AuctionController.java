@@ -1,6 +1,7 @@
 package com.sparta.ddang.domain.auction.controller;
 
 import com.sparta.ddang.domain.auction.dto.request.AuctionRequestDto;
+import com.sparta.ddang.domain.auction.dto.request.AuctionTagsRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
 import com.sparta.ddang.domain.auction.service.AuctionService;
 import com.sparta.ddang.domain.dto.ResponseDto;
@@ -43,19 +44,21 @@ public class AuctionController {
     @RequestMapping(value = "/auction", method = RequestMethod.POST)
     public ResponseDto<?> createAuction(@RequestPart(value = "images",required = false) List<MultipartFile> multipartFile,
                                         @RequestPart(value = "auctionRequestDto")AuctionRequestDto auctionRequestDto,
+                                        @RequestPart(value = "tags") AuctionTagsRequestDto auctionTagsRequestDto,
                                         HttpServletRequest request) throws IOException {
-        return auctionService.createAuction(multipartFile, auctionRequestDto,request);
+        return auctionService.createAuction(multipartFile, auctionRequestDto,auctionTagsRequestDto,request);
 
     }
     // 경매 수정
     @RequestMapping(value = "/auction/{auctionId}", method = RequestMethod.PATCH)
     public ResponseDto<?> updateAuction(@RequestPart(value = "images",required = false) List<MultipartFile> multipartFile,
                                         @RequestPart(value = "auctionUpdateDto") AuctionUpdateRequestDto auctionUpdateRequestDto,
+                                        @RequestPart(value = "tags") AuctionTagsRequestDto auctionTagsRequestDto,
                                         @PathVariable Long auctionId,
                                         HttpServletRequest request) throws IOException {
 
 
-        return auctionService.updateAuction(multipartFile,auctionId,auctionUpdateRequestDto,request);
+        return auctionService.updateAuction(multipartFile,auctionId,auctionUpdateRequestDto,auctionTagsRequestDto,request);
 
     }
     
@@ -166,6 +169,13 @@ public class AuctionController {
 
     }
 
+    // 경매 타이틀 검색
+    @RequestMapping(value = "/auction/search/{title}", method = RequestMethod.GET)
+    public ResponseDto<?> getSearchTitle(@PathVariable String title){
+
+        return auctionService.getSearchTitle(title);
+
+    }
 
 
 }
