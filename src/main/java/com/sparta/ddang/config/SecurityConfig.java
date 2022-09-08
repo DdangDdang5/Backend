@@ -71,6 +71,7 @@ public class SecurityConfig {
                 .antMatchers("/region/hit").permitAll()
                 .antMatchers("/chat").permitAll()
                 .antMatchers("/ws/chat").permitAll()
+                .antMatchers("/chat/**").permitAll()
                 .anyRequest().authenticated()
 
                 .and()

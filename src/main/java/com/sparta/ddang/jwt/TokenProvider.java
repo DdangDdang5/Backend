@@ -150,4 +150,9 @@ public class TokenProvider {
 //    refreshTokenRepository.delete(refreshToken);
 //    return ResponseDto.success("success");
 //  }
+
+  // 토큰에서 회원 정보 추출
+  public String getMemberPk(String token) {
+    return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+  }
 }
