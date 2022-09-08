@@ -171,6 +171,7 @@ public class MemberService {
 
         return ResponseDto.success(
                 KakaoLoginResponseDto.builder()
+                        .memberId(member.getId())
                         .email(member.getEmail())
                         .nickname(member.getNickName())
                         .kakaoProImg(member.getProfileImgUrl())

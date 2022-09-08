@@ -1,51 +1,54 @@
 package com.sparta.ddang.config;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-@Slf4j
+/*
+ * Websocket 관련 설정들을 모아놓은 Class
+ * */
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+//    private final StompHandler stompHandler;
 
-    private final StompHandler stompHandler;
-
-    @Autowired
-    public WebSocketConfig (StompHandler stompHandler) {
-        this.stompHandler = stompHandler;
-    }
-
-    //맨 처음 설정값이라고 보면 편함
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
-        log.info("/sub 발동 [WebSocketConfig]");
-        config.enableSimpleBroker("/sub"); // prefix /sub 로 수신 메시지 구분
-        //여기로 데이터가 들어온 경우 messageMapping 으로 JUMP
-        log.info("/pub 발동 [WebSocketConfig]");
-        config.setApplicationDestinationPrefixes("/pub"); // prefix /pub 로 발행 요청
-    }
-
+    /*
+     * Websocket HandShake 를 위한 EndPoint를 지정하고 CORS 설정 및 SockJS 사용 설정
+     */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/chatting") // url/chatting 웹 소켓 연결 주소
-//                .setAllowedOrigins("https://mungfriend.com") // 프론트엔드 HTTPS 서버 주소
-                .setAllowedOriginPatterns("*")
-                // 프론트 엔드포인트 : http://mungfriend.s3-website.ap-northeast-2.amazonaws.com
-                // 클라우드 프론트 : https://d3n0oswt21uayp.cloudfront.net
-                .withSockJS(); // sock.js를 통하여 낮은 버전의 브라우저에서도 websocket 이 동작할수 있게 한다
+        registry
+                .addEndpoint("/wss/chat")
+                .setAllowedOriginPatterns("http://localhost:3000", "https://localhost:3000", "https://sysgood.shop")
+                .withSockJS();
     }
 
-    // StompHandler 인터셉터 설정
-    // StompHandler가 Websocket 앞단에서 token 및 메시지 TYPE 등을 체크할 수 있도록 다음과 같이 인터셉터로 설정한다
+    /*
+     * Stomp 사용을 위한 Message Broker 설정을 해주는 메소드이다.
+     * 1.enableSimpleBroker
+     * 메세지를 받을때, 경로를 설정해준다
+     * "/sub"이 api에 prefix로 붙은경우, messagebroker가 해당 경로를 가로챈다
+     * 2.setApplicationDestinationPrefixes
+     * - 메세지를 보낼때 관련 경로를 설정해주는 함수.
+     * - 클라이언트가 메세지를 보낼때, api에 prefix로 "/pub"이 붙어있으면 broker로 메세지가 보내진다.
+     *  */
     @Override
-    public void configureClientInboundChannel(ChannelRegistration registration) {
-        log.info("StompHandler Interceptor 설정 [WebSocketConfig]");
-        registration.interceptors(stompHandler);
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry
+                .setApplicationDestinationPrefixes("/pub")
+                .enableSimpleBroker("/sub");
     }
+
+    /*
+     * interceptors 설정
+     */
+//    @Override
+//    public void configureClientInboundChannel(ChannelRegistration registration) {
+//        registration
+//                .interceptors(stompHandler);
+//    }
 }
