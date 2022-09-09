@@ -1,6 +1,8 @@
 package com.sparta.ddang.domain.participant.repository;
 
 import com.sparta.ddang.domain.participant.entity.Participant;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -20,5 +22,6 @@ public interface ParticipantRepository extends JpaRepository<Participant,Long> {
 
 
     List<Participant> findAllByMember_Id(Long memberId);
+    Page<Participant> findAllByMember_Id(Long memberId, Pageable pageable);
 
 }

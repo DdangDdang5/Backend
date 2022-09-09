@@ -196,7 +196,8 @@ public class MemberService {
         body.add("grant_type", "authorization_code");
         body.add("client_id", kakaoAppKey);
         //body.add("redirect_uri", "http://localhost:8080/member/kakao/callback");
-        body.add("redirect_uri", "http://localhost:3000/member/kakao/callback");
+        //body.add("redirect_uri", "http://localhost:3000/member/kakao/callback");
+        body.add("redirect_uri", "https://sysgood.shop/member/kakao/callback");
         body.add("code", code);
         // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
@@ -354,6 +355,26 @@ public class MemberService {
         );
     }
 
+    @Transactional
+    public ResponseDto<?> lookUpmemberId(Long memberId) {
+
+        Member member = checkOthermemberId(memberId);
+
+        if (member == null){
+            return ResponseDto.fail("존재하지 않는 회원입니다.");
+        }
+
+        return ResponseDto.success(
+                MypageResponseDto.builder()
+                        .memberId(member.getId())
+                        .email(member.getEmail())
+                        .nickname(member.getNickName())
+                        .profileImgUrl(member.getProfileImgUrl())
+                        .build()
+        );
+
+    }
+
     @Transactional(readOnly = true)
     public Member checkEmail(String email) {
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
@@ -363,6 +384,12 @@ public class MemberService {
     @Transactional(readOnly = true)
     public Member checkNickname(String nickname) {
         Optional<Member> optionalMember = memberRepository.findByNickName(nickname);
+        return optionalMember.orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public Member checkOthermemberId(Long memberId) {
+        Optional<Member> optionalMember = memberRepository.findById(memberId);
         return optionalMember.orElse(null);
     }
 

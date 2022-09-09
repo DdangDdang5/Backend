@@ -8,7 +8,7 @@ import lombok.Getter;
 public class KakaoLoginResponseDto {
 
 
-    private Long memberId;
+    //private Long id;
     private String email;
     private String nickname;
     private String kakaoProImg;

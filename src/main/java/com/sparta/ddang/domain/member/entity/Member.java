@@ -60,5 +60,6 @@ public class Member extends Timestamped {
         this.isKakao = isKakao;
     }
 
+
     public Member() {}
 }

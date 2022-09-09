@@ -38,7 +38,4 @@ public class MultiImage extends Timestamped {
 
     }
 
-
-
-
 }
