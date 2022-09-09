@@ -70,7 +70,7 @@ public class SecurityConfig {
                 .antMatchers("/category/hit").permitAll()
                 .antMatchers("/region/hit").permitAll()
                 .antMatchers("/chat").permitAll()
-                .antMatchers("/ws/chat").permitAll()
+                .antMatchers("/wss/chat").permitAll()
                 .antMatchers("/chat/**").permitAll()
                 .anyRequest().authenticated()
 
