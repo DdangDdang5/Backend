@@ -310,7 +310,7 @@ public class AuctionService {
             // 컬럼이 0이면 처음일것이다. --> 기본데이터
             if (categoryRepository.count() == 0){
 
-                Category cat0 = new Category("카테고리전체",0L);
+                Category cat0 = new Category("전체품목",0L);
                 categoryRepository.save(cat0);
                 Category cat1 = new Category("가구인테리어",0L);
                 categoryRepository.save(cat1);
