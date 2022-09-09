@@ -9,15 +9,15 @@ public class MypageResponseDto {
     private String email;
     private String nickname;
     private String profileImgUrl;
-    private String phoneNum;
+    //private String phoneNum;
 
     @Builder
-    public MypageResponseDto(Long memberId, String email, String nickname, String profileImgUrl, String phoneNum) {
+    public MypageResponseDto(Long memberId, String email, String nickname, String profileImgUrl) {
         this.memberId = memberId;
         this.email = email;
         this.nickname = nickname;
         this.profileImgUrl = profileImgUrl;
-        this.phoneNum = phoneNum;
+
     }
 
     public MypageResponseDto() {}

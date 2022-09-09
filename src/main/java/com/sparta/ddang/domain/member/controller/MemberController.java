@@ -45,6 +45,7 @@ public class MemberController {
     }
 
     //  <button id="login-kakao-btn" onclick="location.href='https://kauth.kakao.com/oauth/authorize?client_id=0e615a5250af79c8016d4690ed0abe7c&redirect_uri=http://localhost:8080/member/kakao/callback&response_type=code'">
+    //  <button id="login-kakao-btn" onclick="location.href='https://kauth.kakao.com/oauth/authorize?client_id=0e615a5250af79c8016d4690ed0abe7c&redirect_uri=https://sysgood.shop/member/kakao/callback&response_type=code'">
     //        카카오로 로그인하기
     //    </button>
 
@@ -65,6 +66,12 @@ public class MemberController {
     @PatchMapping("/{memberId}/mypage")
     public ResponseDto<?> editMypage(@PathVariable Long memberId, @RequestPart("data")MemberRequestDto requestDto, @RequestPart("profileImg") MultipartFile multipartFile) throws IOException {
         return memberService.editMypage(memberId, requestDto, multipartFile);
+    }
+
+    // 다른 회원 정보 조회하기
+    @RequestMapping(value = "/{memberId}/lookup", method = RequestMethod.GET)
+    public ResponseDto<?> lookUpNickName(@PathVariable Long memberId) {
+        return memberService.lookUpmemberId(memberId);
     }
 
 }

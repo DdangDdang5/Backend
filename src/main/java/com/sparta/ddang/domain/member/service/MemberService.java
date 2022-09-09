@@ -127,9 +127,7 @@ public class MemberService {
 
         }
 
-
     }
-
 
     @Transactional
     public ResponseDto<?> login(LoginRequestDto requestDto, HttpServletResponse response) {
@@ -140,7 +138,6 @@ public class MemberService {
 
         TokenDto tokenDto = tokenProvider.generateTokenDto(member);
         tokenToHeaders(tokenDto, response);
-
 
         return ResponseDto.success(
                 MemberResponseDto.builder()
@@ -171,6 +168,7 @@ public class MemberService {
 
         return ResponseDto.success(
                 KakaoLoginResponseDto.builder()
+                        .memberId(member.getId())
                         .email(member.getEmail())
                         .nickname(member.getNickName())
                         .kakaoProImg(member.getProfileImgUrl())
@@ -195,7 +193,7 @@ public class MemberService {
         body.add("grant_type", "authorization_code");
         body.add("client_id", kakaoAppKey);
         //body.add("redirect_uri", "http://localhost:8080/member/kakao/callback");
-        body.add("redirect_uri", "https://localhost:3000/member/kakao/callback");
+        body.add("redirect_uri", "http://localhost:3000/member/kakao/callback");
         body.add("code", code);
         // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
@@ -254,7 +252,6 @@ public class MemberService {
         return kakaoUserInfoDto;
 
     }
-
     @Transactional
     public Member registerKakaoUserIfNeeded(KakaoUserInfoDto kakaoUserInfoDto) {
 
@@ -287,6 +284,10 @@ public class MemberService {
             kakaoMember = new Member(email, nickname, encodedpassword, profileImg, true);
 
             memberRepository.save(kakaoMember);
+
+
+
+
 
         }
 
@@ -353,6 +354,26 @@ public class MemberService {
         );
     }
 
+    @Transactional
+    public ResponseDto<?> lookUpmemberId(Long memberId) {
+
+        Member member = checkOthermemberId(memberId);
+
+        if (member == null){
+            return ResponseDto.fail("존재하지 않는 회원입니다.");
+        }
+
+        return ResponseDto.success(
+                MypageResponseDto.builder()
+                        .memberId(member.getId())
+                        .email(member.getEmail())
+                        .nickname(member.getNickName())
+                        .profileImgUrl(member.getProfileImgUrl())
+                        .build()
+        );
+
+    }
+
     @Transactional(readOnly = true)
     public Member checkEmail(String email) {
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
@@ -362,6 +383,12 @@ public class MemberService {
     @Transactional(readOnly = true)
     public Member checkNickname(String nickname) {
         Optional<Member> optionalMember = memberRepository.findByNickName(nickname);
+        return optionalMember.orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public Member checkOthermemberId(Long memberId) {
+        Optional<Member> optionalMember = memberRepository.findById(memberId);
         return optionalMember.orElse(null);
     }
 

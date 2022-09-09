@@ -1,6 +1,5 @@
 package com.sparta.ddang.domain.region.entity;
 
-import com.sparta.ddang.util.Timestamped;
 import lombok.Getter;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -8,7 +7,7 @@ import javax.persistence.*;
 
 @Getter
 @Entity
-public class Region extends Timestamped {
+public class Region {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
