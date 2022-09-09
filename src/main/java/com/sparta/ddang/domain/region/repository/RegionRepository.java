@@ -15,4 +15,12 @@ public interface RegionRepository extends JpaRepository<Region,Long> {
     void deleteByRegion(String region);
 
     List<Region> findAllByOrderByViewerCntDesc();
+
+    List<Region> findAllByOrderByRegionAsc();
+
+
+    //Long countAllByRegion();
+    //Long countAll();
+
+
 }

@@ -80,11 +80,26 @@ public class AuctionController {
 
     }
 
+    @RequestMapping(value = "/auction/category/show", method = RequestMethod.GET)
+    public ResponseDto<?> showCategoryAuction(){
+
+        return auctionService.showCategoryAuction();
+
+    }
+
     // 경매 지역별 조회 --> 비로그인 회원도 조회가능하게 함.
     @RequestMapping(value = "/auction/region/{region}", method = RequestMethod.GET)
     public ResponseDto<?> findRegionAuction(@PathVariable String region){
 
         return auctionService.findRegionAuction(region);
+
+    }
+
+
+    @RequestMapping(value = "/auction/region/show", method = RequestMethod.GET)
+    public ResponseDto<?> showRegionAuction(){
+
+        return auctionService.showRegionAuction();
 
     }
 

@@ -11,6 +11,7 @@ import com.sparta.ddang.domain.auction.dto.resposne.AuctionResponseDto;
 import com.sparta.ddang.domain.auction.dto.resposne.AuctionTagsResponseDto;
 import com.sparta.ddang.domain.auction.entity.Auction;
 import com.sparta.ddang.domain.auction.repository.AuctionRepository;
+import com.sparta.ddang.domain.category.dto.CategoryOnlyResponseDto;
 import com.sparta.ddang.domain.category.dto.CategoryResponseDto;
 import com.sparta.ddang.domain.category.entity.Category;
 import com.sparta.ddang.domain.category.repository.CategoryRepository;
@@ -24,6 +25,7 @@ import com.sparta.ddang.domain.mulltiimg.entity.MultiImage;
 import com.sparta.ddang.domain.mulltiimg.repository.MultiImgRepository;
 import com.sparta.ddang.domain.participant.entity.Participant;
 import com.sparta.ddang.domain.participant.repository.ParticipantRepository;
+import com.sparta.ddang.domain.region.dto.RegionOnlyResponseDto;
 import com.sparta.ddang.domain.region.dto.RegionResponseDto;
 import com.sparta.ddang.domain.region.entity.Region;
 import com.sparta.ddang.domain.region.repository.RegionRepository;
@@ -118,9 +120,6 @@ public class AuctionService {
 
 
         }
-
-
-
         //return ResponseDto.success(auctionRepository.findAllByOrderByModifiedAtDesc());
         return ResponseDto.success(auctionResponseDtoList);
 
@@ -183,6 +182,7 @@ public class AuctionService {
 
         Category category= checkCategory(cate);
 
+
         if (categoryRepository.existsByCategory(cate)) {
 
             category.updateCateCnt(cate);
@@ -196,6 +196,8 @@ public class AuctionService {
             category = new Category(cate, cateCnt);
 
             categoryRepository.save(category);
+            
+            // 카테고리 전체 합산하기
 
         }
 
@@ -228,8 +230,7 @@ public class AuctionService {
 
 
     }
-
-
+    
     @Transactional
     public ResponseDto<?> createAuction(List<MultipartFile> multipartFile,
                                         AuctionRequestDto auctionRequestDto,
@@ -304,6 +305,95 @@ public class AuctionService {
             System.out.println(multiImages.get(0));
 
             System.out.println("========================");
+
+
+            // 컬럼이 0이면 처음일것이다. --> 기본데이터
+            if (categoryRepository.count() == 0){
+
+                Category cat0 = new Category("카테고리전체",0L);
+                categoryRepository.save(cat0);
+                Category cat1 = new Category("가구인테리어",0L);
+                categoryRepository.save(cat1);
+                Category cat2 = new Category("가전",0L);
+                categoryRepository.save(cat2);
+                Category cat3 = new Category("남성패션",0L);
+                categoryRepository.save(cat3);
+                Category cat4 = new Category("여성패션",0L);
+                categoryRepository.save(cat4);
+                Category cat5 = new Category("악세서리",0L);
+                categoryRepository.save(cat5);
+                Category cat6 = new Category("스포츠레저",0L);
+                categoryRepository.save(cat6);
+                Category cat7 = new Category("취미게임악기",0L);
+                categoryRepository.save(cat7);
+                Category cat8 = new Category("디지털",0L);
+                categoryRepository.save(cat8);
+                Category cat9 = new Category("뷰티미용",0L);
+                categoryRepository.save(cat9);
+
+
+
+            }
+
+            if (regionRepository.count() == 0){
+
+                Region reg0 = new Region("서울전체",0L);
+                regionRepository.save(reg0);
+                Region reg1 = new Region("강남구",0L);
+                regionRepository.save(reg1);
+                Region reg2 = new Region("강동구",0L);
+                regionRepository.save(reg2);
+                Region reg3 = new Region("강북구",0L);
+                regionRepository.save(reg3);
+                Region reg4 = new Region("강서구",0L);
+                regionRepository.save(reg4);
+                Region reg5 = new Region("관악구",0L);
+                regionRepository.save(reg5);
+                Region reg6 = new Region("광진구",0L);
+                regionRepository.save(reg6);
+                Region reg7 = new Region("구로구",0L);
+                regionRepository.save(reg7);
+                Region reg8 = new Region("금천구",0L);
+                regionRepository.save(reg8);
+                Region reg9 = new Region("노원구",0L);
+                regionRepository.save(reg9);
+                Region reg10 = new Region("도봉구",0L);
+                regionRepository.save(reg10);
+                Region reg11 = new Region("동대문구",0L);
+                regionRepository.save(reg11);
+                Region reg12 = new Region("동작구",0L);
+                regionRepository.save(reg12);
+                Region reg13 = new Region("마포구",0L);
+                regionRepository.save(reg13);
+                Region reg14 = new Region("서대문구",0L);
+                regionRepository.save(reg14);
+                Region reg15 = new Region("서초구",0L);
+                regionRepository.save(reg15);
+                Region reg16 = new Region("성동구",0L);
+                regionRepository.save(reg16);
+                Region reg17 = new Region("성북구",0L);
+                regionRepository.save(reg17);
+                Region reg18 = new Region("송파구",0L);
+                regionRepository.save(reg18);
+                Region reg19 = new Region("양천구",0L);
+                regionRepository.save(reg19);
+                Region reg20 = new Region("영등포구",0L);
+                regionRepository.save(reg20);
+                Region reg21 = new Region("용산구",0L);
+                regionRepository.save(reg21);
+                Region reg22 = new Region("은평구",0L);
+                regionRepository.save(reg22);
+                Region reg23 = new Region("종로구",0L);
+                regionRepository.save(reg23);
+                Region reg24 = new Region("성동구",0L);
+                regionRepository.save(reg24);
+                Region reg25 = new Region("중구",0L);
+                regionRepository.save(reg25);
+                Region reg26 = new Region("중랑구",0L);
+                regionRepository.save(reg26);
+
+
+            }
 
         }
 
@@ -441,21 +531,132 @@ public class AuctionService {
     @Transactional
     public ResponseDto<?> findCategoryAuction(String category) {
 
-        return ResponseDto.success(auctionRepository.findAllByCategory(category));
+        List<Auction> auctionList = auctionRepository.findAllByCategory(category);
+
+        List<AuctionResponseDto> auctionResponseDtoList = new ArrayList<>();
+
+        for (Auction auction : auctionList){
+
+            auctionResponseDtoList.add(
+                    AuctionResponseDto.builder()
+                            .auctionId(auction.getId())
+                            .productName(auction.getProductName())
+                            .memberId(auction.getMember().getId())
+                            .nickname(auction.getMember().getNickName())
+                            .profileImgUrl(auction.getMember().getProfileImgUrl())
+                            .title(auction.getTitle())
+                            .content(auction.getContent())
+                            .multiImages(auction.getMultiImages())
+                            .startPrice(auction.getStartPrice())
+                            .nowPrice(auction.getNowPrice())
+                            .auctionPeriod(auction.getAuctionPeriod())
+                            .category(auction.getCategory())
+                            .region(auction.getRegion())
+                            .direct(auction.isDirect())
+                            .delivery(auction.isDelivery())
+                            .viewerCnt(auction.getViewerCnt())
+                            .auctionStatus(auction.isAuctionStatus())
+                            .participantCnt(auction.getParticipantCnt())
+                            .participantStatus(false) // 사용자에게 보여지는 부분
+                            //.favoriteStatus(auction.isFavoriteStatus())
+                            .createdAt(auction.getCreatedAt())
+                            .modifiedAt(auction.getModifiedAt())
+                            .build()
+            );
+
+        }
+
+
+        // return ResponseDto.success(auctionRepository.findAllByCategory(category));
+        return ResponseDto.success(auctionResponseDtoList);
 
     }
 
     @Transactional
     public ResponseDto<?> findRegionAuction(String region) {
 
-        return ResponseDto.success(auctionRepository.findAllByRegion(region));
+        List<Auction> auctionList = auctionRepository.findAllByRegion(region);
+
+        List<AuctionResponseDto> auctionResponseDtoList = new ArrayList<>();
+
+        for (Auction auction : auctionList){
+
+            auctionResponseDtoList.add(
+                    AuctionResponseDto.builder()
+                            .auctionId(auction.getId())
+                            .productName(auction.getProductName())
+                            .memberId(auction.getMember().getId())
+                            .nickname(auction.getMember().getNickName())
+                            .profileImgUrl(auction.getMember().getProfileImgUrl())
+                            .title(auction.getTitle())
+                            .content(auction.getContent())
+                            .multiImages(auction.getMultiImages())
+                            .startPrice(auction.getStartPrice())
+                            .nowPrice(auction.getNowPrice())
+                            .auctionPeriod(auction.getAuctionPeriod())
+                            .category(auction.getCategory())
+                            .region(auction.getRegion())
+                            .direct(auction.isDirect())
+                            .delivery(auction.isDelivery())
+                            .viewerCnt(auction.getViewerCnt())
+                            .auctionStatus(auction.isAuctionStatus())
+                            .participantCnt(auction.getParticipantCnt())
+                            .participantStatus(false) // 사용자에게 보여지는 부분
+                            //.favoriteStatus(auction.isFavoriteStatus())
+                            .createdAt(auction.getCreatedAt())
+                            .modifiedAt(auction.getModifiedAt())
+                            .build()
+            );
+
+        }
+
+
+        //return ResponseDto.success(auctionRepository.findAllByRegion(region));
+        return ResponseDto.success(auctionResponseDtoList);
 
     }
 
     @Transactional
     public ResponseDto<?> findCategoryAndRegionAuction(String category, String region) {
 
-        return ResponseDto.success(auctionRepository.findAllByCategoryAndRegion(category, region));
+        List<Auction> auctionList = auctionRepository.findAllByCategoryAndRegion(category, region);
+
+        List<AuctionResponseDto> auctionResponseDtoList = new ArrayList<>();
+
+        for (Auction auction : auctionList){
+
+            auctionResponseDtoList.add(
+                    AuctionResponseDto.builder()
+                            .auctionId(auction.getId())
+                            .productName(auction.getProductName())
+                            .memberId(auction.getMember().getId())
+                            .nickname(auction.getMember().getNickName())
+                            .profileImgUrl(auction.getMember().getProfileImgUrl())
+                            .title(auction.getTitle())
+                            .content(auction.getContent())
+                            .multiImages(auction.getMultiImages())
+                            .startPrice(auction.getStartPrice())
+                            .nowPrice(auction.getNowPrice())
+                            .auctionPeriod(auction.getAuctionPeriod())
+                            .category(auction.getCategory())
+                            .region(auction.getRegion())
+                            .direct(auction.isDirect())
+                            .delivery(auction.isDelivery())
+                            .viewerCnt(auction.getViewerCnt())
+                            .auctionStatus(auction.isAuctionStatus())
+                            .participantCnt(auction.getParticipantCnt())
+                            .participantStatus(false) // 사용자에게 보여지는 부분
+                            //.favoriteStatus(auction.isFavoriteStatus())
+                            .createdAt(auction.getCreatedAt())
+                            .modifiedAt(auction.getModifiedAt())
+                            .build()
+            );
+
+        }
+
+        //return ResponseDto.success(auctionRepository.findAllByCategoryAndRegion(category, region));
+
+        return ResponseDto.success(auctionResponseDtoList);
 
     }
     
@@ -761,7 +962,46 @@ public class AuctionService {
         }
 
 
-        return ResponseDto.success(auctionRepository.findAllByMember_Id(member.getId()));
+        List<Auction> auctionList = auctionRepository.findAllByMember_Id(member.getId());
+
+        List<AuctionResponseDto> auctionResponseDtoList = new ArrayList<>();
+
+        for (Auction auction : auctionList){
+
+            auctionResponseDtoList.add(
+
+                    AuctionResponseDto.builder()
+                            .auctionId(auction.getId())
+                            .memberId(auction.getMember().getId())
+                            .nickname(auction.getMember().getNickName())
+                            .profileImgUrl(auction.getMember().getProfileImgUrl())
+                            .title(auction.getTitle())
+                            .content(auction.getContent())
+                            .multiImages(auction.getMultiImages())
+                            .startPrice(auction.getStartPrice())
+                            .nowPrice(auction.getNowPrice())
+                            .auctionPeriod(auction.getAuctionPeriod())
+                            .category(auction.getCategory())
+                            .region(auction.getRegion())
+                            .direct(auction.isDirect())
+                            .delivery(auction.isDelivery())
+                            .viewerCnt(auction.getViewerCnt())
+                            .participantCnt(auction.getParticipantCnt())
+                            .participantStatus(auction.isParticipantStatus())
+                            .auctionStatus(auction.isAuctionStatus())
+                            .createdAt(auction.getCreatedAt())
+                            .modifiedAt(auction.getModifiedAt())
+                            .build()
+
+            );
+
+
+
+        }
+
+
+        // return ResponseDto.success(auctionRepository.findAllByMember_Id(member.getId()));
+        return ResponseDto.success(auctionResponseDtoList);
 
 
     }
@@ -798,6 +1038,26 @@ public class AuctionService {
 
     }
 
+    @Transactional
+    public ResponseDto<?> showCategoryAuction() {
+
+        List<Category> categories = categoryRepository.findAllByOrderByCategoryAsc();
+
+        List<CategoryOnlyResponseDto> categoryOnlyResponseDtos = new ArrayList<>();
+
+        for (Category category : categories){
+
+            categoryOnlyResponseDtos.add(
+                    CategoryOnlyResponseDto.builder()
+                            .categoryName(category.getCategory())
+                            .build()
+            );
+        }
+
+        return ResponseDto.success(categoryOnlyResponseDtos);
+
+    }
+
     // 지역별 인기순 조회
     @Transactional
     public ResponseDto<?> getAllHitRegion() {
@@ -828,6 +1088,34 @@ public class AuctionService {
         return ResponseDto.success(regions);
         
     }
+
+
+    @Transactional
+    public ResponseDto<?> showRegionAuction() {
+
+        List<Region> regions = regionRepository.findAllByOrderByRegionAsc();
+
+        List<RegionOnlyResponseDto> regionOnlyResponseDtos = new ArrayList<>();
+
+        for (Region region : regions){
+
+            regionOnlyResponseDtos.add(
+
+                    RegionOnlyResponseDto.builder()
+                            .region(region.getRegion())
+                            .build()
+
+            );
+
+        }
+
+        return ResponseDto.success(regionOnlyResponseDtos);
+
+
+    }
+
+
+
 
     // 경매 검색
     @Transactional
@@ -872,6 +1160,9 @@ public class AuctionService {
 
 
     }
+
+
+
 
 
     
@@ -981,7 +1272,6 @@ public class AuctionService {
         }
         log.info("File delete fail");
     }
-
 
 
 }
