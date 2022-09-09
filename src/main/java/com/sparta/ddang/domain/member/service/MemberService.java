@@ -3,7 +3,9 @@ package com.sparta.ddang.domain.member.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.ddang.domain.auction.repository.AuctionRepository;
 import com.sparta.ddang.domain.dto.ResponseDto;
+import com.sparta.ddang.domain.favorite.repository.FavoriteRespository;
 import com.sparta.ddang.domain.member.dto.request.EmailRequestDto;
 import com.sparta.ddang.domain.member.dto.request.LoginRequestDto;
 import com.sparta.ddang.domain.member.dto.request.NicknameRequestDto;
@@ -11,6 +13,7 @@ import com.sparta.ddang.domain.member.dto.response.*;
 import com.sparta.ddang.domain.member.entity.Member;
 import com.sparta.ddang.domain.member.entity.MemberDetails;
 import com.sparta.ddang.domain.member.repository.MemberRepository;
+import com.sparta.ddang.domain.participant.repository.ParticipantRepository;
 import com.sparta.ddang.jwt.TokenDto;
 import com.sparta.ddang.jwt.TokenProvider;
 import com.sparta.ddang.util.S3UploadService;
@@ -51,6 +54,12 @@ public class MemberService {
     private final S3UploadService s3UploadService;
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+
+    private final AuctionRepository auctionRepository;
+
+    private final ParticipantRepository participantRepository;
+
+    private final FavoriteRespository favoriteRespository;
 
     @Value("${kakao.appkey}")
     private String kakaoAppKey;
@@ -286,10 +295,6 @@ public class MemberService {
 
             memberRepository.save(kakaoMember);
 
-
-
-
-
         }
 
         return kakaoMember;
@@ -318,12 +323,20 @@ public class MemberService {
             return ResponseDto.fail("존재하지 않는 아이디입니다.");
         }
 
+        Long myAction = auctionRepository.countAllByMemberId(memberId);
+        Long myParticipant = participantRepository.countAllByMemberId(memberId);
+        Long myFavorite = favoriteRespository.countAllByMemberId(memberId);
+
+
         return ResponseDto.success(
-                MypageResponseDto.builder()
+                GetMypageResponseDto.builder()
                         .memberId(member.getId())
                         .email(member.getEmail())
                         .nickname(member.getNickName())
                         .profileImgUrl(member.getProfileImgUrl())
+                        .myAuctionCnt(myAction)
+                        .myParticipantCnt(myParticipant)
+                        .myFavoriteCnt(myFavorite)
                         .build()
         );
     }

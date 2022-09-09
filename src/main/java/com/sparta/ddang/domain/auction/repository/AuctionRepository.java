@@ -29,4 +29,6 @@ public interface AuctionRepository extends JpaRepository<Auction,Long> {
 
     Page<Auction> findAllByMember_Id(Long memberId, Pageable pageable);
 
+    Long countAllByMemberId(Long memberId);
+
 }
