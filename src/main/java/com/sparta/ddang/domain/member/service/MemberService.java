@@ -3,7 +3,9 @@ package com.sparta.ddang.domain.member.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.ddang.domain.auction.repository.AuctionRepository;
 import com.sparta.ddang.domain.dto.ResponseDto;
+import com.sparta.ddang.domain.favorite.repository.FavoriteRespository;
 import com.sparta.ddang.domain.member.dto.request.EmailRequestDto;
 import com.sparta.ddang.domain.member.dto.request.LoginRequestDto;
 import com.sparta.ddang.domain.member.dto.request.NicknameRequestDto;
@@ -11,6 +13,7 @@ import com.sparta.ddang.domain.member.dto.response.*;
 import com.sparta.ddang.domain.member.entity.Member;
 import com.sparta.ddang.domain.member.entity.MemberDetails;
 import com.sparta.ddang.domain.member.repository.MemberRepository;
+import com.sparta.ddang.domain.participant.repository.ParticipantRepository;
 import com.sparta.ddang.jwt.TokenDto;
 import com.sparta.ddang.jwt.TokenProvider;
 import com.sparta.ddang.util.S3UploadService;
@@ -52,6 +55,12 @@ public class MemberService {
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
+    private final AuctionRepository auctionRepository;
+
+    private final ParticipantRepository participantRepository;
+
+    private final FavoriteRespository favoriteRespository;
+
     @Value("${kakao.appkey}")
     private String kakaoAppKey;
 
@@ -59,7 +68,7 @@ public class MemberService {
     public ResponseDto<?> createMember(MemberRequestDto requestDto) throws IOException {
 
         if (null != checkEmail(requestDto.getEmail())) {
-            return ResponseDto.fail("이미 존재하는 아이디입니다.");
+            return ResponseDto.fail("이미 존재하는 이메일입니다.");
         }
 
         Member member = Member.builder()
@@ -135,7 +144,7 @@ public class MemberService {
     public ResponseDto<?> login(LoginRequestDto requestDto, HttpServletResponse response) {
         Member member = checkEmail(requestDto.getEmail());
         if (null == member) {
-            return ResponseDto.fail("존재하지 않는 아이디입니다.");
+            return ResponseDto.fail("존재하지 않는 이메일입니다.");
         }
 
         TokenDto tokenDto = tokenProvider.generateTokenDto(member);
@@ -171,6 +180,7 @@ public class MemberService {
 
         return ResponseDto.success(
                 KakaoLoginResponseDto.builder()
+                        .memberId(member.getId())
                         .email(member.getEmail())
                         .nickname(member.getNickName())
                         .kakaoProImg(member.getProfileImgUrl())
@@ -195,7 +205,8 @@ public class MemberService {
         body.add("grant_type", "authorization_code");
         body.add("client_id", kakaoAppKey);
         //body.add("redirect_uri", "http://localhost:8080/member/kakao/callback");
-        body.add("redirect_uri", "https://localhost:3000/member/kakao/callback");
+        //body.add("redirect_uri", "http://localhost:3000/member/kakao/callback");
+        body.add("redirect_uri", "https://sysgood.shop/member/kakao/callback");
         body.add("code", code);
         // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
@@ -316,12 +327,20 @@ public class MemberService {
             return ResponseDto.fail("존재하지 않는 아이디입니다.");
         }
 
+        Long myAction = auctionRepository.countAllByMemberId(memberId);
+        Long myParticipant = participantRepository.countAllByMemberId(memberId);
+        Long myFavorite = favoriteRespository.countAllByMemberId(memberId);
+
+
         return ResponseDto.success(
-                MypageResponseDto.builder()
+                GetMypageResponseDto.builder()
                         .memberId(member.getId())
                         .email(member.getEmail())
                         .nickname(member.getNickName())
                         .profileImgUrl(member.getProfileImgUrl())
+                        .myAuctionCnt(myAction)
+                        .myParticipantCnt(myParticipant)
+                        .myFavoriteCnt(myFavorite)
                         .build()
         );
     }
@@ -353,6 +372,26 @@ public class MemberService {
         );
     }
 
+    @Transactional
+    public ResponseDto<?> lookUpmemberId(Long memberId) {
+
+        Member member = checkOthermemberId(memberId);
+
+        if (member == null){
+            return ResponseDto.fail("존재하지 않는 회원입니다.");
+        }
+
+        return ResponseDto.success(
+                MypageResponseDto.builder()
+                        .memberId(member.getId())
+                        .email(member.getEmail())
+                        .nickname(member.getNickName())
+                        .profileImgUrl(member.getProfileImgUrl())
+                        .build()
+        );
+
+    }
+
     @Transactional(readOnly = true)
     public Member checkEmail(String email) {
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
@@ -362,6 +401,12 @@ public class MemberService {
     @Transactional(readOnly = true)
     public Member checkNickname(String nickname) {
         Optional<Member> optionalMember = memberRepository.findByNickName(nickname);
+        return optionalMember.orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public Member checkOthermemberId(Long memberId) {
+        Optional<Member> optionalMember = memberRepository.findById(memberId);
         return optionalMember.orElse(null);
     }
 

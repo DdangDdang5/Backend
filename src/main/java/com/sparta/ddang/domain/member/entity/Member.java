@@ -53,13 +53,13 @@ public class Member extends Timestamped {
 
     @Builder
     public Member(String email, String nickName, String password, String profileImgUrl, boolean isKakao) {
-        //this.id = id;
         this.email = email;
         this.nickName = nickName;
         this.password = password;
         this.profileImgUrl = profileImgUrl;
         this.isKakao = isKakao;
     }
+
 
     public Member() {}
 }

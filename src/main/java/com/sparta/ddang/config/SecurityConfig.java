@@ -69,8 +69,9 @@ public class SecurityConfig {
                 .antMatchers("/auction/region/**").permitAll()
                 .antMatchers("/category/hit").permitAll()
                 .antMatchers("/region/hit").permitAll()
-                .antMatchers("/chat").permitAll()
-                .antMatchers("/ws/chat").permitAll()
+                .antMatchers("/wss/chat/**").permitAll()
+                .antMatchers("/ws/chat/**").permitAll()
+                .antMatchers("/chat/**").permitAll()
                 .anyRequest().authenticated()
 
                 .and()

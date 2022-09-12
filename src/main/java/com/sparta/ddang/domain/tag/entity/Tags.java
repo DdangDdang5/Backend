@@ -8,6 +8,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
+
 @Getter
 @Entity
 public class Tags {
