@@ -29,9 +29,9 @@ public class Auction extends Timestamped { // 19개
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
-    @Column
-    @ColumnDefault("0")
-    private String profileImgUrl;
+//    @Column
+//    @ColumnDefault("0")
+//    private String profileImgUrl;
 
     @Column(nullable = false)
     private String title;

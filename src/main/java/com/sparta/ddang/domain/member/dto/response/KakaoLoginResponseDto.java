@@ -8,7 +8,7 @@ import lombok.Getter;
 public class KakaoLoginResponseDto {
 
 
-    private Long memberId;
+    //private Long id;
     private String email;
     private String nickname;
     private String kakaoProImg;
@@ -20,7 +20,7 @@ public class KakaoLoginResponseDto {
     }
 
     @Builder
-    public KakaoLoginResponseDto(Long memberId,String email, String nickname,
+    public KakaoLoginResponseDto(Long memberId, String email, String nickname,
                                  String kakaoProImg, boolean isKakao,
                                  TokenDto tokenDto){
         this.memberId = memberId;
