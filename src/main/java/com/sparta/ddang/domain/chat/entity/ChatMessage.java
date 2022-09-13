@@ -2,7 +2,6 @@ package com.sparta.ddang.domain.chat.entity;
 
 
 import com.sparta.ddang.domain.chat.dto.ChatMessageDto;
-import com.sparta.ddang.util.Timestamped;
 import com.sparta.ddang.util.TimestampedChat;
 import lombok.Builder;
 import lombok.Getter;
