@@ -3,6 +3,7 @@ package com.sparta.ddang.domain.auction.controller;
 import com.sparta.ddang.domain.auction.dto.request.AuctionRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionTagsRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
+import com.sparta.ddang.domain.auction.dto.request.JoinPriceRequestDto;
 import com.sparta.ddang.domain.auction.service.AuctionService;
 import com.sparta.ddang.domain.dto.ResponseDto;
 import org.springframework.web.bind.annotation.*;
@@ -114,11 +115,12 @@ public class AuctionController {
 
     // 경매 참여
     // /auction/{auctionId}/join
-    @RequestMapping(value = "/auction/{auctionId}/join", method = RequestMethod.GET)
+    @RequestMapping(value = "/auction/{auctionId}/join", method = RequestMethod.POST)
     public ResponseDto<?> joinAuction(@PathVariable Long auctionId,
+                                         @RequestBody JoinPriceRequestDto joinPriceRequestDto,
                                          HttpServletRequest request){
 
-        return auctionService.joinAuction(auctionId,request);
+        return auctionService.joinAuction(auctionId,joinPriceRequestDto,request);
 
 
     }

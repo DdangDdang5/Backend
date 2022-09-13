@@ -1,25 +1,36 @@
 package com.sparta.ddang.domain.chat.entity;
 
-
+import com.sparta.ddang.domain.chat.dto.ChatRoomDto;
+import com.sparta.ddang.util.Timestamped;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-import java.util.UUID;
+import javax.persistence.*;
 
 @Getter
-@Setter
-@NoArgsConstructor
-public class ChatRoom {
+@Entity
+public class ChatRoom extends Timestamped {
 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    private Long id;
+
+    @Column
     private String roomId;
+
+    @Column
     private String roomName;
 
+    public ChatRoom(){
 
-    public static ChatRoom create(String name) {
-        ChatRoom room = new ChatRoom();
-        room.roomId = UUID.randomUUID().toString();
-        room.roomName = name;
-        return room;
     }
+
+    @Builder
+    public ChatRoom(ChatRoomDto chatRoomDto){
+
+        this.roomId = chatRoomDto.getRoomId();
+        this.roomName = chatRoomDto.getRoomName();
+
+    }
+
 }
