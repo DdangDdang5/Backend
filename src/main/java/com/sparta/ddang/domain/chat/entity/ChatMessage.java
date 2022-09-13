@@ -1,25 +1,49 @@
 package com.sparta.ddang.domain.chat.entity;
 
 
-import lombok.AllArgsConstructor;
+import com.sparta.ddang.domain.chat.dto.ChatMessageDto;
+import com.sparta.ddang.util.Timestamped;
+import com.sparta.ddang.util.TimestampedChat;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import javax.persistence.*;
 
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class ChatMessage {
+@Entity
+public class ChatMessage extends TimestampedChat {
+
     public enum MessageType {
-        ENTER, TALK
+        ENTER, TALK, QUIT
     }
 
-    private MessageType type;
-    //채팅방 ID
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
     private String roomId;
-    //보내는 사람
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MessageType type;
+
+    @Column(nullable = false)
     private String sender;
-    //내용
+
+    @Column(nullable = false)
     private String message;
+
+    public ChatMessage(){}
+
+    @Builder
+    public ChatMessage(ChatMessageDto chatMessageDto){
+
+        this.type = chatMessageDto.getType();
+        this.roomId = chatMessageDto.getRoomId();
+        this.sender = chatMessageDto.getSender();
+        this.message = chatMessageDto.getMessage();
+
+    }
+
 }

@@ -111,6 +111,7 @@ public class Auction extends Timestamped { // 19개
         this.multiImages = multiImages;
         this.content = auctionRequestDto.getContent();
         this.startPrice = auctionRequestDto.getStartPrice();
+        this.nowPrice = auctionRequestDto.getStartPrice();
         this.auctionPeriod = auctionRequestDto.getAuctionPeriod();
         this.category = auctionRequestDto.getCategory();
         this.region = auctionRequestDto.getRegion();
@@ -163,4 +164,12 @@ public class Auction extends Timestamped { // 19개
         this.tags =tags;
 
     }
+
+    public void updateJoinPrice(Long userPrice){
+
+        this.nowPrice = userPrice;
+
+    }
+
+
 }
