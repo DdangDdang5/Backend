@@ -4,6 +4,7 @@ import com.sparta.ddang.domain.auction.dto.request.AuctionRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
 import com.sparta.ddang.domain.member.entity.Member;
 import com.sparta.ddang.domain.mulltiimg.entity.MultiImage;
+import com.sparta.ddang.domain.tag.entity.Tags;
 import com.sparta.ddang.util.Timestamped;
 import lombok.Getter;
 import org.hibernate.annotations.ColumnDefault;
@@ -28,9 +29,9 @@ public class Auction extends Timestamped { // 19개
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
-    @Column
-    @ColumnDefault("0")
-    private String profileImgUrl;
+//    @Column
+//    @ColumnDefault("0")
+//    private String profileImgUrl;
 
     @Column(nullable = false)
     private String title;
@@ -47,6 +48,11 @@ public class Auction extends Timestamped { // 19개
     //@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<MultiImage> multiImages = new ArrayList<MultiImage>();
+
+    @JoinColumn(name = "tags_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    private Tags tags;
+
 
 
     @Column(nullable = false)
@@ -105,12 +111,14 @@ public class Auction extends Timestamped { // 19개
         this.multiImages = multiImages;
         this.content = auctionRequestDto.getContent();
         this.startPrice = auctionRequestDto.getStartPrice();
+        this.nowPrice = auctionRequestDto.getStartPrice();
         this.auctionPeriod = auctionRequestDto.getAuctionPeriod();
         this.category = auctionRequestDto.getCategory();
         this.region = auctionRequestDto.getRegion();
         this.direct = auctionRequestDto.isDirect();
         this.delivery = auctionRequestDto.isDelivery();
         this.auctionStatus = true;
+
     }
 
     public Auction(List<MultiImage> multiImages){
@@ -150,4 +158,18 @@ public class Auction extends Timestamped { // 19개
         this.participantCnt = participantCnt;
 
     }
+
+    public void addAuctionTags(Tags tags) {
+
+        this.tags =tags;
+
+    }
+
+    public void updateJoinPrice(Long userPrice){
+
+        this.nowPrice = userPrice;
+
+    }
+
+
 }

@@ -10,8 +10,6 @@ public interface CategoryRepository extends JpaRepository<Category,Long> {
 
     boolean existsByCategory(String category);
 
-
-
     void deleteByCategory(String category);
 
    //List<Category> findAllByCategory(String cate);
@@ -19,5 +17,8 @@ public interface CategoryRepository extends JpaRepository<Category,Long> {
    Optional<Category> findByCategory(String cate);
 
    List<Category> findAllByOrderByViewerCntDesc();
+   List<Category> findAllByOrderByCategoryAsc();
+
+   //Long countAll();
 
 }

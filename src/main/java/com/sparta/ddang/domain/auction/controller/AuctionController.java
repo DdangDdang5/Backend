@@ -1,7 +1,9 @@
 package com.sparta.ddang.domain.auction.controller;
 
 import com.sparta.ddang.domain.auction.dto.request.AuctionRequestDto;
+import com.sparta.ddang.domain.auction.dto.request.AuctionTagsRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
+import com.sparta.ddang.domain.auction.dto.request.JoinPriceRequestDto;
 import com.sparta.ddang.domain.auction.service.AuctionService;
 import com.sparta.ddang.domain.dto.ResponseDto;
 import org.springframework.web.bind.annotation.*;
@@ -38,24 +40,26 @@ public class AuctionController {
         return auctionService.getDetailAuction(auctionId,request);
 
     }
-
+    // 토큰값 없어도 됨.
     // 경매 생성
     @RequestMapping(value = "/auction", method = RequestMethod.POST)
     public ResponseDto<?> createAuction(@RequestPart(value = "images",required = false) List<MultipartFile> multipartFile,
                                         @RequestPart(value = "auctionRequestDto")AuctionRequestDto auctionRequestDto,
+                                        @RequestPart(value = "tags") AuctionTagsRequestDto auctionTagsRequestDto,
                                         HttpServletRequest request) throws IOException {
-        return auctionService.createAuction(multipartFile, auctionRequestDto,request);
+        return auctionService.createAuction(multipartFile, auctionRequestDto,auctionTagsRequestDto,request);
 
     }
     // 경매 수정
     @RequestMapping(value = "/auction/{auctionId}", method = RequestMethod.PATCH)
     public ResponseDto<?> updateAuction(@RequestPart(value = "images",required = false) List<MultipartFile> multipartFile,
                                         @RequestPart(value = "auctionUpdateDto") AuctionUpdateRequestDto auctionUpdateRequestDto,
+                                        @RequestPart(value = "tags") AuctionTagsRequestDto auctionTagsRequestDto,
                                         @PathVariable Long auctionId,
                                         HttpServletRequest request) throws IOException {
 
 
-        return auctionService.updateAuction(multipartFile,auctionId,auctionUpdateRequestDto,request);
+        return auctionService.updateAuction(multipartFile,auctionId,auctionUpdateRequestDto,auctionTagsRequestDto,request);
 
     }
     
@@ -77,11 +81,26 @@ public class AuctionController {
 
     }
 
+    @RequestMapping(value = "/auction/category/show", method = RequestMethod.GET)
+    public ResponseDto<?> showCategoryAuction(){
+
+        return auctionService.showCategoryAuction();
+
+    }
+
     // 경매 지역별 조회 --> 비로그인 회원도 조회가능하게 함.
     @RequestMapping(value = "/auction/region/{region}", method = RequestMethod.GET)
     public ResponseDto<?> findRegionAuction(@PathVariable String region){
 
         return auctionService.findRegionAuction(region);
+
+    }
+
+
+    @RequestMapping(value = "/auction/region/show", method = RequestMethod.GET)
+    public ResponseDto<?> showRegionAuction(){
+
+        return auctionService.showRegionAuction();
 
     }
 
@@ -96,24 +115,24 @@ public class AuctionController {
 
     // 경매 참여
     // /auction/{auctionId}/join
-    @RequestMapping(value = "/auction/{auctionId}/join", method = RequestMethod.GET)
+    @RequestMapping(value = "/auction/{auctionId}/join", method = RequestMethod.POST)
     public ResponseDto<?> joinAuction(@PathVariable Long auctionId,
+                                         @RequestBody JoinPriceRequestDto joinPriceRequestDto,
                                          HttpServletRequest request){
 
-        return auctionService.joinAuction(auctionId,request);
+        return auctionService.joinAuction(auctionId,joinPriceRequestDto,request);
 
 
     }
 
     // 내가 참여중인 경매 조회
     // /member/{memberId}/mypage/participant
-    @RequestMapping(value = "/member/{memberId}/mypage/participant",
+    @RequestMapping(value = "/member/mypage/participant",
             method = RequestMethod.GET)
-    public ResponseDto<?> getAlljoinAuction(@PathVariable Long memberId,
-                                      HttpServletRequest request){
+    public ResponseDto<?> getAlljoinAuction(HttpServletRequest request){
 
 
-        return auctionService.getAlljoinAuction(memberId,request);
+        return auctionService.getAlljoinAuction(request);
 
     }
 
@@ -166,6 +185,13 @@ public class AuctionController {
 
     }
 
+    // 경매 타이틀 검색
+    @RequestMapping(value = "/auction/search/{title}", method = RequestMethod.GET)
+    public ResponseDto<?> getSearchTitle(@PathVariable String title){
+
+        return auctionService.getSearchTitle(title);
+
+    }
 
 
 }
