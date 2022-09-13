@@ -3,6 +3,8 @@ package com.sparta.ddang.domain.member.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.ddang.domain.auction.dto.resposne.AuctionResponseDto;
+import com.sparta.ddang.domain.auction.entity.Auction;
 import com.sparta.ddang.domain.auction.repository.AuctionRepository;
 import com.sparta.ddang.domain.dto.ResponseDto;
 import com.sparta.ddang.domain.favorite.repository.FavoriteRespository;
@@ -40,6 +42,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -381,12 +385,50 @@ public class MemberService {
             return ResponseDto.fail("존재하지 않는 회원입니다.");
         }
 
+        List<Auction> auctionList = auctionRepository.findAllByMember_Id(member.getId());
+
+        List<AuctionResponseDto> auctionResponseDtoList = new ArrayList<>();
+
+        for (Auction auction : auctionList){
+
+            auctionResponseDtoList.add(
+
+                    AuctionResponseDto.builder()
+                            .auctionId(auction.getId())
+                            .productName(auction.getProductName())
+                            .memberId(auction.getMember().getId())
+                            .nickname(auction.getMember().getNickName())
+                            .profileImgUrl(auction.getMember().getProfileImgUrl())
+                            .title(auction.getTitle())
+                            .content(auction.getContent())
+                            .multiImages(auction.getMultiImages())
+                            .startPrice(auction.getStartPrice())
+                            .nowPrice(auction.getNowPrice())
+                            .auctionPeriod(auction.getAuctionPeriod())
+                            .category(auction.getCategory())
+                            .region(auction.getRegion())
+                            .direct(auction.isDirect())
+                            .delivery(auction.isDelivery())
+                            .viewerCnt(auction.getViewerCnt())
+                            .auctionStatus(true)
+                            .participantCnt(auction.getParticipantCnt())
+                            .participantStatus(auction.isParticipantStatus())
+                            //.favoriteStatus(auction.isFavoriteStatus())
+                            .createdAt(auction.getCreatedAt())
+                            .modifiedAt(auction.getModifiedAt())
+                            .build()
+            );
+
+
+        }
+
         return ResponseDto.success(
-                MypageResponseDto.builder()
+                MyPageLookupResponseDto.builder()
                         .memberId(member.getId())
                         .email(member.getEmail())
                         .nickname(member.getNickName())
                         .profileImgUrl(member.getProfileImgUrl())
+                        .auctionResponseDtoList(auctionResponseDtoList)
                         .build()
         );
 
