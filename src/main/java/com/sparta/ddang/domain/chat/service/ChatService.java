@@ -3,10 +3,12 @@ package com.sparta.ddang.domain.chat.service;
 
 import com.sparta.ddang.domain.chat.dto.ChatMessageDto;
 import com.sparta.ddang.domain.chat.dto.ChatRoomDto;
+import com.sparta.ddang.domain.chat.dto.ChatRoomResponseDto;
 import com.sparta.ddang.domain.chat.entity.ChatMessage;
 import com.sparta.ddang.domain.chat.entity.ChatRoom;
 import com.sparta.ddang.domain.chat.repository.ChatMessageRepository;
 import com.sparta.ddang.domain.chat.repository.ChatRoomRepository;
+import com.sparta.ddang.domain.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -56,6 +58,8 @@ public class ChatService {
             message.setMessage(message.getSender() + "님이 입장하였습니다.");
         }
 
+        sendingOperations.convertAndSend("/topic/chat/room/" + message.getRoomId(), message);
+
         System.out.println("===============================================");
         System.out.println(message.getType());
         System.out.println(message.getRoomId());
@@ -66,8 +70,6 @@ public class ChatService {
         ChatMessage chatMessage = new ChatMessage(message);
 
         chatMessageRepository.save(chatMessage);
-
-        sendingOperations.convertAndSend("/topic/chat/room/" + chatMessage.getRoomId(), chatMessage);
 
         System.out.println("===============================================");
         System.out.println(chatMessage.getType());
@@ -102,7 +104,57 @@ public class ChatService {
         return chatRooms.get(roomId);
     }
 
+    @Transactional
+    public ResponseDto<?> getMessages(String roomId) {
 
+        List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoomId(roomId);
+
+        List<ChatMessageDto> chatMessageDtos = new ArrayList<>();
+
+        for (ChatMessage chatMessage : chatMessages){
+
+            chatMessageDtos.add(
+                    ChatMessageDto.builder()
+                            .type(chatMessage.getType())
+                            .roomId(chatMessage.getRoomId())
+                            .sender(chatMessage.getSender())
+                            .message(chatMessage.getMessage())
+                            .createdAt(chatMessage.getCreatedAt())
+                            .build()
+            );
+        }
+
+        return ResponseDto.success(chatMessageDtos);
+
+
+    }
+
+
+    @Transactional
+    public ResponseDto<?> findAllRoomAll() {
+
+        List<ChatRoom> chatRoomList = chatRoomRepository.findAllByOrderByCreatedAtDesc();
+
+        List<ChatRoomResponseDto> chatRoomDtos = new ArrayList<>();
+
+        for (ChatRoom chatRoom : chatRoomList){
+
+            chatRoomDtos.add(
+
+                ChatRoomResponseDto.builder()
+                        .roomId(chatRoom.getRoomId())
+                        .roomName(chatRoom.getRoomName())
+                        .createdAt(chatRoom.getCreatedAt())
+                        .build()
+
+            );
+
+
+        }
+
+        return ResponseDto.success(chatRoomDtos);
+
+    }
 
 
 }

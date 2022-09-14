@@ -151,6 +151,10 @@ public class MemberService {
             return ResponseDto.fail("존재하지 않는 이메일입니다.");
         }
 
+        if (!member.validatePassword(passwordEncoder, requestDto.getPassword())) {
+            return ResponseDto.fail("비밀번호를 다시 확인해 주세요");
+        }
+
         TokenDto tokenDto = tokenProvider.generateTokenDto(member);
         tokenToHeaders(tokenDto, response);
 
