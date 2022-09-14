@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sparta.ddang.util.Timestamped;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 
@@ -58,6 +59,10 @@ public class Member extends Timestamped {
         this.password = password;
         this.profileImgUrl = profileImgUrl;
         this.isKakao = isKakao;
+    }
+
+    public boolean validatePassword(PasswordEncoder passwordEncoder, String password) {
+        return passwordEncoder.matches(password, this.password);
     }
 
 
