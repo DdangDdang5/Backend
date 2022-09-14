@@ -32,7 +32,27 @@ public class ChatService {
 
 
 
-    //채팅방 생성
+    //채팅방 생성 원본
+//    @Transactional
+//    public ChatRoomDto createRoom(String name) {
+//        ChatRoomDto chatRoomDto = ChatRoomDto.create(name);
+//
+//        System.out.println("===========================");
+//        System.out.println(chatRoomDto.getRoomId());
+//        System.out.println(chatRoomDto.getRoomName());
+//        System.out.println("===========================");
+//
+//        chatRooms.put(chatRoomDto.getRoomId(), chatRoomDto);
+//
+//        ChatRoom chatRoom = new ChatRoom(chatRoomDto);
+//
+//        chatRoomRepository.save(chatRoom);
+//
+//        return chatRoomDto;
+//    }
+
+
+
     @Transactional
     public ChatRoomDto createRoom(String name) {
         ChatRoomDto chatRoomDto = ChatRoomDto.create(name);
@@ -50,6 +70,8 @@ public class ChatService {
 
         return chatRoomDto;
     }
+
+
 
     @Transactional
     public void save(ChatMessageDto message) {

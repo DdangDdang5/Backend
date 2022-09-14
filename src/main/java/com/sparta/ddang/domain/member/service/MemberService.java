@@ -158,7 +158,6 @@ public class MemberService {
         TokenDto tokenDto = tokenProvider.generateTokenDto(member);
         tokenToHeaders(tokenDto, response);
 
-
         return ResponseDto.success(
                 MemberResponseDto.builder()
                         .memberId(member.getId())
@@ -356,16 +355,21 @@ public class MemberService {
     @Transactional
     public ResponseDto<?> editMypage(Long memberId, MemberRequestDto requestDto, MultipartFile multipartFile) throws IOException {
         Member member = checkMemberId(memberId);
-
+        
         if (member == null) {
             return ResponseDto.fail("존재하지 않는 회원입니다.");
-        }
+        }       
+        
+        Member member1 = checkNickname(requestDto.getNickName());
+
+        if (member1 != null) {
+            return ResponseDto.fail("닉네임이 존재합니다.");
+        }      
 
         String profileImgUrl = member.getProfileImgUrl();
+
         if (!multipartFile.isEmpty()) {
             profileImgUrl = s3UploadService.upload(multipartFile, "DdangDdang/profileImg");
-        } else {
-            profileImgUrl = null;
         }
 
         member.update(requestDto.getNickName(), profileImgUrl);
@@ -466,6 +470,8 @@ public class MemberService {
         response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
         response.addHeader("Access-Token-Expire-Time", tokenDto.getAccessTokenExpiresIn().toString());
     }
+
+
 
 
 }
