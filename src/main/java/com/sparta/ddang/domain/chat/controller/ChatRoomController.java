@@ -2,6 +2,7 @@ package com.sparta.ddang.domain.chat.controller;
 
 import com.sparta.ddang.domain.chat.dto.ChatRoomDto;
 import com.sparta.ddang.domain.chat.service.ChatService;
+import com.sparta.ddang.domain.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,6 +29,12 @@ public class ChatRoomController {
     @ResponseBody
     public List<ChatRoomDto> room() {
         return chatService.findAllRoom();
+    }
+
+    @GetMapping("/rooms/all")
+    @ResponseBody
+    public ResponseDto<?> roomAll() {
+        return chatService.findAllRoomAll();
     }
 
     // 채팅방 생성

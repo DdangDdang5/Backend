@@ -3,9 +3,12 @@ package com.sparta.ddang.domain.chat.controller;
 
 import com.sparta.ddang.domain.chat.dto.ChatMessageDto;
 import com.sparta.ddang.domain.chat.service.ChatService;
+import com.sparta.ddang.domain.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,8 +31,13 @@ public class MessageController {
     public void enter(ChatMessageDto message) {
         chatService.save(message);
     }
-
-
+    
+    
+    // 채팅 기록 복원
+    @GetMapping("/chat/message/{roomId}")
+    public ResponseDto<?> getMessage(@PathVariable String roomId) {
+        return chatService.getMessages(roomId);
+    }
 
 
 }
