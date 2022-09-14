@@ -7,7 +7,7 @@ import com.sparta.ddang.domain.auction.dto.request.AuctionRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionTagsRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.JoinPriceRequestDto;
-import com.sparta.ddang.domain.auction.dto.resposne.AuctionIdResponseDto;
+import com.sparta.ddang.domain.auction.dto.resposne.AuctionChatResponseDto;
 import com.sparta.ddang.domain.auction.dto.resposne.AuctionResponseDto;
 import com.sparta.ddang.domain.auction.dto.resposne.AuctionTagsResponseDto;
 import com.sparta.ddang.domain.auction.entity.Auction;
@@ -16,6 +16,8 @@ import com.sparta.ddang.domain.category.dto.CategoryOnlyResponseDto;
 import com.sparta.ddang.domain.category.dto.CategoryResponseDto;
 import com.sparta.ddang.domain.category.entity.Category;
 import com.sparta.ddang.domain.category.repository.CategoryRepository;
+import com.sparta.ddang.domain.chat.dto.ChatRoomDto;
+import com.sparta.ddang.domain.chat.service.ChatService;
 import com.sparta.ddang.domain.dto.ResponseDto;
 import com.sparta.ddang.domain.favorite.dto.FavoriteResponseDto;
 import com.sparta.ddang.domain.favorite.entity.Favorite;
@@ -81,6 +83,8 @@ public class AuctionService {
     private final TagsRepository tagsRepository;
 
     private final JoinPriceRepository joinPriceRepository;
+
+    private final ChatService chatService;
 
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;  // S3 버킷 이름
@@ -402,16 +406,65 @@ public class AuctionService {
 
         }
 
+        // 경매 게시글 생성시 동시에 채팅방 개설
+        String auchatName = "경매" + auction.getId() + "번방";
+
+        ChatRoomDto chatRoomDto = chatService.createRoom(auchatName);
+
+        //채팅방 아이디 필요하면 resposne하기
+        System.out.println("경매채팅방 아이디 : " + chatRoomDto.getRoomId());
+
+        auction.addAuctionChatRoomId(chatRoomDto.getRoomId());
+
+        auctionRepository.save(auction);
+
+        // 상세페이지에서 채팅 roomId 반환하기
+
+
+
+
         //auction.getCategory()
         //auction.getViewerCnt()
 
         //auction = new Auction(multiImages);
 
+//        return ResponseDto.success(
+//                AuctionIdResponseDto.builder()
+//                        .auctionId(auction.getId())
+//                        .build()
+//        );
+
+
+
         return ResponseDto.success(
-                AuctionIdResponseDto.builder()
+                AuctionChatResponseDto.builder()
                         .auctionId(auction.getId())
+                        .productName(auction.getProductName())
+                        .tags(auction.getTags())
+                        .memberId(member.getId())
+                        .nickname(member.getNickName())
+                        .profileImgUrl(member.getProfileImgUrl())
+                        .title(auction.getTitle())
+                        .content(auction.getContent())
+                        .multiImages(auction.getMultiImages())
+                        .startPrice(auction.getStartPrice())
+                        .nowPrice(auction.getNowPrice())
+                        .auctionPeriod(auction.getAuctionPeriod())
+                        .category(auction.getCategory())
+                        .region(auction.getRegion())
+                        .direct(auction.isDirect())
+                        .delivery(auction.isDelivery())
+                        .viewerCnt(auction.getViewerCnt())
+                        .auctionStatus(auction.isAuctionStatus())
+                        .participantCnt(auction.getParticipantCnt())
+                        .participantStatus(auction.isParticipantStatus())
+                        //.favoriteStatus(auction.isFavoriteStatus())
+                        .roomId(auction.getChatRoomId())
+                        .createdAt(auction.getCreatedAt())
+                        .modifiedAt(auction.getModifiedAt())
                         .build()
         );
+
 
     }
 
