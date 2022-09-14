@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.sparta.ddang.domain.auction.dto.request.AuctionRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionTagsRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
+import com.sparta.ddang.domain.auction.dto.request.JoinPriceRequestDto;
 import com.sparta.ddang.domain.auction.dto.resposne.AuctionIdResponseDto;
 import com.sparta.ddang.domain.auction.dto.resposne.AuctionResponseDto;
 import com.sparta.ddang.domain.auction.dto.resposne.AuctionTagsResponseDto;
@@ -19,6 +20,8 @@ import com.sparta.ddang.domain.dto.ResponseDto;
 import com.sparta.ddang.domain.favorite.dto.FavoriteResponseDto;
 import com.sparta.ddang.domain.favorite.entity.Favorite;
 import com.sparta.ddang.domain.favorite.repository.FavoriteRespository;
+import com.sparta.ddang.domain.joinprice.entity.JoinPrice;
+import com.sparta.ddang.domain.joinprice.repository.JoinPriceRepository;
 import com.sparta.ddang.domain.member.entity.Member;
 import com.sparta.ddang.domain.mulltiimg.awsS3exceptionhandler.FileTypeErrorException;
 import com.sparta.ddang.domain.mulltiimg.entity.MultiImage;
@@ -76,6 +79,8 @@ public class AuctionService {
     private final FavoriteRespository favoriteRespository;
 
     private final TagsRepository tagsRepository;
+
+    private final JoinPriceRepository joinPriceRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;  // S3 버킷 이름
@@ -660,9 +665,9 @@ public class AuctionService {
 
     }
     
-    // 경매 참여하기
+    // 경매 참여하기 --> 입찰하기
     @Transactional
-    public ResponseDto<?> joinAuction(Long auctionId,
+    public ResponseDto<?> joinAuction(Long auctionId, JoinPriceRequestDto joinPriceRequestDto,
                                       HttpServletRequest request) {
 
         if (null == request.getHeader("Authorization")) {
@@ -682,26 +687,78 @@ public class AuctionService {
 
         }
 
+        // 원래 참가하기 코드 --> 입찰하기
+        
+//        if (participantRepository.existsByMemberIdAndAuctionId(member.getId(), auctionId)) {
+//
+//            participantRepository.deleteByMemberIdAndAuctionId(member.getId(), auctionId);
+//
+//            Long participantCnt = participantRepository.countAllByAuctionId(auctionId);
+//
+//            if (participantCnt > 0) {
+//
+//                auction.updateParticipantStatusOn();
+//
+//            } else {
+//
+//                auction.updateParticipantStatusOff();
+//
+//            }
+//
+//            auction.updateParticipantCnt(participantCnt);
+//
+//            auctionRepository.save(auction);
+//
+//
+//            // 아래 리턴문이랑 동일하게 고치기 false로 해서 --> 고침
+//            return ResponseDto.success(
+//                    AuctionResponseDto.builder()
+//                            .auctionId(auction.getId())
+//                            .productName(auction.getProductName())
+//                            .memberId(auction.getMember().getId())
+//                            .nickname(auction.getMember().getNickName())
+//                            .profileImgUrl(auction.getMember().getProfileImgUrl())
+//                            .title(auction.getTitle())
+//                            .content(auction.getContent())
+//                            .multiImages(auction.getMultiImages())
+//                            .startPrice(auction.getStartPrice())
+//                            .nowPrice(auction.getNowPrice())
+//                            .auctionPeriod(auction.getAuctionPeriod())
+//                            .category(auction.getCategory())
+//                            .region(auction.getRegion())
+//                            .direct(auction.isDirect())
+//                            .delivery(auction.isDelivery())
+//                            .viewerCnt(auction.getViewerCnt())
+//                            .auctionStatus(auction.isAuctionStatus())
+//                            .participantCnt(auction.getParticipantCnt())
+//                            .participantStatus(false) // 사용자에게 보여지는 부분
+//                            //.favoriteStatus(auction.isFavoriteStatus())
+//                            .createdAt(auction.getCreatedAt())
+//                            .modifiedAt(auction.getModifiedAt())
+//                            .build()
+//            );
+//
+//        }
+
+        // 원래 참가하기 코드 --> 입찰하기
+
         if (participantRepository.existsByMemberIdAndAuctionId(member.getId(), auctionId)) {
 
-            participantRepository.deleteByMemberIdAndAuctionId(member.getId(), auctionId);
+            //participantRepository.deleteByMemberIdAndAuctionId(member.getId(), auctionId);
 
-            Long participantCnt = participantRepository.countAllByAuctionId(auctionId);
+            //Long participantCnt = participantRepository.countAllByAuctionId(auctionId);
 
-            if (participantCnt > 0) {
+            //auction.updateParticipantCnt(participantCnt);
 
-                auction.updateParticipantStatusOn();
+            Long userPrice = joinPriceRequestDto.getUserPrice();
 
-            } else {
+            JoinPrice joinPrice = new JoinPrice(member.getId(), auctionId, userPrice);
 
-                auction.updateParticipantStatusOff();
+            joinPriceRepository.save(joinPrice);
 
-            }
-
-            auction.updateParticipantCnt(participantCnt);
+            auction.updateJoinPrice(userPrice);
 
             auctionRepository.save(auction);
-
 
             // 아래 리턴문이랑 동일하게 고치기 false로 해서 --> 고침
             return ResponseDto.success(
@@ -741,17 +798,15 @@ public class AuctionService {
 
         Long participantCnt = participantRepository.countAllByAuctionId(auctionId);
 
-        if (participantCnt > 0) {
-
-            auction.updateParticipantStatusOn();
-
-        } else {
-
-            auction.updateParticipantStatusOff();
-
-        }
-
         auction.updateParticipantCnt(participantCnt);
+
+        Long userPrice = joinPriceRequestDto.getUserPrice();
+
+        JoinPrice joinPrice = new JoinPrice(member.getId(), auctionId, userPrice);
+
+        joinPriceRepository.save(joinPrice);
+
+        auction.updateJoinPrice(userPrice);
 
         auctionRepository.save(auction);
 
