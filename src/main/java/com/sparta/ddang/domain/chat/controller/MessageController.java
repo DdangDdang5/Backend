@@ -37,7 +37,6 @@ public class MessageController {
     // 호가 주소
 
     
-    
     // 채팅 기록 복원
     @GetMapping("/chat/message/{roomId}")
     public ResponseDto<?> getMessage(@PathVariable String roomId) {
