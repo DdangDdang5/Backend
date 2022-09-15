@@ -8,6 +8,7 @@ import com.sparta.ddang.domain.auction.dto.request.AuctionTagsRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.JoinPriceRequestDto;
 import com.sparta.ddang.domain.auction.dto.resposne.AuctionChatResponseDto;
+import com.sparta.ddang.domain.auction.dto.resposne.AuctionRankResponseDto;
 import com.sparta.ddang.domain.auction.dto.resposne.AuctionResponseDto;
 import com.sparta.ddang.domain.auction.dto.resposne.AuctionTagsResponseDto;
 import com.sparta.ddang.domain.auction.entity.Auction;
@@ -234,6 +235,10 @@ public class AuctionService {
             regionRepository.save(region);
 
         }
+
+//        ChatMessageDto chatMessageDto = new ChatMessageDto();
+//        chatMessageDto.addMember(member.getNickName(), member.getProfileImgUrl());
+//        chatService.save(chatMessageDto);
 
         return ResponseDto.success(auction);
 
@@ -1222,9 +1227,6 @@ public class AuctionService {
 
     }
 
-
-
-
     // 경매 검색
     @Transactional
     public ResponseDto<?> getSearchTitle(String title) {
@@ -1265,6 +1267,107 @@ public class AuctionService {
 
 
         return ResponseDto.success(auctionResponseDtoList);
+
+
+    }
+
+
+    //경매 To4조회
+    @Transactional
+    public ResponseDto<?> getAuctionTop4() {
+        
+        // viewCnt 순으로 정렬된 배열
+        List<Auction> auctionList = auctionRepository.findAllByOrderByViewerCntDesc();
+
+        // viewCnt 순으로 정렬된 배열을 저장
+        List<AuctionRankResponseDto> auctionRankResponseDtos = new ArrayList<>();
+
+        // top4만 저장하는 dto
+        List<AuctionRankResponseDto> auctionRankResponseDtoList = new ArrayList<>();
+        
+        // for문으로 viewCnt 순으로 정렬
+        for (Auction auction : auctionList){
+
+            auctionRankResponseDtos.add(
+                    AuctionRankResponseDto.builder()
+                            .auctionId(auction.getId())
+                            .memberId(auction.getMember().getId())
+                            .title(auction.getTitle())
+                            .content(auction.getContent())
+                            .nowPrice(auction.getNowPrice())
+                            .viewerCnt(auction.getViewerCnt())
+                            .multiImages(auction.getMultiImages())
+                            .tags(auction.getTags())
+                            .build()
+
+            );
+
+
+        }
+        
+        // 인기순 4개만 따로 배열로 저장
+        for (int i = 0; i < 4 ; i++) {
+
+            auctionRankResponseDtoList.add(
+                    auctionRankResponseDtos.get(i)
+            );
+
+        }
+
+        // 저장된 4개만 저장된 리스트 출력
+        return ResponseDto.success(auctionRankResponseDtoList);
+
+
+    }
+
+
+    //최신 경매 조회(3개)
+    @Transactional
+    public ResponseDto<?> getNewReleaseTop3() {
+
+        // 경매게시글 최신순으로 정렬된 배열
+        List<Auction> auctionList = auctionRepository.findAllByOrderByCreatedAtDesc();
+
+        // 경매게시글 최신순으로 정렬된 배열 저장
+        List<AuctionRankResponseDto> auctionRankResponseDtos = new ArrayList<>();
+
+        // 최신 경매 게시글 3개만 저장하는 dto
+        List<AuctionRankResponseDto> auctionRankResponseDtoList = new ArrayList<>();
+
+
+        // for문으로 최신 순으로 정렬된 것을 dto에 넣는다.
+        for (Auction auction : auctionList){
+
+            auctionRankResponseDtos.add(
+                    AuctionRankResponseDto.builder()
+                            .auctionId(auction.getId())
+                            .memberId(auction.getMember().getId())
+                            .title(auction.getTitle())
+                            .content(auction.getContent())
+                            .nowPrice(auction.getNowPrice())
+                            .viewerCnt(auction.getViewerCnt())
+                            .multiImages(auction.getMultiImages())
+                            .tags(auction.getTags())
+                            .build()
+
+            );
+
+
+        }
+
+
+        // 최신 3개만 따로 배열로 저장
+        for (int i = 0; i < 3 ; i++) {
+
+            auctionRankResponseDtoList.add(
+                    auctionRankResponseDtos.get(i)
+            );
+
+        }
+
+
+        // 저장된 3개만 저장된 리스트 출력
+        return ResponseDto.success(auctionRankResponseDtoList);
 
 
     }

@@ -77,6 +77,7 @@ public class SecurityConfig {
                 .antMatchers("/auction/region/**").permitAll()
                 .antMatchers("/category/hit").permitAll()
                 .antMatchers("/region/hit").permitAll()
+                .antMatchers("/pagination/**").permitAll()
                 .antMatchers("/chat/**").permitAll()
                 .antMatchers("/ws/**").permitAll()
                 .antMatchers("/wss/**").permitAll()
