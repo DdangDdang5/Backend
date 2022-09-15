@@ -193,6 +193,7 @@ public class AuctionController {
 
     }
 
+
     //낙찰자 조회
     @RequestMapping(value = "/auction/{auctionId}/bidder", method = RequestMethod.GET)
     public ResponseDto<?> getBidder(@PathVariable Long auctionId){
@@ -200,5 +201,23 @@ public class AuctionController {
         return auctionService.getBidder(auctionId);
 
     }
+
+    // 경매 top4 조회
+    @RequestMapping(value = "/auction/hit", method = RequestMethod.GET)
+    public ResponseDto<?> getAuctionTop4(){
+
+        return auctionService.getAuctionTop4();
+
+    }
+
+    //최신 경매 조회(3개)
+    // /auction/new-release
+    @RequestMapping(value = "/auction/new-release", method = RequestMethod.GET)
+    public ResponseDto<?> getNewReleaseTop3(){
+
+        return auctionService.getNewReleaseTop3();
+
+    }
+
 
 }

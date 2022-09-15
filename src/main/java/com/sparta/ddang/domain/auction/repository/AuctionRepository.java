@@ -10,6 +10,9 @@ import java.util.List;
 public interface AuctionRepository extends JpaRepository<Auction,Long> {
 
     List<Auction> findAllByOrderByModifiedAtDesc();
+    List<Auction> findAllByOrderByCreatedAtDesc();
+
+    List<Auction> findAllByOrderByViewerCntDesc();
 
     List<Auction> findAllByCategory(String category);
     List<Auction> findAllByRegion(String region);
