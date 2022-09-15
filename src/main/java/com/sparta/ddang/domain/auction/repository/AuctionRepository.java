@@ -11,7 +11,6 @@ public interface AuctionRepository extends JpaRepository<Auction,Long> {
 
     List<Auction> findAllByOrderByModifiedAtDesc();
     List<Auction> findAllByOrderByCreatedAtDesc();
-
     List<Auction> findAllByOrderByViewerCntDesc();
 
     List<Auction> findAllByCategory(String category);
@@ -33,5 +32,8 @@ public interface AuctionRepository extends JpaRepository<Auction,Long> {
     Page<Auction> findAllByMember_Id(Long memberId, Pageable pageable);
 
     Long countAllByMemberId(Long memberId);
+
+    // Auction findByMember(Optional<Member> member);
+    Auction findByBidRoomId(String bidRoomId);
 
 }

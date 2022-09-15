@@ -1,6 +1,7 @@
 package com.sparta.ddang.domain.chat.controller;
 
 
+import com.sparta.ddang.domain.chat.dto.BidMessageDto;
 import com.sparta.ddang.domain.chat.dto.ChatMessageDto;
 import com.sparta.ddang.domain.chat.service.ChatService;
 import com.sparta.ddang.domain.dto.ResponseDto;
@@ -35,6 +36,10 @@ public class MessageController {
     }
 
     // 호가 주소
+    @MessageMapping("/chat/bid")
+    public void enterBid(BidMessageDto message) {
+        chatService.saveBid(message);
+    }
 
     
     // 채팅 기록 복원

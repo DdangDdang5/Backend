@@ -59,6 +59,7 @@ public class AuctionChatResponseDto {
     private boolean participantStatus;
 
     private String roomId;
+    private String bidId;
 
     //”favoriteStatus”: false,
     //private boolean favoriteStatus;

@@ -7,11 +7,7 @@ import com.sparta.ddang.domain.auction.dto.request.AuctionRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionTagsRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.JoinPriceRequestDto;
-import com.sparta.ddang.domain.auction.dto.resposne.AuctionChatResponseDto;
-import com.sparta.ddang.domain.auction.dto.resposne.AuctionRankResponseDto;
-import com.sparta.ddang.domain.auction.dto.resposne.AuctionResponseDto;
-import com.sparta.ddang.domain.auction.dto.resposne.AuctionTagsResponseDto;
-import com.sparta.ddang.domain.auction.dto.resposne.BidderResponseDto;
+import com.sparta.ddang.domain.auction.dto.resposne.*;
 import com.sparta.ddang.domain.auction.entity.Auction;
 import com.sparta.ddang.domain.auction.repository.AuctionRepository;
 import com.sparta.ddang.domain.category.dto.CategoryOnlyResponseDto;
@@ -54,7 +50,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -426,6 +421,17 @@ public class AuctionService {
 
         auction.addAuctionChatRoomId(chatRoomDto.getRoomId());
 
+
+        // 경매 게시글 생성시 동시에 채팅방 개설
+        String aucBidName = "경매 호가" + auction.getId() + "번방";
+
+        ChatRoomDto chatRoomDto1 = chatService.createRoom(aucBidName);
+
+        //채팅방 아이디 필요하면 resposne하기
+        System.out.println("경매 호가방 아이디 : " + chatRoomDto1.getRoomId());
+
+        auction.addAuctionBidRoomId(chatRoomDto1.getRoomId());
+
         auctionRepository.save(auction);
 
         // 상세페이지에서 채팅 roomId 반환하기
@@ -470,6 +476,7 @@ public class AuctionService {
                         .participantStatus(auction.isParticipantStatus())
                         //.favoriteStatus(auction.isFavoriteStatus())
                         .roomId(auction.getChatRoomId())
+                        .bidId(auction.getBidRoomId())
                         .createdAt(auction.getCreatedAt())
                         .modifiedAt(auction.getModifiedAt())
                         .build()

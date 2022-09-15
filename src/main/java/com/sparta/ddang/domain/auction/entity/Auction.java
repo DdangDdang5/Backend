@@ -11,7 +11,6 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -97,6 +96,10 @@ public class Auction extends Timestamped { // 19개
     @Column
     private String chatRoomId;
 
+    @Column
+    private String bidRoomId;
+
+
 //    @Column
 //    private boolean favoriteStatus;
 
@@ -180,4 +183,9 @@ public class Auction extends Timestamped { // 19개
     }
 
 
+    public void addAuctionBidRoomId(String bidRoomId) {
+
+        this.bidRoomId = bidRoomId;
+
+    }
 }

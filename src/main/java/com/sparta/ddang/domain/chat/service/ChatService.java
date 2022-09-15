@@ -1,11 +1,16 @@
 package com.sparta.ddang.domain.chat.service;
 
 
+import com.sparta.ddang.domain.auction.entity.Auction;
+import com.sparta.ddang.domain.auction.repository.AuctionRepository;
+import com.sparta.ddang.domain.chat.dto.BidMessageDto;
 import com.sparta.ddang.domain.chat.dto.ChatMessageDto;
 import com.sparta.ddang.domain.chat.dto.ChatRoomDto;
 import com.sparta.ddang.domain.chat.dto.ChatRoomResponseDto;
+import com.sparta.ddang.domain.chat.entity.BidMessage;
 import com.sparta.ddang.domain.chat.entity.ChatMessage;
 import com.sparta.ddang.domain.chat.entity.ChatRoom;
+import com.sparta.ddang.domain.chat.repository.BidMessageRepository;
 import com.sparta.ddang.domain.chat.repository.ChatMessageRepository;
 import com.sparta.ddang.domain.chat.repository.ChatRoomRepository;
 import com.sparta.ddang.domain.dto.ResponseDto;
@@ -29,10 +34,16 @@ public class ChatService {
 
     private final ChatMessageRepository chatMessageRepository;
 
+    private final BidMessageRepository bidMessageRepository;
+
     private final SimpMessageSendingOperations sendingOperations;
     private Map<String, ChatRoomDto> chatRooms;
 
     private final MemberRepository memberRepository;
+
+    private final AuctionRepository auctionRepository;
+
+
 
 
     //채팅방 생성 원본
@@ -116,6 +127,54 @@ public class ChatService {
 
     }
 
+    @Transactional
+    public void saveBid(BidMessageDto message) {
+
+        if (BidMessage.MessageType.ENTER.equals(message.getType())) {
+//            message.setMessage(message.getSender() + "님이 입장하였습니다.");
+            message.setMessage("0");
+        }
+
+        System.out.println("===============================================");
+        System.out.println(message.getType());
+        System.out.println(message.getRoomId());
+        System.out.println(message.getSender());
+        System.out.println(message.getMessage());
+        System.out.println("===============================================");
+
+        Optional<Member> member = memberRepository.findByNickName(message.getSender());
+
+        String nickName = member.get().getNickName();
+
+        System.out.println("닉네임" + nickName);
+
+        BidMessage bidMessage = new BidMessage(message, nickName);
+
+        bidMessageRepository.save(bidMessage);
+
+        Long nowPrice = Long.parseLong(bidMessage.getMessage());
+
+        Auction auction = auctionRepository.findByBidRoomId(bidMessage.getRoomId());
+
+        //Auction auction = auctionRepository.findByMember(member);
+
+        auction.updateJoinPrice(nowPrice);
+
+        auctionRepository.save(auction);
+
+        System.out.println("===============================================");
+        System.out.println(bidMessage.getType());
+        System.out.println(bidMessage.getRoomId());
+        System.out.println(bidMessage.getSender());
+        System.out.println(bidMessage.getMessage());
+        System.out.println(bidMessage.getCreatedAt());
+        System.out.println(bidMessage.getNickName());
+        System.out.println("===============================================");
+
+        sendingOperations.convertAndSend("/topic/chat/room/" + bidMessage.getRoomId(), bidMessage);
+
+    }
+
 
     @PostConstruct // 최초 한번만 Bean 주입하는 어노테이션 반복 주입할 필요없다
     // 왜? 소켓으로 연결되어 있는데 계속 빈을 주입할 필요는 없다.
@@ -189,6 +248,7 @@ public class ChatService {
         return ResponseDto.success(chatRoomDtos);
 
     }
+
 
 
 }
