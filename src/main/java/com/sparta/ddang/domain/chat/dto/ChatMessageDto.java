@@ -23,7 +23,15 @@ public class ChatMessageDto {
     //내용
     private String message;
 
+    // private String nickName;
+
+    // private String profileImgUrl;
+
     private LocalDateTime createdAt;
+
+    public ChatMessageDto(){
+
+    }
 
 
     @Builder
@@ -39,5 +47,12 @@ public class ChatMessageDto {
 
 
     }
+
+//    public void addMember(String nickName, String profileImgUrl){
+//
+//        this.nickName = nickName;
+//        this.profileImgUrl = profileImgUrl;
+//
+//    }
 
 }

@@ -26,11 +26,16 @@ public class MessageController {
 //        }
 //        sendingOperations.convertAndSend("/topic/chat/room/"+message.getRoomId(),message);
 //    }
-
+    
+    
+    // 경매 채팅 주소
     @MessageMapping("/chat/message")
     public void enter(ChatMessageDto message) {
         chatService.save(message);
     }
+
+    // 호가 주소
+
     
     
     // 채팅 기록 복원

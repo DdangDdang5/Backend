@@ -374,6 +374,8 @@ public class MemberService {
 
         member.update(requestDto.getNickName(), profileImgUrl);
 
+        memberRepository.save(member);
+
         return ResponseDto.success(
                 MypageResponseDto.builder()
                         .memberId(member.getId())

@@ -9,6 +9,8 @@ import com.sparta.ddang.domain.chat.entity.ChatRoom;
 import com.sparta.ddang.domain.chat.repository.ChatMessageRepository;
 import com.sparta.ddang.domain.chat.repository.ChatRoomRepository;
 import com.sparta.ddang.domain.dto.ResponseDto;
+import com.sparta.ddang.domain.member.entity.Member;
+import com.sparta.ddang.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -30,6 +32,7 @@ public class ChatService {
     private final SimpMessageSendingOperations sendingOperations;
     private Map<String, ChatRoomDto> chatRooms;
 
+    private final MemberRepository memberRepository;
 
 
     //채팅방 생성 원본
@@ -52,7 +55,6 @@ public class ChatService {
 //    }
 
 
-
     @Transactional
     public ChatRoomDto createRoom(String name) {
         ChatRoomDto chatRoomDto = ChatRoomDto.create(name);
@@ -71,16 +73,12 @@ public class ChatService {
         return chatRoomDto;
     }
 
-
-
     @Transactional
     public void save(ChatMessageDto message) {
 
         if (ChatMessage.MessageType.ENTER.equals(message.getType())) {
             message.setMessage(message.getSender() + "님이 입장하였습니다.");
         }
-
-        sendingOperations.convertAndSend("/topic/chat/room/" + message.getRoomId(), message);
 
         System.out.println("===============================================");
         System.out.println(message.getType());
@@ -89,7 +87,17 @@ public class ChatService {
         System.out.println(message.getMessage());
         System.out.println("===============================================");
 
-        ChatMessage chatMessage = new ChatMessage(message);
+        Optional<Member> member = memberRepository.findByNickName(message.getSender());
+
+        String nickName = member.get().getNickName();
+
+        System.out.println("닉네임" + nickName);
+
+        String profileImg = member.get().getProfileImgUrl();
+
+        System.out.println("프로필 이미지" + profileImg);
+
+        ChatMessage chatMessage = new ChatMessage(message, nickName, profileImg);
 
         chatMessageRepository.save(chatMessage);
 
@@ -99,7 +107,11 @@ public class ChatService {
         System.out.println(chatMessage.getSender());
         System.out.println(chatMessage.getMessage());
         System.out.println(chatMessage.getCreatedAt());
+        System.out.println(chatMessage.getNickName());
+        System.out.println(chatMessage.getProfileImgUrl());
         System.out.println("===============================================");
+
+        sendingOperations.convertAndSend("/topic/chat/room/" + chatMessage.getRoomId(), chatMessage);
 
 
     }
@@ -133,7 +145,7 @@ public class ChatService {
 
         List<ChatMessageDto> chatMessageDtos = new ArrayList<>();
 
-        for (ChatMessage chatMessage : chatMessages){
+        for (ChatMessage chatMessage : chatMessages) {
 
             chatMessageDtos.add(
                     ChatMessageDto.builder()
@@ -159,15 +171,15 @@ public class ChatService {
 
         List<ChatRoomResponseDto> chatRoomDtos = new ArrayList<>();
 
-        for (ChatRoom chatRoom : chatRoomList){
+        for (ChatRoom chatRoom : chatRoomList) {
 
             chatRoomDtos.add(
 
-                ChatRoomResponseDto.builder()
-                        .roomId(chatRoom.getRoomId())
-                        .roomName(chatRoom.getRoomName())
-                        .createdAt(chatRoom.getCreatedAt())
-                        .build()
+                    ChatRoomResponseDto.builder()
+                            .roomId(chatRoom.getRoomId())
+                            .roomName(chatRoom.getRoomName())
+                            .createdAt(chatRoom.getCreatedAt())
+                            .build()
 
             );
 
