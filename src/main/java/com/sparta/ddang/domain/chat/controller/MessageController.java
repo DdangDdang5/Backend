@@ -32,7 +32,6 @@ public class MessageController {
         chatService.save(message);
     }
     
-    
     // 채팅 기록 복원
     @GetMapping("/chat/message/{roomId}")
     public ResponseDto<?> getMessage(@PathVariable String roomId) {

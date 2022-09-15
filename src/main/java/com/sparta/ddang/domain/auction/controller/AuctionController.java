@@ -193,5 +193,12 @@ public class AuctionController {
 
     }
 
+    //낙찰자 조회
+    @RequestMapping(value = "/auction/{auctionId}/bidder", method = RequestMethod.GET)
+    public ResponseDto<?> getBidder(@PathVariable Long auctionId){
+
+        return auctionService.getBidder(auctionId);
+
+    }
 
 }

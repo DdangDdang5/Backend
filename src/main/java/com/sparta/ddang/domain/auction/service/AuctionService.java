@@ -10,6 +10,7 @@ import com.sparta.ddang.domain.auction.dto.request.JoinPriceRequestDto;
 import com.sparta.ddang.domain.auction.dto.resposne.AuctionChatResponseDto;
 import com.sparta.ddang.domain.auction.dto.resposne.AuctionResponseDto;
 import com.sparta.ddang.domain.auction.dto.resposne.AuctionTagsResponseDto;
+import com.sparta.ddang.domain.auction.dto.resposne.BidderResponseDto;
 import com.sparta.ddang.domain.auction.entity.Auction;
 import com.sparta.ddang.domain.auction.repository.AuctionRepository;
 import com.sparta.ddang.domain.category.dto.CategoryOnlyResponseDto;
@@ -25,6 +26,7 @@ import com.sparta.ddang.domain.favorite.repository.FavoriteRespository;
 import com.sparta.ddang.domain.joinprice.entity.JoinPrice;
 import com.sparta.ddang.domain.joinprice.repository.JoinPriceRepository;
 import com.sparta.ddang.domain.member.entity.Member;
+import com.sparta.ddang.domain.member.repository.MemberRepository;
 import com.sparta.ddang.domain.mulltiimg.awsS3exceptionhandler.FileTypeErrorException;
 import com.sparta.ddang.domain.mulltiimg.entity.MultiImage;
 import com.sparta.ddang.domain.mulltiimg.repository.MultiImgRepository;
@@ -51,6 +53,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -85,6 +88,8 @@ public class AuctionService {
     private final JoinPriceRepository joinPriceRepository;
 
     private final ChatService chatService;
+
+    private final MemberRepository memberRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;  // S3 버킷 이름
@@ -1269,11 +1274,32 @@ public class AuctionService {
 
     }
 
+    @Transactional
+    public ResponseDto<?> getBidder(Long auctionId) {
+        // 판매자(경매 생성자) 조회
+        Auction auction = checkAuction(auctionId);
+        Member seller = auction.getMember();
+        System.out.println("seller: "+seller);
 
+        // 낙찰자(제일 높은 호가를 부른 사람) 조회
+        List<JoinPrice> joinPriceList = joinPriceRepository.findAllByAuctionIdOrderByJoinPriceDesc(auctionId);
+        JoinPrice joinPrice = joinPriceList.get(0);
+        Member bidder = checkMember(joinPrice.getMemberId());
+        System.out.println("bidder: "+bidder.getNickName());
 
+        // 채팅방 생성
+        ChatRoomDto chatRoomDto = chatService.createRoom(seller.getNickName()+"님의 채팅방");
+        System.out.println("roomId: "+chatRoomDto.getRoomId());
 
-
-    
+        return ResponseDto.success(
+                BidderResponseDto.builder()
+                        .auctionId(auctionId)
+                        .seller(seller.getNickName())
+                        .bidder(bidder.getNickName())
+                        .roomId(chatRoomDto.getRoomId())
+                        .build()
+        );
+    }
     
     
 
@@ -1290,6 +1316,12 @@ public class AuctionService {
     @Transactional(readOnly = true)
     public Auction checkAuction(Long id) {
         Optional<Auction> optionalAuction = auctionRepository.findById(id);
+        return optionalAuction.orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public Member checkMember(Long id) {
+        Optional<Member> optionalAuction = memberRepository.findById(id);
         return optionalAuction.orElse(null);
     }
 

@@ -212,8 +212,8 @@ public class MemberService {
         body.add("grant_type", "authorization_code");
         body.add("client_id", kakaoAppKey);
         //body.add("redirect_uri", "http://localhost:8080/member/kakao/callback");
-        //body.add("redirect_uri", "http://localhost:3000/member/kakao/callback");
-        body.add("redirect_uri", "https://sysgood.shop/member/kakao/callback");
+        body.add("redirect_uri", "http://localhost:3000/member/kakao/callback");
+//        body.add("redirect_uri", "https://sysgood.shop/member/kakao/callback");
         body.add("code", code);
         // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
@@ -379,7 +379,7 @@ public class MemberService {
                         .memberId(member.getId())
                         .email(member.getEmail())
                         .nickname(member.getNickName())
-                        .profileImgUrl(member.getProfileImgUrl())
+                        .profileImgUrl(profileImgUrl)
                         .build()
         );
     }
