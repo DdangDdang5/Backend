@@ -33,15 +33,23 @@ public class ChatMessage extends TimestampedChat {
     @Column(nullable = false)
     private String message;
 
+    @Column(nullable = false)
+    private String nickName;
+
+    @Column
+    private String profileImgUrl;
+
     public ChatMessage(){}
 
     @Builder
-    public ChatMessage(ChatMessageDto chatMessageDto){
+    public ChatMessage(ChatMessageDto chatMessageDto, String nickName, String profileImgUrl){
 
         this.type = chatMessageDto.getType();
         this.roomId = chatMessageDto.getRoomId();
         this.sender = chatMessageDto.getSender();
         this.message = chatMessageDto.getMessage();
+        this.nickName = nickName;
+        this.profileImgUrl = profileImgUrl;
 
     }
 
