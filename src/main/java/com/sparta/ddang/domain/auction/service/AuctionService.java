@@ -50,6 +50,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -1333,7 +1334,9 @@ public class AuctionService {
                             .memberId(auction.getMember().getId())
                             .title(auction.getTitle())
                             .content(auction.getContent())
-                            .category(auction.getCategory())
+                            .region(auction.getRegion())
+                            .auctionPeriod(auction.getAuctionPeriod())
+                            .createdAt(auction.getCreatedAt())
                             .nowPrice(auction.getNowPrice())
                             .viewerCnt(auction.getViewerCnt())
                             .delivery(auction.isDelivery())
@@ -1436,7 +1439,9 @@ public class AuctionService {
                             .memberId(auction.getMember().getId())
                             .title(auction.getTitle())
                             .content(auction.getContent())
-                            .category(auction.getCategory())
+                            .region(auction.getRegion())
+                            .auctionPeriod(auction.getAuctionPeriod())
+                            .createdAt(auction.getCreatedAt())
                             .nowPrice(auction.getNowPrice())
                             .viewerCnt(auction.getViewerCnt())
                             .delivery(auction.isDelivery())
@@ -1504,7 +1509,35 @@ public class AuctionService {
 
     }  
     
+    public ResponseDto<?> getDeadlineAuctions() {
+        LocalDateTime now = LocalDateTime.now(); // 클라이언트에서 api를 호출한 시간(현재 기준 시간)
+        List<Auction> auctions = auctionRepository.findAllByOrderByDeadlineAsc();
+        List<DeadlineAuctionResponseDto> deadlineAuctionResponseDtoList = new ArrayList<>();
 
+        for (Auction auction : auctions) {
+            System.out.println("auctionDeadline: "+auction.getDeadline());
+            if (now.isBefore(auction.getDeadline())) {
+                deadlineAuctionResponseDtoList.add(
+                        DeadlineAuctionResponseDto.builder()
+                                .title(auction.getTitle())
+                                .content(auction.getContent())
+                                .nowPrice(auction.getNowPrice())
+                                .multiImages(auction.getMultiImages())
+                                .memberId(auction.getMember().getId())
+                                .auctionId(auction.getId())
+                                .direct(auction.isDirect())
+                                .delivery(auction.isDelivery())
+                                .region(auction.getRegion())
+                                .deadline(auction.getDeadline())
+                                .build()
+                );
+            }
+
+            if (deadlineAuctionResponseDtoList.size() >= 4) break;
+        }
+
+        return ResponseDto.success(deadlineAuctionResponseDtoList);
+    }
 
 //======================== 회원 정보 및 경매 정보 ========================
 
