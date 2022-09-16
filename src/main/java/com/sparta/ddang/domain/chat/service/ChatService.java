@@ -229,7 +229,6 @@ public class ChatService {
                             .roomId(chatMessage.getRoomId())
                             .sender(chatMessage.getSender())
                             .message(chatMessage.getMessage())
-                            .profileImgUrl(chatMessage.getProfileImgUrl())
                             .createdAt(chatMessage.getCreatedAt())
                             .build()
             );
@@ -314,28 +313,18 @@ public class ChatService {
             ChatMessage lastChat = messageList.get(messageList.size()-1);
 
             if (!onoChatMessageRepository.existsByRoomId(lastChat.getRoomId())){
-                //onoChatMessageRepository.deleteAllByRoomIdAndNickName(lastChat.getRoomId(), lastChat.getNickName());
-                OnoChatMessage onoChatMessage
-                        = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(), lastChat.getNickName() ,lastChat.getMessage(), lastChat.getProfileImgUrl());
+
+                OnoChatMessage onoChatMessage = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(),nickname, lastChat.getMessage(), lastChat.getProfileImgUrl());
 
                 onoChatMessageRepository.save(onoChatMessage);
 
-            } else {
 
-                onoChatMessageRepository.deleteAllByRoomId(lastChat.getRoomId());
-                OnoChatMessage onoChatMessage
-                        = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(), lastChat.getNickName() ,lastChat.getMessage(), lastChat.getProfileImgUrl());
-
-                onoChatMessageRepository.save(onoChatMessage);
 
             }
 
         }
 
-        // 방번호를가져와야 되는데 어떻게 가져오지?
-
-        List<OnoChatMessage> onoChatMessages = onoChatMessageRepository.findAll();
-        //OnoChatMessage lastChat = onoChatMessages.get(onoChatMessages.size()-1);
+        List<OnoChatMessage> onoChatMessages = onoChatMessageRepository.findAllByNickName(nickname);
 
         List<OnoChatMessageDto> onoChatMessageDtos = new ArrayList<>();
 

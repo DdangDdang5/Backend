@@ -25,7 +25,7 @@ public class ChatMessageDto {
 
     // private String nickName;
 
-    private String profileImgUrl;
+    // private String profileImgUrl;
 
     private LocalDateTime createdAt;
 
@@ -37,15 +37,13 @@ public class ChatMessageDto {
     @Builder
     public ChatMessageDto(ChatMessage.MessageType type,
                           String roomId,String sender,
-                          String message,LocalDateTime createdAt,
-                          String profileImgUrl){
+                          String message,LocalDateTime createdAt){
 
         this.type = type;
         this.roomId = roomId;
         this.sender = sender;
         this.message = message;
         this.createdAt =createdAt;
-        this.profileImgUrl =profileImgUrl;
 
 
     }
