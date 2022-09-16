@@ -23,6 +23,9 @@ public class ChatMessage extends TimestampedChat {
     @Column(nullable = false)
     private String roomId;
 
+    @Column(nullable = false)
+    private String roomName;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MessageType type;
@@ -50,6 +53,13 @@ public class ChatMessage extends TimestampedChat {
         this.message = chatMessageDto.getMessage();
         this.nickName = nickName;
         this.profileImgUrl = profileImgUrl;
+
+    }
+
+    public void addChatRoomName(String roomName){
+
+        this.roomName = roomName;
+
 
     }
 
