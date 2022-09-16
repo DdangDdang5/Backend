@@ -5,6 +5,7 @@ import com.sparta.ddang.domain.auction.dto.request.AuctionTagsRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.JoinPriceRequestDto;
 import com.sparta.ddang.domain.auction.service.AuctionService;
+import com.sparta.ddang.domain.chat.service.ChatService;
 import com.sparta.ddang.domain.dto.ResponseDto;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,9 +19,12 @@ public class AuctionController {
 
     private final AuctionService auctionService;
 
-    public AuctionController(AuctionService auctionService){
+    private final ChatService chatService;
+
+    public AuctionController(AuctionService auctionService, ChatService chatService){
 
         this.auctionService= auctionService;
+        this.chatService = chatService;
 
     }
 
@@ -193,6 +197,15 @@ public class AuctionController {
 
     }
 
+
+    //낙찰자 조회
+    @RequestMapping(value = "/auction/{auctionId}/bidder", method = RequestMethod.GET)
+    public ResponseDto<?> getBidder(@PathVariable Long auctionId){
+
+        return auctionService.getBidder(auctionId);
+
+    }
+
     // 경매 top4 조회
     @RequestMapping(value = "/auction/hit", method = RequestMethod.GET)
     public ResponseDto<?> getAuctionTop4(){
@@ -210,6 +223,17 @@ public class AuctionController {
 
     }
 
+    // 요구사항
+    //1:1채팅에 참여하고 있는 해당 회원의 채팅방 목록 조회
+    //- 룸아이디, 룸네임, 프로필이미지,
+    //마지막 채팅대화(createdAt)
+    //--> 소켓이 아닌 리스폰스 값으로 반환하기
+
+    // 1:1채팅 방 목록 -> 해당 메시지를 전달하는 것과 같음.
+    @GetMapping("/ono/{nickname}")
+    public ResponseDto<?> getOnoMessage(@PathVariable String nickname) {
+        return chatService.getOnoMessages(nickname);
+    }
 
 
 }

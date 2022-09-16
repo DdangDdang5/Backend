@@ -1,7 +1,6 @@
 package com.sparta.ddang.domain.chat.entity;
 
-
-import com.sparta.ddang.domain.chat.dto.ChatMessageDto;
+import com.sparta.ddang.domain.chat.dto.BidMessageDto;
 import com.sparta.ddang.util.TimestampedChat;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +9,8 @@ import javax.persistence.*;
 
 @Getter
 @Entity
-public class ChatMessage extends TimestampedChat {
+public class BidMessage extends TimestampedChat {
+
 
     public enum MessageType {
         ENTER, TALK, QUIT
@@ -22,9 +22,6 @@ public class ChatMessage extends TimestampedChat {
 
     @Column(nullable = false)
     private String roomId;
-
-    @Column(nullable = false)
-    private String roomName;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -39,28 +36,19 @@ public class ChatMessage extends TimestampedChat {
     @Column(nullable = false)
     private String nickName;
 
-    @Column
-    private String profileImgUrl;
-
-    public ChatMessage(){}
+    public BidMessage(){}
 
     @Builder
-    public ChatMessage(ChatMessageDto chatMessageDto, String nickName, String profileImgUrl){
+    public BidMessage(BidMessageDto bidMessageDto,String nickName){
 
-        this.type = chatMessageDto.getType();
-        this.roomId = chatMessageDto.getRoomId();
-        this.sender = chatMessageDto.getSender();
-        this.message = chatMessageDto.getMessage();
+        this.type = bidMessageDto.getType();
+        this.roomId = bidMessageDto.getRoomId();
+        this.sender = bidMessageDto.getSender();
+        this.message = bidMessageDto.getMessage();
         this.nickName = nickName;
-        this.profileImgUrl = profileImgUrl;
-
-    }
-
-    public void addChatRoomName(String roomName){
-
-        this.roomName = roomName;
 
 
     }
+
 
 }

@@ -7,10 +7,7 @@ import com.sparta.ddang.domain.auction.dto.request.AuctionRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionTagsRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.JoinPriceRequestDto;
-import com.sparta.ddang.domain.auction.dto.resposne.AuctionChatResponseDto;
-import com.sparta.ddang.domain.auction.dto.resposne.AuctionRankResponseDto;
-import com.sparta.ddang.domain.auction.dto.resposne.AuctionResponseDto;
-import com.sparta.ddang.domain.auction.dto.resposne.AuctionTagsResponseDto;
+import com.sparta.ddang.domain.auction.dto.resposne.*;
 import com.sparta.ddang.domain.auction.entity.Auction;
 import com.sparta.ddang.domain.auction.repository.AuctionRepository;
 import com.sparta.ddang.domain.category.dto.CategoryOnlyResponseDto;
@@ -26,6 +23,7 @@ import com.sparta.ddang.domain.favorite.repository.FavoriteRespository;
 import com.sparta.ddang.domain.joinprice.entity.JoinPrice;
 import com.sparta.ddang.domain.joinprice.repository.JoinPriceRepository;
 import com.sparta.ddang.domain.member.entity.Member;
+import com.sparta.ddang.domain.member.repository.MemberRepository;
 import com.sparta.ddang.domain.mulltiimg.awsS3exceptionhandler.FileTypeErrorException;
 import com.sparta.ddang.domain.mulltiimg.entity.MultiImage;
 import com.sparta.ddang.domain.mulltiimg.repository.MultiImgRepository;
@@ -86,6 +84,8 @@ public class AuctionService {
     private final JoinPriceRepository joinPriceRepository;
 
     private final ChatService chatService;
+
+    private final MemberRepository memberRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;  // S3 버킷 이름
@@ -421,6 +421,17 @@ public class AuctionService {
 
         auction.addAuctionChatRoomId(chatRoomDto.getRoomId());
 
+
+        // 경매 게시글 생성시 동시에 채팅방 개설
+        String aucBidName = "경매 호가" + auction.getId() + "번방";
+
+        ChatRoomDto chatRoomDto1 = chatService.createRoom(aucBidName);
+
+        //채팅방 아이디 필요하면 resposne하기
+        System.out.println("경매 호가방 아이디 : " + chatRoomDto1.getRoomId());
+
+        auction.addAuctionBidRoomId(chatRoomDto1.getRoomId());
+
         auctionRepository.save(auction);
 
         // 상세페이지에서 채팅 roomId 반환하기
@@ -465,6 +476,7 @@ public class AuctionService {
                         .participantStatus(auction.isParticipantStatus())
                         //.favoriteStatus(auction.isFavoriteStatus())
                         .roomId(auction.getChatRoomId())
+                        .bidId(auction.getBidRoomId())
                         .createdAt(auction.getCreatedAt())
                         .modifiedAt(auction.getModifiedAt())
                         .build()
@@ -1271,6 +1283,33 @@ public class AuctionService {
 
     }
 
+    // 낙찰자 조회 및 낙찰자와 판매자 채팅방 개설
+    @Transactional
+    public ResponseDto<?> getBidder(Long auctionId) {
+        // 판매자(경매 생성자) 조회
+        Auction auction = checkAuction(auctionId);
+        Member seller = auction.getMember();
+        System.out.println("seller: "+seller);
+
+        // 낙찰자(제일 높은 호가를 부른 사람) 조회
+        List<JoinPrice> joinPriceList = joinPriceRepository.findAllByAuctionIdOrderByJoinPriceDesc(auctionId);
+        JoinPrice joinPrice = joinPriceList.get(0);
+        Member bidder = checkMember(joinPrice.getMemberId());
+        System.out.println("bidder: "+bidder.getNickName());
+        
+        // 채팅방 생성
+        ChatRoomDto chatRoomDto = chatService.createRoom("경매"+auctionId+"방 1:1 채팅방");
+        System.out.println("roomId: "+chatRoomDto.getRoomId());
+
+        return ResponseDto.success(
+                BidderResponseDto.builder()
+                        .auctionId(auctionId)
+                        .seller(seller.getNickName())
+                        .bidder(bidder.getNickName())
+                        .roomId(chatRoomDto.getRoomId())
+                        .build()
+        );
+    }
 
     //경매 To4조회
     @Transactional
@@ -1294,16 +1333,69 @@ public class AuctionService {
                             .memberId(auction.getMember().getId())
                             .title(auction.getTitle())
                             .content(auction.getContent())
+                            .category(auction.getCategory())
                             .nowPrice(auction.getNowPrice())
                             .viewerCnt(auction.getViewerCnt())
+                            .delivery(auction.isDelivery())
+                            .direct(auction.isDirect())
                             .multiImages(auction.getMultiImages())
-                            .tags(auction.getTags())
                             .build()
 
             );
 
 
         }
+
+
+        if (auctionRankResponseDtos.size() == 0){
+
+            return ResponseDto.fail("게시글이 없습니다. 게시글을 등록해주세요");
+
+        }
+
+        if (auctionRankResponseDtos.size() == 1){
+
+            for (int i = 0; i < 1 ; i++) {
+
+                auctionRankResponseDtoList.add(
+                        auctionRankResponseDtos.get(i)
+                );
+
+            }
+
+            return ResponseDto.success(auctionRankResponseDtoList);
+
+        }
+
+        if (auctionRankResponseDtos.size() == 2){
+
+            for (int i = 0; i < 2 ; i++) {
+
+                auctionRankResponseDtoList.add(
+                        auctionRankResponseDtos.get(i)
+                );
+
+            }
+
+            return ResponseDto.success(auctionRankResponseDtoList);
+
+        }
+
+        if (auctionRankResponseDtos.size() == 3){
+
+            for (int i = 0; i < 3 ; i++) {
+
+                auctionRankResponseDtoList.add(
+                        auctionRankResponseDtos.get(i)
+                );
+
+            }
+
+            return ResponseDto.success(auctionRankResponseDtoList);
+
+        }
+
+
         
         // 인기순 4개만 따로 배열로 저장
         for (int i = 0; i < 4 ; i++) {
@@ -1344,16 +1436,56 @@ public class AuctionService {
                             .memberId(auction.getMember().getId())
                             .title(auction.getTitle())
                             .content(auction.getContent())
+                            .category(auction.getCategory())
                             .nowPrice(auction.getNowPrice())
                             .viewerCnt(auction.getViewerCnt())
+                            .delivery(auction.isDelivery())
+                            .direct(auction.isDirect())
                             .multiImages(auction.getMultiImages())
-                            .tags(auction.getTags())
                             .build()
 
             );
 
 
         }
+
+        if (auctionRankResponseDtos.size() == 0){
+
+            return ResponseDto.fail("게시글이 없습니다. 게시글을 등록해주세요");
+
+        }
+
+
+
+        if (auctionRankResponseDtos.size() == 1){
+
+            for (int i = 0; i < 1 ; i++) {
+
+                auctionRankResponseDtoList.add(
+                        auctionRankResponseDtos.get(i)
+                );
+
+            }
+
+            return ResponseDto.success(auctionRankResponseDtoList);
+
+        }
+
+
+        if (auctionRankResponseDtos.size() == 2){
+
+            for (int i = 0; i < 2 ; i++) {
+
+                auctionRankResponseDtoList.add(
+                        auctionRankResponseDtos.get(i)
+                );
+
+            }
+
+            return ResponseDto.success(auctionRankResponseDtoList);
+
+        }
+
 
 
         // 최신 3개만 따로 배열로 저장
@@ -1370,14 +1502,7 @@ public class AuctionService {
         return ResponseDto.success(auctionRankResponseDtoList);
 
 
-    }
-
-
-
-
-
-    
-    
+    }  
     
 
 
@@ -1393,6 +1518,12 @@ public class AuctionService {
     @Transactional(readOnly = true)
     public Auction checkAuction(Long id) {
         Optional<Auction> optionalAuction = auctionRepository.findById(id);
+        return optionalAuction.orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public Member checkMember(Long id) {
+        Optional<Member> optionalAuction = memberRepository.findById(id);
         return optionalAuction.orElse(null);
     }
 

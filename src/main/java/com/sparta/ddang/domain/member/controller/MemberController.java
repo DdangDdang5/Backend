@@ -55,7 +55,6 @@ public class MemberController {
 
         return memberService.kakaoLogin(code,response);
 
-
     }
 
     @GetMapping("/{memberId}/mypage")

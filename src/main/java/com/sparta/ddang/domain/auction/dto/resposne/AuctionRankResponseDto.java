@@ -1,7 +1,6 @@
 package com.sparta.ddang.domain.auction.dto.resposne;
 
 import com.sparta.ddang.domain.mulltiimg.entity.MultiImage;
-import com.sparta.ddang.domain.tag.entity.Tags;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,16 +17,20 @@ public class AuctionRankResponseDto {
     private Long memberId;
 
     private String title;
-    //”content”: “content”,
+
     private String content;
-    //”auctionImgUrl”:”http://auctionimg.com”,
+
+    private String category;
+
     private Long nowPrice;
 
     private Long viewerCnt;
 
-    private List<MultiImage> multiImages;
+    private boolean delivery;
 
-    private Tags tags;
+    private boolean direct;
+
+    private List<MultiImage> multiImages;
 
 
 
