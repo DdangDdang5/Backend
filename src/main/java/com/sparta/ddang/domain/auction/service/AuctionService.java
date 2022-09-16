@@ -1298,7 +1298,7 @@ public class AuctionService {
         System.out.println("bidder: "+bidder.getNickName());
         
         // 채팅방 생성
-        ChatRoomDto chatRoomDto = chatService.createRoom(seller.getNickName()+"님의 채팅방");
+        ChatRoomDto chatRoomDto = chatService.createRoom("경매"+auctionId+"방 1:1 채팅방");
         System.out.println("roomId: "+chatRoomDto.getRoomId());
 
         return ResponseDto.success(
@@ -1333,16 +1333,69 @@ public class AuctionService {
                             .memberId(auction.getMember().getId())
                             .title(auction.getTitle())
                             .content(auction.getContent())
+                            .category(auction.getCategory())
                             .nowPrice(auction.getNowPrice())
                             .viewerCnt(auction.getViewerCnt())
+                            .delivery(auction.isDelivery())
+                            .direct(auction.isDirect())
                             .multiImages(auction.getMultiImages())
-                            .tags(auction.getTags())
                             .build()
 
             );
 
 
         }
+
+
+        if (auctionRankResponseDtos.size() == 0){
+
+            return ResponseDto.fail("게시글이 없습니다. 게시글을 등록해주세요");
+
+        }
+
+        if (auctionRankResponseDtos.size() == 1){
+
+            for (int i = 0; i < 1 ; i++) {
+
+                auctionRankResponseDtoList.add(
+                        auctionRankResponseDtos.get(i)
+                );
+
+            }
+
+            return ResponseDto.success(auctionRankResponseDtoList);
+
+        }
+
+        if (auctionRankResponseDtos.size() == 2){
+
+            for (int i = 0; i < 2 ; i++) {
+
+                auctionRankResponseDtoList.add(
+                        auctionRankResponseDtos.get(i)
+                );
+
+            }
+
+            return ResponseDto.success(auctionRankResponseDtoList);
+
+        }
+
+        if (auctionRankResponseDtos.size() == 3){
+
+            for (int i = 0; i < 3 ; i++) {
+
+                auctionRankResponseDtoList.add(
+                        auctionRankResponseDtos.get(i)
+                );
+
+            }
+
+            return ResponseDto.success(auctionRankResponseDtoList);
+
+        }
+
+
         
         // 인기순 4개만 따로 배열로 저장
         for (int i = 0; i < 4 ; i++) {
@@ -1383,16 +1436,56 @@ public class AuctionService {
                             .memberId(auction.getMember().getId())
                             .title(auction.getTitle())
                             .content(auction.getContent())
+                            .category(auction.getCategory())
                             .nowPrice(auction.getNowPrice())
                             .viewerCnt(auction.getViewerCnt())
+                            .delivery(auction.isDelivery())
+                            .direct(auction.isDirect())
                             .multiImages(auction.getMultiImages())
-                            .tags(auction.getTags())
                             .build()
 
             );
 
 
         }
+
+        if (auctionRankResponseDtos.size() == 0){
+
+            return ResponseDto.fail("게시글이 없습니다. 게시글을 등록해주세요");
+
+        }
+
+
+
+        if (auctionRankResponseDtos.size() == 1){
+
+            for (int i = 0; i < 1 ; i++) {
+
+                auctionRankResponseDtoList.add(
+                        auctionRankResponseDtos.get(i)
+                );
+
+            }
+
+            return ResponseDto.success(auctionRankResponseDtoList);
+
+        }
+
+
+        if (auctionRankResponseDtos.size() == 2){
+
+            for (int i = 0; i < 2 ; i++) {
+
+                auctionRankResponseDtoList.add(
+                        auctionRankResponseDtos.get(i)
+                );
+
+            }
+
+            return ResponseDto.success(auctionRankResponseDtoList);
+
+        }
+
 
 
         // 최신 3개만 따로 배열로 저장
