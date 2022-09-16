@@ -235,5 +235,9 @@ public class AuctionController {
         return chatService.getOnoMessages(nickname);
     }
 
-
+    // 마감임박 경매 4개 조회
+    @GetMapping("/auction/deadline")
+    public ResponseDto<?> getDeadlineAuctions() {
+        return auctionService.getDeadlineAuctions();
+    }
 }

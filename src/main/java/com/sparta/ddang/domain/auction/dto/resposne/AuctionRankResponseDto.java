@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -21,11 +20,7 @@ public class AuctionRankResponseDto {
 
     private String content;
 
-    private String region;
-
-    private Long auctionPeriod;
-
-    private LocalDateTime createdAt;
+    private String category;
 
     private Long nowPrice;
 

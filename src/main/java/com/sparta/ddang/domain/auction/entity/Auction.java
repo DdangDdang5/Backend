@@ -1,5 +1,6 @@
 package com.sparta.ddang.domain.auction.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.ddang.domain.auction.dto.request.AuctionRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
 import com.sparta.ddang.domain.member.entity.Member;
@@ -11,6 +12,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,6 +67,10 @@ public class Auction extends Timestamped { // 19개
     @ColumnDefault("0")
     private Long auctionPeriod;
 
+    @Column(nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime deadline;
+
     @Column(nullable = false) //10개
     private String category;
 
@@ -110,6 +116,8 @@ public class Auction extends Timestamped { // 19개
 
     public Auction(List<MultiImage> multiImages,Member member,AuctionRequestDto auctionRequestDto){
 
+        LocalDateTime now = LocalDateTime.now();
+
         this.member = member;
         this.title = auctionRequestDto.getTitle();
         this.productName = auctionRequestDto.getProductName();
@@ -118,6 +126,7 @@ public class Auction extends Timestamped { // 19개
         this.startPrice = auctionRequestDto.getStartPrice();
         this.nowPrice = auctionRequestDto.getStartPrice();
         this.auctionPeriod = auctionRequestDto.getAuctionPeriod();
+        this.deadline = calcDeadLine(now, auctionRequestDto.getAuctionPeriod());
         this.category = auctionRequestDto.getCategory();
         this.region = auctionRequestDto.getRegion();
         this.direct = auctionRequestDto.isDirect();
@@ -187,5 +196,10 @@ public class Auction extends Timestamped { // 19개
 
         this.bidRoomId = bidRoomId;
 
+    }
+
+    public LocalDateTime calcDeadLine(LocalDateTime now, Long auctionPeriod) {
+        LocalDateTime deadline = now.plusDays(auctionPeriod);
+        return deadline;
     }
 }
