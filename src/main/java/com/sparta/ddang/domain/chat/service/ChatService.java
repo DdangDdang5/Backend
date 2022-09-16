@@ -229,6 +229,7 @@ public class ChatService {
                             .roomId(chatMessage.getRoomId())
                             .sender(chatMessage.getSender())
                             .message(chatMessage.getMessage())
+                            .profileImgUrl(chatMessage.getProfileImgUrl())
                             .createdAt(chatMessage.getCreatedAt())
                             .build()
             );
