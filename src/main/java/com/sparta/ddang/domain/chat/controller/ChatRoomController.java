@@ -6,7 +6,10 @@ import com.sparta.ddang.domain.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
@@ -38,11 +41,11 @@ public class ChatRoomController {
     }
 
     // 채팅방 생성
-    @PostMapping("/room")
-    @ResponseBody
-    public ChatRoomDto createRoom(@RequestParam String name) {
-        return chatService.createRoom(name);
-    }
+//    @PostMapping("/room")
+//    @ResponseBody
+//    public ChatRoomDto createRoom(@RequestParam String name) {
+//        return chatService.createRoom(name);
+//    }
 
     // 채팅방 입장 화면
     @GetMapping("/room/enter/{roomId}")
@@ -57,5 +60,7 @@ public class ChatRoomController {
     public ChatRoomDto roomInfo(@PathVariable String roomId) {
         return chatService.findById(roomId);
     }
+
+
 
 }
