@@ -41,7 +41,9 @@ public class OnoChatMessage extends TimestampedChat {
 
     }
 
+    public void updateMessage(){
 
+    }
 
 
 }
