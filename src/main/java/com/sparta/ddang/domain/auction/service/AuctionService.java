@@ -1300,7 +1300,6 @@ public class AuctionService {
         
         // 채팅방 생성
         ChatRoomDto chatRoomDto = chatService.createRoom("경매"+auctionId+"방 1:1 채팅방");
-        System.out.println("roomId: "+chatRoomDto.getRoomId());
 
         return ResponseDto.success(
                 BidderResponseDto.builder()
