@@ -52,6 +52,5 @@ jobs:
       - name: Upload to S3
         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://yang-deploy/$PROJECT_NAME/$GITHUB_SHA.zip
 
-	  #aws 에서 제공해주는 Code Deploy 서비스 사용. 이때 생성한 Code Depoly 어플리케이션 명 greenstep을 --application-name 뒤에 추가, 또한 Code Deploy가 받아올 S3 버킷명 sim-deploy를 --s3-location bucket= 뒤에 추가해준다.
       - name: Code Deploy
         run: aws deploy create-deployment --application-name testapp --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name dev --s3-location bucket=sim-deploy,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
