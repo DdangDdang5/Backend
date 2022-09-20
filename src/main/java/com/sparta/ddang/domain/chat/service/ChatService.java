@@ -68,23 +68,35 @@ public class ChatService {
 //        return chatRoomDto;
 //    }
 
+    public ChatRoom checkRoom(String roomName) {
+        Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findByRoomName(roomName);
+        return optionalChatRoom.orElse(null);
+    }
 
     @Transactional
-    public ChatRoomDto createRoom(String name) {
-        ChatRoomDto chatRoomDto = ChatRoomDto.create(name);
+    public ChatRoomDto createRoom(String roomName) {
 
-        System.out.println("===========================");
-        System.out.println(chatRoomDto.getRoomId());
-        System.out.println(chatRoomDto.getRoomName());
-        System.out.println("===========================");
+        ChatRoom existChatRoom = checkRoom(roomName);
 
-        chatRooms.put(chatRoomDto.getRoomId(), chatRoomDto);
+        if (existChatRoom == null) {
+            ChatRoomDto chatRoomDto = ChatRoomDto.create(roomName);
 
-        ChatRoom chatRoom = new ChatRoom(chatRoomDto);
+            chatRooms.put(chatRoomDto.getRoomId(), chatRoomDto);
 
-        chatRoomRepository.save(chatRoom);
+            ChatRoom chatRoom = new ChatRoom(chatRoomDto);
 
-        return chatRoomDto;
+            chatRoomRepository.save(chatRoom);
+
+            return chatRoomDto;
+        }
+
+        String existChatRoomRoomId = existChatRoom.getRoomId();
+        String existChatRoomRoomName = existChatRoom.getRoomName();
+
+        return ChatRoomDto.builder()
+                .roomId(existChatRoomRoomId)
+                .roomName(existChatRoomRoomName)
+                .build();
     }
 
     @Transactional
