@@ -73,6 +73,7 @@ public class ChatService {
         return optionalChatRoom.orElse(null);
     }
 
+    // 낙찰자 조회 및 낙찰자와 판매자 채팅방 개설
     @Transactional
     public ChatRoomDto createRoom(String roomName) {
 
