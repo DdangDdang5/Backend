@@ -91,12 +91,12 @@ public class ChatService {
             return chatRoomDto;
         }
 
-        String existChatRoomRoomId = existChatRoom.getRoomId();
-        String existChatRoomRoomName = existChatRoom.getRoomName();
+        String existChatRoomId = existChatRoom.getRoomId();
+        String existChatRoomName = existChatRoom.getRoomName();
 
         return ChatRoomDto.builder()
-                .roomId(existChatRoomRoomId)
-                .roomName(existChatRoomRoomName)
+                .roomId(existChatRoomId)
+                .roomName(existChatRoomName)
                 .build();
     }
 
@@ -328,16 +328,26 @@ public class ChatService {
 
             if (!onoChatMessageRepository.existsByRoomId(lastChat.getRoomId())){
                 //onoChatMessageRepository.deleteAllByRoomIdAndNickName(lastChat.getRoomId(), lastChat.getNickName());
+
+                Auction auction = auctionRepository.findByOnoRoomId(lastChat.getRoomId());
+
                 OnoChatMessage onoChatMessage
-                        = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(), lastChat.getNickName() ,lastChat.getMessage(), lastChat.getProfileImgUrl());
+                        = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(),
+                        lastChat.getNickName() ,lastChat.getMessage(),
+                        lastChat.getProfileImgUrl(),auction.getId());
 
                 onoChatMessageRepository.save(onoChatMessage);
 
             } else {
 
                 onoChatMessageRepository.deleteAllByRoomId(lastChat.getRoomId());
+
+                Auction auction = auctionRepository.findByOnoRoomId(lastChat.getRoomId());
+
                 OnoChatMessage onoChatMessage
-                        = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(), lastChat.getNickName() ,lastChat.getMessage(), lastChat.getProfileImgUrl());
+                        = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(),
+                        lastChat.getNickName() ,lastChat.getMessage(),
+                        lastChat.getProfileImgUrl(),auction.getId());
 
                 onoChatMessageRepository.save(onoChatMessage);
 
@@ -354,6 +364,9 @@ public class ChatService {
 
         for (OnoChatMessage onoChatMessage : onoChatMessages){
 
+            Auction auction = auctionRepository.findById(onoChatMessage.getAuctionId()).orElseThrow(
+                    () -> new IllegalArgumentException("해당 게시물 없음.")
+            );
                     onoChatMessageDtos.add(
 
                             OnoChatMessageDto.builder()
@@ -362,6 +375,9 @@ public class ChatService {
                                     .message(onoChatMessage.getMessage())
                                     .profileImg(onoChatMessage .getProfileImgUrl())
                                     .createdAt(onoChatMessage .getCreatedAt())
+                                    .auctionId(auction.getId())
+                                    .auctionTitle(auction.getTitle())
+                                    .multiImages(auction.getMultiImages())
                                     .build()
 
                     );

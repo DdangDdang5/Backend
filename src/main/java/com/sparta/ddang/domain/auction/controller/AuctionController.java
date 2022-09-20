@@ -189,11 +189,37 @@ public class AuctionController {
 
     }
 
-    // 경매 타이틀 검색
-    @RequestMapping(value = "/auction/search/{title}", method = RequestMethod.GET)
-    public ResponseDto<?> getSearchTitle(@PathVariable String title){
+    // 경매 타이틀 검색 원본
+//    @RequestMapping(value = "/auction/search/{title}", method = RequestMethod.GET)
+//    public ResponseDto<?> getSearchTitle(@PathVariable String title){
+//
+//        return auctionService.getSearchTitle(title);
+//
+//    }
 
-        return auctionService.getSearchTitle(title);
+    // 경매 제목(타이틀) 검색 원본
+    @RequestMapping(value = "/auction/search/{title}", method = RequestMethod.GET)
+    public ResponseDto<?> getSearchTitle(@PathVariable String title,
+                                         HttpServletRequest request){
+
+        return auctionService.getSearchTitle(title,request);
+
+    }
+
+    // 경매 제목(타이틀) 최근순(최근검색했어요)
+    @RequestMapping(value = "/auction/recent-search", method = RequestMethod.GET)
+    public ResponseDto<?> getSearchRecent(HttpServletRequest request){
+
+        return auctionService.getSearchRecent(request);
+
+    }
+
+
+    // 경매 제목(타이틀) 인기순(지금인기있어요)
+    @RequestMapping(value = "/auction/popular-search", method = RequestMethod.GET)
+    public ResponseDto<?> getSearchPopular(){
+
+        return auctionService.getSearchPopular();
 
     }
 
