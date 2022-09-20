@@ -8,8 +8,7 @@ env:
   PROJECT_NAME: action_codedeploy
 
 jobs:
-  deploy:
-    name: DEPLOY
+  build:
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
