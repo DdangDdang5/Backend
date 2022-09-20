@@ -53,6 +53,6 @@ jobs:
           aws deploy create-deployment 
           --application-name ddangddang 
           --deployment-config-name CodeDeployDefault.OneAtATime 
-          --deployment-group-name dev2 
+          --deployment-group-name dev 
           --s3-location bucket=ddangddang-deploy,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
           --ignore-application-stop-failures
