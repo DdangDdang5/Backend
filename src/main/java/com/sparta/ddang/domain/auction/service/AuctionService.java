@@ -1718,15 +1718,15 @@ public class AuctionService {
         Member bidder = checkMember(joinPrice.getMemberId());
 
         if (member.getId().equals(seller.getId())) {
-            seller.updateTrustPoint(reviewRequestDto.getTrustPoint());
-            memberRepository.save(seller);
-            return ResponseDto.success("판매자 평가하기 완료");
+            bidder.updateTrustPoint(reviewRequestDto.getTrustPoint());
+            memberRepository.save(bidder);
+            return ResponseDto.success("판매자가 낙찰자 평가하기 완료");
         }
 
         if (member.getId().equals(bidder.getId())) {
-            bidder.updateTrustPoint(reviewRequestDto.getTrustPoint());
-            memberRepository.save(bidder);
-            return ResponseDto.success("낙찰자 평가하기 완료");
+            seller.updateTrustPoint(reviewRequestDto.getTrustPoint());
+            memberRepository.save(seller);
+            return ResponseDto.success("낙찰자가 판매자 평가하기 완료");
         }
 
         return ResponseDto.fail("문제가 발생했습니다.");
