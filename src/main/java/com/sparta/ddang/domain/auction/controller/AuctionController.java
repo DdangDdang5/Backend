@@ -1,9 +1,6 @@
 package com.sparta.ddang.domain.auction.controller;
 
-import com.sparta.ddang.domain.auction.dto.request.AuctionRequestDto;
-import com.sparta.ddang.domain.auction.dto.request.AuctionTagsRequestDto;
-import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
-import com.sparta.ddang.domain.auction.dto.request.JoinPriceRequestDto;
+import com.sparta.ddang.domain.auction.dto.request.*;
 import com.sparta.ddang.domain.auction.service.AuctionService;
 import com.sparta.ddang.domain.chat.service.ChatService;
 import com.sparta.ddang.domain.dto.ResponseDto;
@@ -239,5 +236,12 @@ public class AuctionController {
     @GetMapping("/auction/deadline")
     public ResponseDto<?> getDeadlineAuctions() {
         return auctionService.getDeadlineAuctions();
+    }
+
+    @PostMapping("/auction/{auctionId}/review")
+    public ResponseDto<?> reviewAuction(@PathVariable Long auctionId,
+                                        @RequestBody ReviewRequestDto reviewRequestDto,
+                                        HttpServletRequest request) {
+        return ResponseDto.success(auctionService.reviewAuction(auctionId, reviewRequestDto, request));
     }
 }

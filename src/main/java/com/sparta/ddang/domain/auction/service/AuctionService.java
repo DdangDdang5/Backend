@@ -3,10 +3,7 @@ package com.sparta.ddang.domain.auction.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.sparta.ddang.domain.auction.dto.request.AuctionRequestDto;
-import com.sparta.ddang.domain.auction.dto.request.AuctionTagsRequestDto;
-import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
-import com.sparta.ddang.domain.auction.dto.request.JoinPriceRequestDto;
+import com.sparta.ddang.domain.auction.dto.request.*;
 import com.sparta.ddang.domain.auction.dto.resposne.*;
 import com.sparta.ddang.domain.auction.entity.Auction;
 import com.sparta.ddang.domain.auction.repository.AuctionRepository;
@@ -1536,6 +1533,38 @@ public class AuctionService {
         }
 
         return ResponseDto.success(deadlineAuctionResponseDtoList);
+    }
+
+    public ResponseDto<?> reviewAuction(Long auctionId, ReviewRequestDto reviewRequestDto, HttpServletRequest request) {
+        if (null == request.getHeader("Authorization")) {
+            return ResponseDto.fail("로그인이 필요합니다.");
+        }
+
+        Member member = validateMember(request);
+        if (null == member) {
+            return ResponseDto.fail("Token이 유효하지 않습니다.");
+        }
+
+        Auction auction = checkAuction(auctionId);
+        Member seller = auction.getMember();
+
+        List<JoinPrice> joinPriceList = joinPriceRepository.findAllByAuctionIdOrderByJoinPriceDesc(auctionId);
+        JoinPrice joinPrice = joinPriceList.get(0);
+        Member bidder = checkMember(joinPrice.getMemberId());
+
+        if (member.getId().equals(seller.getId())) {
+            seller.updateTrustPoint(reviewRequestDto.getTrustPoint());
+            memberRepository.save(seller);
+            return ResponseDto.success("판매자 평가하기 완료");
+        }
+
+        if (member.getId().equals(bidder.getId())) {
+            bidder.updateTrustPoint(reviewRequestDto.getTrustPoint());
+            memberRepository.save(bidder);
+            return ResponseDto.success("낙찰자 평가하기 완료");
+        }
+
+        return ResponseDto.fail("문제가 발생했습니다.");
     }
 
 //======================== 회원 정보 및 경매 정보 ========================

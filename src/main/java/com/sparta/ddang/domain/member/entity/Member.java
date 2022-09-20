@@ -40,6 +40,9 @@ public class Member extends Timestamped {
 //    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
 //    private List<Auction> auctionList;
 
+    @Column
+    private int trustPoint;
+
     @Override
     public int hashCode() {
         return getClass().hashCode();
@@ -59,10 +62,15 @@ public class Member extends Timestamped {
         this.password = password;
         this.profileImgUrl = profileImgUrl;
         this.isKakao = isKakao;
+        this.trustPoint = 0;
     }
 
     public boolean validatePassword(PasswordEncoder passwordEncoder, String password) {
         return passwordEncoder.matches(password, this.password);
+    }
+
+    public void updateTrustPoint(int trustPoint) {
+        this.trustPoint += trustPoint;
     }
 
 
