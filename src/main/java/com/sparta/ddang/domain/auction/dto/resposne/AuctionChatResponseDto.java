@@ -65,10 +65,10 @@ public class AuctionChatResponseDto {
     //private boolean favoriteStatus;
 
     //”createdAt”: “2022-08-27 15:30:00”,
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
     //”modifiedAt”: “2022-08-27 15:30:00”
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime modifiedAt;
 
 

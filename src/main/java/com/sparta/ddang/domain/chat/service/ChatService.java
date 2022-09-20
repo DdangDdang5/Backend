@@ -68,23 +68,36 @@ public class ChatService {
 //        return chatRoomDto;
 //    }
 
+    public ChatRoom checkRoom(String roomName) {
+        Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findByRoomName(roomName);
+        return optionalChatRoom.orElse(null);
+    }
 
+    // 낙찰자 조회 및 낙찰자와 판매자 채팅방 개설
     @Transactional
-    public ChatRoomDto createRoom(String name) {
-        ChatRoomDto chatRoomDto = ChatRoomDto.create(name);
+    public ChatRoomDto createRoom(String roomName) {
 
-        System.out.println("===========================");
-        System.out.println(chatRoomDto.getRoomId());
-        System.out.println(chatRoomDto.getRoomName());
-        System.out.println("===========================");
+        ChatRoom existChatRoom = checkRoom(roomName);
 
-        chatRooms.put(chatRoomDto.getRoomId(), chatRoomDto);
+        if (existChatRoom == null) {
+            ChatRoomDto chatRoomDto = ChatRoomDto.create(roomName);
 
-        ChatRoom chatRoom = new ChatRoom(chatRoomDto);
+            chatRooms.put(chatRoomDto.getRoomId(), chatRoomDto);
 
-        chatRoomRepository.save(chatRoom);
+            ChatRoom chatRoom = new ChatRoom(chatRoomDto);
 
-        return chatRoomDto;
+            chatRoomRepository.save(chatRoom);
+
+            return chatRoomDto;
+        }
+
+        String existChatRoomRoomId = existChatRoom.getRoomId();
+        String existChatRoomRoomName = existChatRoom.getRoomName();
+
+        return ChatRoomDto.builder()
+                .roomId(existChatRoomRoomId)
+                .roomName(existChatRoomRoomName)
+                .build();
     }
 
     @Transactional
@@ -229,6 +242,7 @@ public class ChatService {
                             .roomId(chatMessage.getRoomId())
                             .sender(chatMessage.getSender())
                             .message(chatMessage.getMessage())
+                            .profileImgUrl(chatMessage.getProfileImgUrl())
                             .createdAt(chatMessage.getCreatedAt())
                             .build()
             );
@@ -313,18 +327,28 @@ public class ChatService {
             ChatMessage lastChat = messageList.get(messageList.size()-1);
 
             if (!onoChatMessageRepository.existsByRoomId(lastChat.getRoomId())){
-
-                OnoChatMessage onoChatMessage = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(),nickname, lastChat.getMessage(), lastChat.getProfileImgUrl());
+                //onoChatMessageRepository.deleteAllByRoomIdAndNickName(lastChat.getRoomId(), lastChat.getNickName());
+                OnoChatMessage onoChatMessage
+                        = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(), lastChat.getNickName() ,lastChat.getMessage(), lastChat.getProfileImgUrl());
 
                 onoChatMessageRepository.save(onoChatMessage);
 
+            } else {
 
+                onoChatMessageRepository.deleteAllByRoomId(lastChat.getRoomId());
+                OnoChatMessage onoChatMessage
+                        = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(), lastChat.getNickName() ,lastChat.getMessage(), lastChat.getProfileImgUrl());
+
+                onoChatMessageRepository.save(onoChatMessage);
 
             }
 
         }
 
-        List<OnoChatMessage> onoChatMessages = onoChatMessageRepository.findAllByNickName(nickname);
+        // 방번호를가져와야 되는데 어떻게 가져오지?
+
+        List<OnoChatMessage> onoChatMessages = onoChatMessageRepository.findAll();
+        //OnoChatMessage lastChat = onoChatMessages.get(onoChatMessages.size()-1);
 
         List<OnoChatMessageDto> onoChatMessageDtos = new ArrayList<>();
 
