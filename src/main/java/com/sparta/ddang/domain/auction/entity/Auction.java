@@ -105,6 +105,9 @@ public class Auction extends Timestamped { // 19개
     @Column
     private String bidRoomId;
 
+    @Column
+    private String onoRoomId;
+
 
 //    @Column
 //    private boolean favoriteStatus;
@@ -198,8 +201,17 @@ public class Auction extends Timestamped { // 19개
 
     }
 
+    public void addAuctionOnoRoomId(String onoRoomId) {
+
+        this.onoRoomId = onoRoomId;
+
+
+    }
+
     public LocalDateTime calcDeadLine(LocalDateTime now, Long auctionPeriod) {
         LocalDateTime deadline = now.plusDays(auctionPeriod);
         return deadline;
     }
+
+
 }
