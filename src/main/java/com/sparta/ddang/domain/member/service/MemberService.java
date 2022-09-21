@@ -444,6 +444,39 @@ public class MemberService {
 
     }
 
+    public ResponseDto<?> getTrustPoint(Long memberId) {
+
+        Member member = checkMemberId(memberId);
+
+        if (member == null){
+            return ResponseDto.fail("존재하지 않는 회원입니다.");
+        }
+
+        int trustPoint = member.getTrustPoint();
+        String trustGrade = "";
+
+        if (trustPoint >= 50) {
+            trustGrade = "rainbow";
+        } else if (trustPoint >= 25) {
+            trustGrade = "gold";
+        } else if (trustPoint >= 10) {
+            trustGrade = "silver";
+        } else if (trustPoint >= -9) {
+            trustGrade = "classic";
+        } else {
+            trustGrade = "wood";
+        }
+
+        return ResponseDto.success(
+                TrustpointResponseDto.builder()
+                        .memberId(member.getId())
+                        .trustPoint(trustPoint)
+                        .trustGrade(trustGrade)
+                        .build()
+        );
+
+    }
+
     @Transactional(readOnly = true)
     public Member checkEmail(String email) {
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
