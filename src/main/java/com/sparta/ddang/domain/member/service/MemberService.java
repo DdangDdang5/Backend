@@ -338,6 +338,7 @@ public class MemberService {
         Long myParticipant = participantRepository.countAllByMemberId(memberId);
         Long myFavorite = favoriteRespository.countAllByMemberId(memberId);
 
+        String trustGrade = calcGrade(member.getTrustPoint());
 
         return ResponseDto.success(
                 GetMypageResponseDto.builder()
@@ -348,6 +349,7 @@ public class MemberService {
                         .myAuctionCnt(myAction)
                         .myParticipantCnt(myParticipant)
                         .myFavoriteCnt(myFavorite)
+                        .trustGrade(trustGrade)
                         .build()
         );
     }
@@ -432,12 +434,15 @@ public class MemberService {
 
         }
 
+        String trustGrade = calcGrade(member.getTrustPoint());
+
         return ResponseDto.success(
                 MyPageLookupResponseDto.builder()
                         .memberId(member.getId())
                         .email(member.getEmail())
                         .nickname(member.getNickName())
                         .profileImgUrl(member.getProfileImgUrl())
+                        .trustGrade(trustGrade)
                         .auctionResponseDtoList(auctionResponseDtoList)
                         .build()
         );
@@ -453,19 +458,7 @@ public class MemberService {
         }
 
         int trustPoint = member.getTrustPoint();
-        String trustGrade = "";
-
-        if (trustPoint >= 50) {
-            trustGrade = "rainbow";
-        } else if (trustPoint >= 25) {
-            trustGrade = "gold";
-        } else if (trustPoint >= 10) {
-            trustGrade = "silver";
-        } else if (trustPoint >= -9) {
-            trustGrade = "classic";
-        } else {
-            trustGrade = "wood";
-        }
+        String trustGrade = calcGrade(trustPoint);
 
         return ResponseDto.success(
                 TrustpointResponseDto.builder()
@@ -506,7 +499,19 @@ public class MemberService {
         response.addHeader("Access-Token-Expire-Time", tokenDto.getAccessTokenExpiresIn().toString());
     }
 
-
+    public String calcGrade(int trustPoint) {
+        if (trustPoint >= 50) {
+            return "rainbow";
+        } else if (trustPoint >= 25) {
+            return "gold";
+        } else if (trustPoint >= 10) {
+            return "silver";
+        } else if (trustPoint >= -9) {
+            return "classic";
+        } else {
+            return "wood";
+        }
+    }
 
 
 }

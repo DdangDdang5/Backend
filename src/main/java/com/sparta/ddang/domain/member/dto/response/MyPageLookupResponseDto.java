@@ -13,19 +13,21 @@ public class MyPageLookupResponseDto {
     private String email;
     private String nickname;
     private String profileImgUrl;
+    private String trustGrade;
     private List<AuctionResponseDto> auctionResponseDtoList;
 
     public MyPageLookupResponseDto(){}
 
     @Builder
     public MyPageLookupResponseDto(Long memberId, String email,
-                                   String nickname, String profileImgUrl,
+                                   String nickname, String profileImgUrl, String trustGrade,
                                    List<AuctionResponseDto> auctionResponseDtoList){
 
         this.memberId = memberId;
         this.email = email;
         this.nickname = nickname;
         this.profileImgUrl= profileImgUrl;
+        this.trustGrade = trustGrade;
         this.auctionResponseDtoList = auctionResponseDtoList;
 
     }

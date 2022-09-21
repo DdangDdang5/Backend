@@ -14,6 +14,7 @@ public class GetMypageResponseDto {
     private Long myAuctionCnt;
     private Long myParticipantCnt;
     private Long myFavoriteCnt;
+    private String trustGrade;
 
     public GetMypageResponseDto(){}
 
@@ -21,7 +22,7 @@ public class GetMypageResponseDto {
     public GetMypageResponseDto(Long memberId, String email,
                                 String nickname, String profileImgUrl,
                                 Long myAuctionCnt,Long myParticipantCnt,
-                                Long myFavoriteCnt) {
+                                Long myFavoriteCnt, String trustGrade) {
         this.memberId = memberId;
         this.email = email;
         this.nickname = nickname;
@@ -29,6 +30,6 @@ public class GetMypageResponseDto {
         this.myAuctionCnt = myAuctionCnt;
         this.myParticipantCnt = myParticipantCnt;
         this.myFavoriteCnt = myFavoriteCnt;
-
+        this.trustGrade = trustGrade;
     }
 }
