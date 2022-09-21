@@ -338,6 +338,7 @@ public class MemberService {
         Long myParticipant = participantRepository.countAllByMemberId(memberId);
         Long myFavorite = favoriteRespository.countAllByMemberId(memberId);
 
+        String trustGrade = calcGrade(member.getTrustPoint());
 
         return ResponseDto.success(
                 GetMypageResponseDto.builder()
@@ -348,6 +349,7 @@ public class MemberService {
                         .myAuctionCnt(myAction)
                         .myParticipantCnt(myParticipant)
                         .myFavoriteCnt(myFavorite)
+                        .trustGrade(trustGrade)
                         .build()
         );
     }
@@ -432,13 +434,37 @@ public class MemberService {
 
         }
 
+        String trustGrade = calcGrade(member.getTrustPoint());
+
         return ResponseDto.success(
                 MyPageLookupResponseDto.builder()
                         .memberId(member.getId())
                         .email(member.getEmail())
                         .nickname(member.getNickName())
                         .profileImgUrl(member.getProfileImgUrl())
+                        .trustGrade(trustGrade)
                         .auctionResponseDtoList(auctionResponseDtoList)
+                        .build()
+        );
+
+    }
+
+    public ResponseDto<?> getTrustPoint(Long memberId) {
+
+        Member member = checkMemberId(memberId);
+
+        if (member == null){
+            return ResponseDto.fail("존재하지 않는 회원입니다.");
+        }
+
+        int trustPoint = member.getTrustPoint();
+        String trustGrade = calcGrade(trustPoint);
+
+        return ResponseDto.success(
+                TrustpointResponseDto.builder()
+                        .memberId(member.getId())
+                        .trustPoint(trustPoint)
+                        .trustGrade(trustGrade)
                         .build()
         );
 
@@ -473,7 +499,19 @@ public class MemberService {
         response.addHeader("Access-Token-Expire-Time", tokenDto.getAccessTokenExpiresIn().toString());
     }
 
-
+    public String calcGrade(int trustPoint) {
+        if (trustPoint >= 50) {
+            return "rainbow";
+        } else if (trustPoint >= 25) {
+            return "gold";
+        } else if (trustPoint >= 10) {
+            return "silver";
+        } else if (trustPoint >= -9) {
+            return "classic";
+        } else {
+            return "wood";
+        }
+    }
 
 
 }
