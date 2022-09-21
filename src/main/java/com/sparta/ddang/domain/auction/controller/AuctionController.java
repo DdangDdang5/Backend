@@ -1,9 +1,6 @@
 package com.sparta.ddang.domain.auction.controller;
 
-import com.sparta.ddang.domain.auction.dto.request.AuctionRequestDto;
-import com.sparta.ddang.domain.auction.dto.request.AuctionTagsRequestDto;
-import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
-import com.sparta.ddang.domain.auction.dto.request.JoinPriceRequestDto;
+import com.sparta.ddang.domain.auction.dto.request.*;
 import com.sparta.ddang.domain.auction.service.AuctionService;
 import com.sparta.ddang.domain.chat.service.ChatService;
 import com.sparta.ddang.domain.dto.ResponseDto;
@@ -189,11 +186,37 @@ public class AuctionController {
 
     }
 
-    // 경매 타이틀 검색
-    @RequestMapping(value = "/auction/search/{title}", method = RequestMethod.GET)
-    public ResponseDto<?> getSearchTitle(@PathVariable String title){
+    // 경매 타이틀 검색 원본
+//    @RequestMapping(value = "/auction/search/{title}", method = RequestMethod.GET)
+//    public ResponseDto<?> getSearchTitle(@PathVariable String title){
+//
+//        return auctionService.getSearchTitle(title);
+//
+//    }
 
-        return auctionService.getSearchTitle(title);
+    // 경매 제목(타이틀) 검색 원본
+    @RequestMapping(value = "/auction/search/{title}", method = RequestMethod.GET)
+    public ResponseDto<?> getSearchTitle(@PathVariable String title,
+                                         HttpServletRequest request){
+
+        return auctionService.getSearchTitle(title,request);
+
+    }
+
+    // 경매 제목(타이틀) 최근순(최근검색했어요)
+    @RequestMapping(value = "/auction/recent-search", method = RequestMethod.GET)
+    public ResponseDto<?> getSearchRecent(HttpServletRequest request){
+
+        return auctionService.getSearchRecent(request);
+
+    }
+
+
+    // 경매 제목(타이틀) 인기순(지금인기있어요)
+    @RequestMapping(value = "/auction/popular-search", method = RequestMethod.GET)
+    public ResponseDto<?> getSearchPopular(){
+
+        return auctionService.getSearchPopular();
 
     }
 
@@ -239,5 +262,12 @@ public class AuctionController {
     @GetMapping("/auction/deadline")
     public ResponseDto<?> getDeadlineAuctions() {
         return auctionService.getDeadlineAuctions();
+    }
+
+    @PostMapping("/auction/{auctionId}/review")
+    public ResponseDto<?> reviewAuction(@PathVariable Long auctionId,
+                                        @RequestBody ReviewRequestDto reviewRequestDto,
+                                        HttpServletRequest request) {
+        return ResponseDto.success(auctionService.reviewAuction(auctionId, reviewRequestDto, request));
     }
 }

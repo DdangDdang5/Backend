@@ -11,6 +11,7 @@ jobs:
   deploy:
     name: DEPLOY
     runs-on: ubuntu-18.04
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -24,7 +25,8 @@ jobs:
         shell: bash
       
       - name: make application.properties
-        run: touch ./src/main/resources/application.properties 
+        run:
+          touch ./src/main/resources/application.properties 
         shell: bash
         
       - name: deliver application.properties
@@ -47,7 +49,7 @@ jobs:
           aws-region: ap-northeast-2
           
       - name: Upload to S3
-        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://ddangddang-deploy/$PROJECT_NAME/$GITHUB_SHA.zip
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://yang-deploy/$PROJECT_NAME/$GITHUB_SHA.zip
 
       - name: Code Deploy
-        run: aws deploy create-deployment --application-name ddangddang --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name dev --s3-location bucket=ddangddang-deploy,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
+        run: aws deploy create-deployment --application-name testapp --deployment-config-name CodeDeployDefault.OneAtATime --deployment-group-name dev --s3-location bucket=yang-deploy,bundleType=zip,key=$PROJECT_NAME/$GITHUB_SHA.zip
