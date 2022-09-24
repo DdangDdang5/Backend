@@ -237,6 +237,13 @@ public class AuctionController {
 
     }
 
+    // 마감임박 경매 4개 조회
+    @GetMapping("/auction/deadline")
+    public ResponseDto<?> getDeadlineAuctions() {
+        return auctionService.getDeadlineAuctions();
+    }
+
+
     //최신 경매 조회(3개)
     // /auction/new-release
     @RequestMapping(value = "/auction/new-release", method = RequestMethod.GET)
@@ -257,13 +264,6 @@ public class AuctionController {
     public ResponseDto<?> getOnoMessage(@PathVariable String nickname) {
         return chatService.getOnoMessages(nickname);
     }
-
-    // 마감임박 경매 4개 조회
-    @GetMapping("/auction/deadline")
-    public ResponseDto<?> getDeadlineAuctions() {
-        return auctionService.getDeadlineAuctions();
-    }
-
     @PostMapping("/auction/{auctionId}/review")
     public ResponseDto<?> reviewAuction(@PathVariable Long auctionId,
                                         @RequestBody ReviewRequestDto reviewRequestDto,

@@ -7,6 +7,8 @@ public interface OnoChatMessageRepository extends JpaRepository<OnoChatMessage,L
 
     //boolean existsByRoomIdAndNickName(String roomId, String nickName);
 
+    //List<OnoChatMessage> findAllByBidderAndSeller(String nickName);
+
     boolean existsByRoomId(String roomId);
 
     //void deleteAllByRoomIdAndNickName(String roomId, String nickName);

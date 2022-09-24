@@ -64,7 +64,8 @@
                     axios.post('/chat/room', params)
                         .then(
                             response => {
-                                alert(response.data.roomName + "방 개설에 성공하였습니다.")
+                                // roomName을 name으로 바꿨음.
+                                alert(response.data.name + "방 개설에 성공하였습니다.")
                                 this.room_name = '';
                                 this.findAllRoom();
                             }

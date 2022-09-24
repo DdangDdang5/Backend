@@ -1,6 +1,8 @@
 package com.sparta.ddang.domain.chat.controller;
 
 import com.sparta.ddang.domain.chat.dto.ChatRoomDto;
+import com.sparta.ddang.domain.chat.entity.ChatRoom;
+import com.sparta.ddang.domain.chat.service.ChatRoomService;
 import com.sparta.ddang.domain.chat.service.ChatService;
 import com.sparta.ddang.domain.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,8 @@ import java.util.List;
 public class ChatRoomController {
     private final ChatService chatService;
 
+    private final ChatRoomService chatRoomService;
+
     // 채팅 리스트 화면
     @GetMapping("/room")
     public String rooms(Model model) {
@@ -30,8 +34,8 @@ public class ChatRoomController {
     // 모든 채팅방 목록 반환
     @GetMapping("/rooms")
     @ResponseBody
-    public List<ChatRoomDto> room() {
-        return chatService.findAllRoom();
+    public List<ChatRoom> room() {
+        return chatRoomService.findAllRoom();
     }
 
     @GetMapping("/rooms/all")
