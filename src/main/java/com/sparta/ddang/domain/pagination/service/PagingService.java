@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,9 +37,9 @@ public class PagingService {
     private final FavoriteRespository favoriteRespository;
 
 
-    public PagingService(AuctionRepository auctionRepository,TokenProvider tokenProvider,
+    public PagingService(AuctionRepository auctionRepository, TokenProvider tokenProvider,
                          ParticipantRepository participantRepository,
-                         FavoriteRespository favoriteRespository){
+                         FavoriteRespository favoriteRespository) {
 
         this.auctionRepository = auctionRepository;
         this.tokenProvider = tokenProvider;
@@ -53,13 +54,25 @@ public class PagingService {
 
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, sortBy);
-        Pageable pageable = PageRequest.of(page, size,sort);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<Auction> auctions = auctionRepository.findAll(pageable);
 
         List<AuctionResponseDto> auctionResponseDtoList = new ArrayList<>();
 
-        for (Auction auction : auctions){
+        LocalDateTime now = LocalDateTime.now(); // 클라이언트에서 api를 호출한 시간(현재 기준 시간)
+
+        for (Auction auction : auctions) {
+
+            // 마감입박시간이거나 마감임박시간 이후 일 경우 auctionstatus를 false로 바꿈
+            if (now.isEqual(auction.getDeadline()) || now.isAfter(auction.getDeadline())) {
+
+                auction.changeAuctionStatus(false);
+
+                auctionRepository.save(auction);
+
+            }
+
 
             auctionResponseDtoList.add(
                     AuctionResponseDto.builder()
@@ -79,7 +92,7 @@ public class PagingService {
                             .direct(auction.isDirect())
                             .delivery(auction.isDelivery())
                             .viewerCnt(auction.getViewerCnt())
-                            .auctionStatus(true)
+                            .auctionStatus(auction.isAuctionStatus())
                             .participantCnt(auction.getParticipantCnt())
                             .participantStatus(auction.isParticipantStatus())
                             //.favoriteStatus(auction.isFavoriteStatus())
@@ -96,18 +109,29 @@ public class PagingService {
 
     // 경매 카테고리 조회 페이지네이션
     @Transactional
-    public ResponseDto<?> getCategoryPagenation(String category,int page, int size,
+    public ResponseDto<?> getCategoryPagenation(String category, int page, int size,
                                                 String sortBy, boolean isAsc) {
 
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, sortBy);
-        Pageable pageable = PageRequest.of(page, size,sort);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Auction> auctions = auctionRepository.findAllByCategory(category,pageable);
+        Page<Auction> auctions = auctionRepository.findAllByCategory(category, pageable);
 
         List<AuctionResponseDto> auctionResponseDtoList = new ArrayList<>();
 
-        for (Auction auction : auctions){
+        LocalDateTime now = LocalDateTime.now(); // 클라이언트에서 api를 호출한 시간(현재 기준 시간)
+
+        for (Auction auction : auctions) {
+
+            // 마감입박시간이거나 마감임박시간 이후 일 경우 auctionstatus를 false로 바꿈
+            if (now.isEqual(auction.getDeadline()) || now.isAfter(auction.getDeadline())) {
+
+                auction.changeAuctionStatus(false);
+
+                auctionRepository.save(auction);
+
+            }
 
             auctionResponseDtoList.add(
                     AuctionResponseDto.builder()
@@ -127,7 +151,7 @@ public class PagingService {
                             .direct(auction.isDirect())
                             .delivery(auction.isDelivery())
                             .viewerCnt(auction.getViewerCnt())
-                            .auctionStatus(true)
+                            .auctionStatus(auction.isAuctionStatus())
                             .participantCnt(auction.getParticipantCnt())
                             .participantStatus(auction.isParticipantStatus())
                             //.favoriteStatus(auction.isFavoriteStatus())
@@ -138,7 +162,7 @@ public class PagingService {
 
         }
 
-            return ResponseDto.success(auctionResponseDtoList);
+        return ResponseDto.success(auctionResponseDtoList);
 
     }
 
@@ -149,13 +173,24 @@ public class PagingService {
 
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, sortBy);
-        Pageable pageable = PageRequest.of(page, size,sort);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Auction> auctions = auctionRepository.findAllByRegion(region,pageable);
+        Page<Auction> auctions = auctionRepository.findAllByRegion(region, pageable);
 
         List<AuctionResponseDto> auctionResponseDtoList = new ArrayList<>();
 
-        for (Auction auction : auctions){
+        LocalDateTime now = LocalDateTime.now(); // 클라이언트에서 api를 호출한 시간(현재 기준 시간)
+
+        for (Auction auction : auctions) {
+
+            // 마감입박시간이거나 마감임박시간 이후 일 경우 auctionstatus를 false로 바꿈
+            if (now.isEqual(auction.getDeadline()) || now.isAfter(auction.getDeadline())) {
+
+                auction.changeAuctionStatus(false);
+
+                auctionRepository.save(auction);
+
+            }
 
             auctionResponseDtoList.add(
                     AuctionResponseDto.builder()
@@ -175,7 +210,7 @@ public class PagingService {
                             .direct(auction.isDirect())
                             .delivery(auction.isDelivery())
                             .viewerCnt(auction.getViewerCnt())
-                            .auctionStatus(true)
+                            .auctionStatus(auction.isAuctionStatus())
                             .participantCnt(auction.getParticipantCnt())
                             .participantStatus(auction.isParticipantStatus())
                             //.favoriteStatus(auction.isFavoriteStatus())
@@ -190,6 +225,7 @@ public class PagingService {
 
 
     }
+
     // 경매 카테고리 및 지역별 조회 페이지네이션
     @Transactional
     public ResponseDto<?> getCateRegiPagenation(String category, String region,
@@ -199,13 +235,24 @@ public class PagingService {
 
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, sortBy);
-        Pageable pageable = PageRequest.of(page, size,sort);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Auction> auctions = auctionRepository.findAllByCategoryAndRegion(category,region,pageable);
+        Page<Auction> auctions = auctionRepository.findAllByCategoryAndRegion(category, region, pageable);
 
         List<AuctionResponseDto> auctionResponseDtoList = new ArrayList<>();
 
-        for (Auction auction : auctions){
+        LocalDateTime now = LocalDateTime.now(); // 클라이언트에서 api를 호출한 시간(현재 기준 시간)
+
+        for (Auction auction : auctions) {
+
+            // 마감입박시간이거나 마감임박시간 이후 일 경우 auctionstatus를 false로 바꿈
+            if (now.isEqual(auction.getDeadline()) || now.isAfter(auction.getDeadline())) {
+
+                auction.changeAuctionStatus(false);
+
+                auctionRepository.save(auction);
+
+            }
 
             auctionResponseDtoList.add(
                     AuctionResponseDto.builder()
@@ -225,7 +272,7 @@ public class PagingService {
                             .direct(auction.isDirect())
                             .delivery(auction.isDelivery())
                             .viewerCnt(auction.getViewerCnt())
-                            .auctionStatus(true)
+                            .auctionStatus(auction.isAuctionStatus())
                             .participantCnt(auction.getParticipantCnt())
                             .participantStatus(auction.isParticipantStatus())
                             //.favoriteStatus(auction.isFavoriteStatus())
@@ -239,7 +286,7 @@ public class PagingService {
         return ResponseDto.success(auctionResponseDtoList);
 
     }
-    
+
     // 내가 참여한 경매 페이지네이션
     @Transactional
     public ResponseDto<?> getJoinPagenation(HttpServletRequest request,
@@ -264,13 +311,24 @@ public class PagingService {
 
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, sortBy);
-        Pageable pageable = PageRequest.of(page, size,sort);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Participant> participantList = participantRepository.findAllByMember_Id(member.getId(),pageable);
+        Page<Participant> participantList = participantRepository.findAllByMember_Id(member.getId(), pageable);
 
         List<AuctionResponseDto> auctionArrayList = new ArrayList<>();
 
+        LocalDateTime now = LocalDateTime.now(); // 클라이언트에서 api를 호출한 시간(현재 기준 시간)
+
         for (Participant participant : participantList) {
+
+            // 마감입박시간이거나 마감임박시간 이후 일 경우 auctionstatus를 false로 바꿈
+            if (now.isEqual(participant.getAuction().getDeadline()) || now.isAfter(participant.getAuction().getDeadline()) ) {
+
+                participant.getAuction().changeAuctionStatus(false);
+
+                auctionRepository.save(participant.getAuction());
+
+            }
 
             auctionArrayList.add(
                     AuctionResponseDto.builder()
@@ -301,8 +359,7 @@ public class PagingService {
 
         return ResponseDto.success(auctionArrayList);
 
-        
-        
+
     }
 
     // 내가 찜한 경매 조회 페이지 네이션
@@ -322,13 +379,24 @@ public class PagingService {
 
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, sortBy);
-        Pageable pageable = PageRequest.of(page, size,sort);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Favorite> favorites = favoriteRespository.findAllByMember_Id(member.getId(),pageable);
+        Page<Favorite> favorites = favoriteRespository.findAllByMember_Id(member.getId(), pageable);
 
         List<AuctionResponseDto> auctionResponseDtoList = new ArrayList<>();
 
-        for (Favorite favorite : favorites){
+        LocalDateTime now = LocalDateTime.now(); // 클라이언트에서 api를 호출한 시간(현재 기준 시간)
+
+        for (Favorite favorite : favorites) {
+
+            // 마감입박시간이거나 마감임박시간 이후 일 경우 auctionstatus를 false로 바꿈
+            if (now.isEqual(favorite.getAuction().getDeadline()) || now.isAfter(favorite.getAuction().getDeadline()) ) {
+
+                favorite.getAuction().changeAuctionStatus(false);
+
+                auctionRepository.save(favorite.getAuction());
+
+            }
 
             auctionResponseDtoList.add(
                     AuctionResponseDto.builder()
@@ -361,7 +429,7 @@ public class PagingService {
         return ResponseDto.success(auctionResponseDtoList);
 
     }
-    
+
     // 내가 시작한 경매 페이지네이션
     @Transactional
     public ResponseDto<?> getMyAuctionPagenation(HttpServletRequest request, int page,
@@ -379,14 +447,24 @@ public class PagingService {
 
         Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, sortBy);
-        Pageable pageable = PageRequest.of(page, size,sort);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Auction> auctionList = auctionRepository.findAllByMember_Id(member.getId(),pageable);
+        Page<Auction> auctionList = auctionRepository.findAllByMember_Id(member.getId(), pageable);
 
         List<AuctionResponseDto> auctionResponseDtoList = new ArrayList<>();
 
+        LocalDateTime now = LocalDateTime.now(); // 클라이언트에서 api를 호출한 시간(현재 기준 시간)
 
-        for (Auction auction : auctionList){
+        for (Auction auction : auctionList) {
+
+            // 마감입박시간이거나 마감임박시간 이후 일 경우 auctionstatus를 false로 바꿈
+            if (now.isEqual(auction.getDeadline()) || now.isAfter(auction.getDeadline()) ) {
+
+                auction.changeAuctionStatus(false);
+
+                auctionRepository.save(auction);
+
+            }
 
             auctionResponseDtoList.add(
                     AuctionResponseDto.builder()
@@ -421,11 +499,6 @@ public class PagingService {
     }
 
 
-
-
-
-
-
     //======================== 회원 정보 및 경매 정보 ========================
 
     @Transactional
@@ -434,6 +507,5 @@ public class PagingService {
         return tokenProvider.getMemberFromAuthentication();
     }
 
-    
-   
+
 }

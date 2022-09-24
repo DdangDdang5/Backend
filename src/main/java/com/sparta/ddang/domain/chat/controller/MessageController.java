@@ -43,6 +43,12 @@ public class MessageController {
 
     
     // 채팅 기록 복원
+//    @GetMapping("/chat/message/{roomId}")
+//    public ResponseDto<?> getMessage(@PathVariable String roomId) {
+//        return chatService.getMessages(roomId);
+//    }
+
+    //이전 채팅 기록 조회
     @GetMapping("/chat/message/{roomId}")
     public ResponseDto<?> getMessage(@PathVariable String roomId) {
         return chatService.getMessages(roomId);
