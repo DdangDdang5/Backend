@@ -37,6 +37,8 @@ public class AuctionResponseDto {
     private Long nowPrice;
     //”auctionPeriod”: 3,
     private Long auctionPeriod;
+    //마감일
+    private LocalDateTime deadline;
     //”category”: “가구”,
     private String category;
     //”region”: “용산구”,

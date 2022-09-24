@@ -1,10 +1,8 @@
 package com.sparta.ddang.domain.auction.controller;
 
-import com.sparta.ddang.domain.auction.dto.request.AuctionRequestDto;
-import com.sparta.ddang.domain.auction.dto.request.AuctionTagsRequestDto;
-import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
-import com.sparta.ddang.domain.auction.dto.request.JoinPriceRequestDto;
+import com.sparta.ddang.domain.auction.dto.request.*;
 import com.sparta.ddang.domain.auction.service.AuctionService;
+import com.sparta.ddang.domain.chat.service.ChatService;
 import com.sparta.ddang.domain.dto.ResponseDto;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,9 +16,12 @@ public class AuctionController {
 
     private final AuctionService auctionService;
 
-    public AuctionController(AuctionService auctionService){
+    private final ChatService chatService;
+
+    public AuctionController(AuctionService auctionService, ChatService chatService){
 
         this.auctionService= auctionService;
+        this.chatService = chatService;
 
     }
 
@@ -185,13 +186,88 @@ public class AuctionController {
 
     }
 
-    // 경매 타이틀 검색
-    @RequestMapping(value = "/auction/search/{title}", method = RequestMethod.GET)
-    public ResponseDto<?> getSearchTitle(@PathVariable String title){
+    // 경매 타이틀 검색 원본
+//    @RequestMapping(value = "/auction/search/{title}", method = RequestMethod.GET)
+//    public ResponseDto<?> getSearchTitle(@PathVariable String title){
+//
+//        return auctionService.getSearchTitle(title);
+//
+//    }
 
-        return auctionService.getSearchTitle(title);
+    // 경매 제목(타이틀) 검색 원본
+    @RequestMapping(value = "/auction/search/{title}", method = RequestMethod.GET)
+    public ResponseDto<?> getSearchTitle(@PathVariable String title,
+                                         HttpServletRequest request){
+
+        return auctionService.getSearchTitle(title,request);
+
+    }
+
+    // 경매 제목(타이틀) 최근순(최근검색했어요)
+    @RequestMapping(value = "/auction/recent-search", method = RequestMethod.GET)
+    public ResponseDto<?> getSearchRecent(HttpServletRequest request){
+
+        return auctionService.getSearchRecent(request);
 
     }
 
 
+    // 경매 제목(타이틀) 인기순(지금인기있어요)
+    @RequestMapping(value = "/auction/popular-search", method = RequestMethod.GET)
+    public ResponseDto<?> getSearchPopular(){
+
+        return auctionService.getSearchPopular();
+
+    }
+
+
+    //낙찰자 조회
+    @RequestMapping(value = "/auction/{auctionId}/bidder", method = RequestMethod.GET)
+    public ResponseDto<?> getBidder(@PathVariable Long auctionId){
+
+        return auctionService.getBidder(auctionId);
+
+    }
+
+    // 경매 top4 조회
+    @RequestMapping(value = "/auction/hit", method = RequestMethod.GET)
+    public ResponseDto<?> getAuctionTop4(){
+
+        return auctionService.getAuctionTop4();
+
+    }
+
+    // 마감임박 경매 4개 조회
+    @GetMapping("/auction/deadline")
+    public ResponseDto<?> getDeadlineAuctions() {
+        return auctionService.getDeadlineAuctions();
+    }
+
+
+    //최신 경매 조회(3개)
+    // /auction/new-release
+    @RequestMapping(value = "/auction/new-release", method = RequestMethod.GET)
+    public ResponseDto<?> getNewReleaseTop3(){
+
+        return auctionService.getNewReleaseTop3();
+
+    }
+
+    // 요구사항
+    //1:1채팅에 참여하고 있는 해당 회원의 채팅방 목록 조회
+    //- 룸아이디, 룸네임, 프로필이미지,
+    //마지막 채팅대화(createdAt)
+    //--> 소켓이 아닌 리스폰스 값으로 반환하기
+
+    // 1:1채팅 방 목록 -> 해당 메시지를 전달하는 것과 같음.
+    @GetMapping("/ono/{nickname}")
+    public ResponseDto<?> getOnoMessage(@PathVariable String nickname) {
+        return chatService.getOnoMessages(nickname);
+    }
+    @PostMapping("/auction/{auctionId}/review")
+    public ResponseDto<?> reviewAuction(@PathVariable Long auctionId,
+                                        @RequestBody ReviewRequestDto reviewRequestDto,
+                                        HttpServletRequest request) {
+        return ResponseDto.success(auctionService.reviewAuction(auctionId, reviewRequestDto, request));
+    }
 }

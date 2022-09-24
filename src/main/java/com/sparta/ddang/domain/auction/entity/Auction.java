@@ -1,5 +1,6 @@
 package com.sparta.ddang.domain.auction.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.ddang.domain.auction.dto.request.AuctionRequestDto;
 import com.sparta.ddang.domain.auction.dto.request.AuctionUpdateRequestDto;
 import com.sparta.ddang.domain.member.entity.Member;
@@ -11,6 +12,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,8 +55,6 @@ public class Auction extends Timestamped { // 19개
     @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Tags tags;
 
-
-
     @Column(nullable = false)
     @ColumnDefault("0")
     private Long startPrice;
@@ -66,6 +66,10 @@ public class Auction extends Timestamped { // 19개
     @Column(nullable = false)
     @ColumnDefault("0")
     private Long auctionPeriod;
+
+    @Column(nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime deadline;
 
     @Column(nullable = false) //10개
     private String category;
@@ -82,18 +86,28 @@ public class Auction extends Timestamped { // 19개
     //조회수 테이블 만들기
     @Column
     @ColumnDefault("0") //default 0
-    private Long viewerCnt;
+    private Long viewerCnt = 0L;
 
     // 참여자 수 만들기 - 채팅 기본원리 공부후
     @Column
     @ColumnDefault("0") //default 0
-    private Long participantCnt;
+    private Long participantCnt = 0L;
 
     @Column
     private boolean auctionStatus; // true
 
     @Column
-    private boolean participantStatus;
+    private boolean participantStatus ;
+
+    @Column
+    private String chatRoomId;
+
+    @Column
+    private String bidRoomId;
+
+    @Column
+    private String onoRoomId;
+
 
 //    @Column
 //    private boolean favoriteStatus;
@@ -105,6 +119,8 @@ public class Auction extends Timestamped { // 19개
 
     public Auction(List<MultiImage> multiImages,Member member,AuctionRequestDto auctionRequestDto){
 
+        LocalDateTime now = LocalDateTime.now();
+
         this.member = member;
         this.title = auctionRequestDto.getTitle();
         this.productName = auctionRequestDto.getProductName();
@@ -113,6 +129,7 @@ public class Auction extends Timestamped { // 19개
         this.startPrice = auctionRequestDto.getStartPrice();
         this.nowPrice = auctionRequestDto.getStartPrice();
         this.auctionPeriod = auctionRequestDto.getAuctionPeriod();
+        this.deadline = calcDeadLine(now, auctionRequestDto.getAuctionPeriod());
         this.category = auctionRequestDto.getCategory();
         this.region = auctionRequestDto.getRegion();
         this.direct = auctionRequestDto.isDirect();
@@ -141,7 +158,7 @@ public class Auction extends Timestamped { // 19개
 
     public void cntAuction(){
 
-        this.viewerCnt +=1;
+        this.viewerCnt +=1L;
 
     }
 
@@ -168,6 +185,38 @@ public class Auction extends Timestamped { // 19개
     public void updateJoinPrice(Long userPrice){
 
         this.nowPrice = userPrice;
+
+    }
+
+    public void addAuctionChatRoomId(String roomId){
+
+        this.chatRoomId = roomId;
+
+    }
+
+
+    public void addAuctionBidRoomId(String bidRoomId) {
+
+        this.bidRoomId = bidRoomId;
+
+    }
+
+    public void addAuctionOnoRoomId(String onoRoomId) {
+
+        this.onoRoomId = onoRoomId;
+
+
+    }
+
+    public LocalDateTime calcDeadLine(LocalDateTime now, Long auctionPeriod) {
+        //LocalDateTime deadline = now.plusDays(auctionPeriod);
+        LocalDateTime deadline = now.plusMinutes(auctionPeriod);
+        return deadline;
+    }
+
+    public void changeAuctionStatus(boolean auctionStatus){
+
+        this.auctionStatus = auctionStatus;
 
     }
 

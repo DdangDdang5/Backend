@@ -158,7 +158,6 @@ public class MemberService {
         TokenDto tokenDto = tokenProvider.generateTokenDto(member);
         tokenToHeaders(tokenDto, response);
 
-
         return ResponseDto.success(
                 MemberResponseDto.builder()
                         .memberId(member.getId())
@@ -213,8 +212,8 @@ public class MemberService {
         body.add("grant_type", "authorization_code");
         body.add("client_id", kakaoAppKey);
         //body.add("redirect_uri", "http://localhost:8080/member/kakao/callback");
-        //body.add("redirect_uri", "http://localhost:3000/member/kakao/callback");
-        body.add("redirect_uri", "https://sysgood.shop/member/kakao/callback");
+        body.add("redirect_uri", "http://localhost:3000/member/kakao/callback");
+//        body.add("redirect_uri", "https://sysgood.shop/member/kakao/callback");
         body.add("code", code);
         // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
@@ -339,6 +338,7 @@ public class MemberService {
         Long myParticipant = participantRepository.countAllByMemberId(memberId);
         Long myFavorite = favoriteRespository.countAllByMemberId(memberId);
 
+        String trustGrade = calcGrade(member.getTrustPoint());
 
         return ResponseDto.success(
                 GetMypageResponseDto.builder()
@@ -349,6 +349,7 @@ public class MemberService {
                         .myAuctionCnt(myAction)
                         .myParticipantCnt(myParticipant)
                         .myFavoriteCnt(myFavorite)
+                        .trustGrade(trustGrade)
                         .build()
         );
     }
@@ -356,26 +357,33 @@ public class MemberService {
     @Transactional
     public ResponseDto<?> editMypage(Long memberId, MemberRequestDto requestDto, MultipartFile multipartFile) throws IOException {
         Member member = checkMemberId(memberId);
-
+        
         if (member == null) {
             return ResponseDto.fail("존재하지 않는 회원입니다.");
-        }
+        }       
+        
+        Member member1 = checkNickname(requestDto.getNickName());
+
+        if (member1 != null) {
+            return ResponseDto.fail("닉네임이 존재합니다.");
+        }      
 
         String profileImgUrl = member.getProfileImgUrl();
+
         if (!multipartFile.isEmpty()) {
             profileImgUrl = s3UploadService.upload(multipartFile, "DdangDdang/profileImg");
-        } else {
-            profileImgUrl = null;
         }
 
         member.update(requestDto.getNickName(), profileImgUrl);
+
+        memberRepository.save(member);
 
         return ResponseDto.success(
                 MypageResponseDto.builder()
                         .memberId(member.getId())
                         .email(member.getEmail())
                         .nickname(member.getNickName())
-                        .profileImgUrl(member.getProfileImgUrl())
+                        .profileImgUrl(profileImgUrl)
                         .build()
         );
     }
@@ -426,13 +434,37 @@ public class MemberService {
 
         }
 
+        String trustGrade = calcGrade(member.getTrustPoint());
+
         return ResponseDto.success(
                 MyPageLookupResponseDto.builder()
                         .memberId(member.getId())
                         .email(member.getEmail())
                         .nickname(member.getNickName())
                         .profileImgUrl(member.getProfileImgUrl())
+                        .trustGrade(trustGrade)
                         .auctionResponseDtoList(auctionResponseDtoList)
+                        .build()
+        );
+
+    }
+
+    public ResponseDto<?> getTrustPoint(Long memberId) {
+
+        Member member = checkMemberId(memberId);
+
+        if (member == null){
+            return ResponseDto.fail("존재하지 않는 회원입니다.");
+        }
+
+        int trustPoint = member.getTrustPoint();
+        String trustGrade = calcGrade(trustPoint);
+
+        return ResponseDto.success(
+                TrustpointResponseDto.builder()
+                        .memberId(member.getId())
+                        .trustPoint(trustPoint)
+                        .trustGrade(trustGrade)
                         .build()
         );
 
@@ -465,6 +497,20 @@ public class MemberService {
     public void tokenToHeaders(TokenDto tokenDto, HttpServletResponse response) {
         response.addHeader("Authorization", "Bearer " + tokenDto.getAccessToken());
         response.addHeader("Access-Token-Expire-Time", tokenDto.getAccessTokenExpiresIn().toString());
+    }
+
+    public String calcGrade(int trustPoint) {
+        if (trustPoint >= 50) {
+            return "rainbow";
+        } else if (trustPoint >= 25) {
+            return "gold";
+        } else if (trustPoint >= 10) {
+            return "silver";
+        } else if (trustPoint >= -9) {
+            return "classic";
+        } else {
+            return "wood";
+        }
     }
 
 

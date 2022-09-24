@@ -1,12 +1,17 @@
 package com.sparta.ddang.domain.chat.controller;
 
 import com.sparta.ddang.domain.chat.dto.ChatRoomDto;
+import com.sparta.ddang.domain.chat.entity.ChatRoom;
+import com.sparta.ddang.domain.chat.service.ChatRoomService;
 import com.sparta.ddang.domain.chat.service.ChatService;
 import com.sparta.ddang.domain.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
@@ -15,6 +20,8 @@ import java.util.List;
 @RequestMapping("/chat")
 public class ChatRoomController {
     private final ChatService chatService;
+
+    private final ChatRoomService chatRoomService;
 
     // 채팅 리스트 화면
     @GetMapping("/room")
@@ -27,8 +34,8 @@ public class ChatRoomController {
     // 모든 채팅방 목록 반환
     @GetMapping("/rooms")
     @ResponseBody
-    public List<ChatRoomDto> room() {
-        return chatService.findAllRoom();
+    public List<ChatRoom> room() {
+        return chatRoomService.findAllRoom();
     }
 
     @GetMapping("/rooms/all")
@@ -38,11 +45,11 @@ public class ChatRoomController {
     }
 
     // 채팅방 생성
-    @PostMapping("/room")
-    @ResponseBody
-    public ChatRoomDto createRoom(@RequestParam String name) {
-        return chatService.createRoom(name);
-    }
+//    @PostMapping("/room")
+//    @ResponseBody
+//    public ChatRoomDto createRoom(@RequestParam String name) {
+//        return chatService.createRoom(name);
+//    }
 
     // 채팅방 입장 화면
     @GetMapping("/room/enter/{roomId}")
@@ -57,5 +64,7 @@ public class ChatRoomController {
     public ChatRoomDto roomInfo(@PathVariable String roomId) {
         return chatService.findById(roomId);
     }
+
+
 
 }

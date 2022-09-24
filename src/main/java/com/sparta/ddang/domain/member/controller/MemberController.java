@@ -55,7 +55,6 @@ public class MemberController {
 
         return memberService.kakaoLogin(code,response);
 
-
     }
 
     @GetMapping("/{memberId}/mypage")
@@ -74,4 +73,9 @@ public class MemberController {
         return memberService.lookUpmemberId(memberId);
     }
 
+    // 회원 신뢰도 조회하기
+    @GetMapping("/{memberId}/trust-point")
+    public ResponseDto<?> getTrustPoint(@PathVariable Long memberId) {
+        return memberService.getTrustPoint(memberId);
+    }
 }

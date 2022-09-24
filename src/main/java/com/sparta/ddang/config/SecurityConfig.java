@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -56,7 +55,7 @@ public class SecurityConfig {
     @Order(SecurityProperties.BASIC_AUTH_ORDER)
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors();
-        http.headers().frameOptions().sameOrigin();
+        http.headers().frameOptions().disable();
 
         http.csrf().disable()
 
@@ -78,12 +77,14 @@ public class SecurityConfig {
                 .antMatchers("/category/hit").permitAll()
                 .antMatchers("/region/hit").permitAll()
                 .antMatchers("/chat/**").permitAll()
+                .antMatchers("/pagination/**").permitAll()
                 .antMatchers("/ws/**").permitAll()
                 .antMatchers("/wss/**").permitAll()
                 .antMatchers("/webjars/**").permitAll()
                 .antMatchers("/topic/**").permitAll()
                 .antMatchers("/queue/**").permitAll()
                 .antMatchers("/app/**").permitAll()
+                .antMatchers("/ono/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .apply(new JwtSecurityConfiguration(tokenProvider));

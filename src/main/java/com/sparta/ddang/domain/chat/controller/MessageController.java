@@ -1,6 +1,7 @@
 package com.sparta.ddang.domain.chat.controller;
 
 
+import com.sparta.ddang.domain.chat.dto.BidMessageDto;
 import com.sparta.ddang.domain.chat.dto.ChatMessageDto;
 import com.sparta.ddang.domain.chat.service.ChatService;
 import com.sparta.ddang.domain.dto.ResponseDto;
@@ -26,14 +27,28 @@ public class MessageController {
 //        }
 //        sendingOperations.convertAndSend("/topic/chat/room/"+message.getRoomId(),message);
 //    }
-
+    
+    
+    // 경매 채팅 주소
     @MessageMapping("/chat/message")
     public void enter(ChatMessageDto message) {
         chatService.save(message);
     }
-    
+
+    // 호가 주소
+    @MessageMapping("/chat/bid")
+    public void enterBid(BidMessageDto message) {
+        chatService.saveBid(message);
+    }
+
     
     // 채팅 기록 복원
+//    @GetMapping("/chat/message/{roomId}")
+//    public ResponseDto<?> getMessage(@PathVariable String roomId) {
+//        return chatService.getMessages(roomId);
+//    }
+
+    //이전 채팅 기록 조회
     @GetMapping("/chat/message/{roomId}")
     public ResponseDto<?> getMessage(@PathVariable String roomId) {
         return chatService.getMessages(roomId);
