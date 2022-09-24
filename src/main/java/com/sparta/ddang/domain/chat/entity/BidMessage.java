@@ -6,10 +6,13 @@ import lombok.Builder;
 import lombok.Getter;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Getter
 @Entity
-public class BidMessage extends TimestampedChat {
+public class BidMessage extends TimestampedChat implements Serializable {
+
+    private static final long serialVersionUID = 6494678977089006639L;
 
 
     public enum MessageType {
@@ -36,16 +39,20 @@ public class BidMessage extends TimestampedChat {
     @Column(nullable = false)
     private String nickName;
 
+    private String createdAtString;
+
     public BidMessage(){}
 
     @Builder
-    public BidMessage(BidMessageDto bidMessageDto,String nickName){
+    public BidMessage(BidMessageDto bidMessageDto,String nickName,String createdAtString){
 
         this.type = bidMessageDto.getType();
         this.roomId = bidMessageDto.getRoomId();
         this.sender = bidMessageDto.getSender();
         this.message = bidMessageDto.getMessage();
         this.nickName = nickName;
+        this.createdAtString = createdAtString;
+
 
 
     }

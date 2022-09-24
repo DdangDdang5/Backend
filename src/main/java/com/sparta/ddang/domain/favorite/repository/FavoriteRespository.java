@@ -12,6 +12,8 @@ public interface FavoriteRespository extends JpaRepository<Favorite,Long> {
 
     Long countAllByMemberId(Long memberId);
 
+    Long countAllByAuctionId(Long auctionId);
+
     // 해당 회원이 해당 게시물에 등록됬는지 확인
     boolean existsByMemberIdAndAuctionId(Long memberId,Long auctionId);
 
