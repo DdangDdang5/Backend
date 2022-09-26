@@ -22,7 +22,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @PostMapping("/signup")
+    @RequestMapping(value = "/signup", method = RequestMethod.POST)
     public ResponseDto<?> signup(@RequestBody MemberRequestDto requestDto) throws IOException {
         return memberService.createMember(requestDto);
     }
@@ -38,7 +38,7 @@ public class MemberController {
     }
 
 
-    @PostMapping("/login")
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseDto<?> login(@RequestBody LoginRequestDto requestDto,
                                 HttpServletResponse response) {
         return memberService.login(requestDto, response);
@@ -49,7 +49,7 @@ public class MemberController {
     //        카카오로 로그인하기
     //    </button>
 
-    @GetMapping("/kakao/callback")
+    @RequestMapping(value = "/kakao/callback", method = RequestMethod.GET)
     public ResponseDto<?> kakaoLogin(@RequestParam String code,
                                      HttpServletResponse response) throws JsonProcessingException {
 
@@ -57,12 +57,12 @@ public class MemberController {
 
     }
 
-    @GetMapping("/{memberId}/mypage")
+    @RequestMapping(value = "/{memberId}/mypage", method = RequestMethod.GET)
     public ResponseDto<?> getMypage(@PathVariable Long memberId, HttpServletRequest request) {
         return memberService.getMypage(memberId, request);
     }
 
-    @PatchMapping("/{memberId}/mypage")
+    @RequestMapping(value = "/{memberId}/mypage", method = RequestMethod.PATCH)
     public ResponseDto<?> editMypage(@PathVariable Long memberId, @RequestPart("data")MemberRequestDto requestDto, @RequestPart("profileImg") MultipartFile multipartFile) throws IOException {
         return memberService.editMypage(memberId, requestDto, multipartFile);
     }
@@ -74,7 +74,7 @@ public class MemberController {
     }
 
     // 회원 신뢰도 조회하기
-    @GetMapping("/{memberId}/trust-point")
+    @RequestMapping(value = "/{memberId}/trust-point", method = RequestMethod.GET)
     public ResponseDto<?> getTrustPoint(@PathVariable Long memberId) {
         return memberService.getTrustPoint(memberId);
     }

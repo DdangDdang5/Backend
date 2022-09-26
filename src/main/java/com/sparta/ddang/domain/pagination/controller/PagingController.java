@@ -22,7 +22,7 @@ public class PagingController {
     }
     
     // 경매 전체 조회 페이지네이션
-    @GetMapping("/pagination/auction")
+    @RequestMapping(value = "/pagination/auction", method = RequestMethod.GET)
     public ResponseDto<?> getAuctionPagenation(
             @RequestParam("page") int page,
             @RequestParam("size") int size,
@@ -35,7 +35,7 @@ public class PagingController {
     }
     
     // 경매 카테고리별 조회 페이지네이션
-    @GetMapping("/pagination/auction/category/{category}")
+    @RequestMapping(value = "/pagination/auction/category/{category}", method = RequestMethod.GET)
     public ResponseDto<?> getCategoryPagenation(
             @RequestParam("page") int page,
             @RequestParam("size") int size,
@@ -49,7 +49,7 @@ public class PagingController {
     }
 
     // 경매 지역별 조회 페이지네이션
-    @GetMapping("/pagination/auction/region/{region}")
+    @RequestMapping(value = "/pagination/auction/region/{region}", method = RequestMethod.GET)
     public ResponseDto<?> getRegionPagenation(
             @RequestParam("page") int page,
             @RequestParam("size") int size,
@@ -63,7 +63,7 @@ public class PagingController {
     }
 
     // 경매 카테고리 및 지역별 조회 페이지네이션
-    @GetMapping("/pagination/auction/category/{category}/region/{region}")
+    @RequestMapping(value = "/pagination/auction/category/{category}/region/{region}", method = RequestMethod.GET)
     public ResponseDto<?> getCateRegiPagenation(
             @RequestParam("page") int page,
             @RequestParam("size") int size,
