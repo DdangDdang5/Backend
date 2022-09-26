@@ -7,16 +7,16 @@ import lombok.Getter;
 @Getter
 public class FavoriteResponseDto {
 
-    private Long autionId;
+    private Long auctionId;
     private Long memberId;
     private String nickname;
     private boolean favoriteStatus;
 
 
     @Builder
-    public FavoriteResponseDto(Long autionId, Long memberId, String nickname, boolean favoriteStatus){
+    public FavoriteResponseDto(Long auctionId, Long memberId, String nickname, boolean favoriteStatus){
 
-        this.autionId = autionId;
+        this.auctionId = auctionId;
         this.memberId = memberId;
         this.nickname = nickname;
         this.favoriteStatus = favoriteStatus;
