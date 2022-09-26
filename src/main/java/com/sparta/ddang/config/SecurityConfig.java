@@ -85,6 +85,8 @@ public class SecurityConfig {
                 .antMatchers("/queue/**").permitAll()
                 .antMatchers("/app/**").permitAll()
                 .antMatchers("/ono/**").permitAll()
+                .antMatchers("/subscribe/**").permitAll()
+                .antMatchers("/notification/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .apply(new JwtSecurityConfiguration(tokenProvider));
