@@ -25,6 +25,10 @@ import com.sparta.ddang.domain.member.repository.MemberRepository;
 import com.sparta.ddang.domain.mulltiimg.awsS3exceptionhandler.FileTypeErrorException;
 import com.sparta.ddang.domain.mulltiimg.entity.MultiImage;
 import com.sparta.ddang.domain.mulltiimg.repository.MultiImgRepository;
+import com.sparta.ddang.domain.notification.dto.NotificationResponseDto;
+import com.sparta.ddang.domain.notification.entity.Notification;
+import com.sparta.ddang.domain.notification.entity.NotificationType;
+import com.sparta.ddang.domain.notification.service.NotificationService;
 import com.sparta.ddang.domain.participant.entity.Participant;
 import com.sparta.ddang.domain.participant.repository.ParticipantRepository;
 import com.sparta.ddang.domain.region.dto.RegionOnlyResponseDto;
@@ -45,15 +49,20 @@ import com.sparta.ddang.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,6 +106,8 @@ public class AuctionService {
     private final RecentSearchRepository recentSearchRepository;
 
     private final ChatRoomService chatRoomService;
+
+    private final NotificationService notificationService;
 
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;  // S3 버킷 이름
@@ -357,6 +368,8 @@ public class AuctionService {
 
         }
 
+
+
 //        ChatMessageDto chatMessageDto = new ChatMessageDto();
 //        chatMessageDto.addMember(member.getNickName(), member.getProfileImgUrl());
 //        chatService.save(chatMessageDto);
@@ -599,6 +612,11 @@ public class AuctionService {
 //                        .build()
 //        );
 
+        List<Member> receiverList = memberRepository.findAll();
+        for (Member receiver : receiverList) {
+            log.info("받는사람 닉네임 >>> "+receiver.getNickName());
+            notificationService.send(receiver, NotificationType.BID, "새로운 경매가 시작되었습니다!");
+        }
 
         return ResponseDto.success(
                 AuctionChatResponseDto.builder()
@@ -1144,7 +1162,7 @@ public class AuctionService {
 
             return ResponseDto.success(
                     FavoriteResponseDto.builder()
-                            .autionId(auction.getId())
+                            .auctionId(auction.getId())
                             .memberId(auction.getMember().getId())
                             .nickname(member.getNickName())
                             .favoriteStatus(false)
@@ -1159,7 +1177,7 @@ public class AuctionService {
 
         return ResponseDto.success(
                 FavoriteResponseDto.builder()
-                        .autionId(auction.getId())
+                        .auctionId(auction.getId())
                         .memberId(auction.getMember().getId())
                         .nickname(member.getNickName())
                         .favoriteStatus(true)
@@ -2033,6 +2051,5 @@ public class AuctionService {
         }
         log.info("File delete fail");
     }
-
 
 }
