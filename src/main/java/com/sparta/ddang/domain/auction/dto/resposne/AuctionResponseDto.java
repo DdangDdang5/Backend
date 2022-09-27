@@ -55,6 +55,10 @@ public class AuctionResponseDto {
     private boolean auctionStatus;
     //”participantStatus”: false,
     private boolean participantStatus;
+    //거래 종료 상태.
+    private boolean auctionDone;
+    //평가 종료 상태.
+    private boolean reviewDone;
 
     //”favoriteStatus”: false,
     //private boolean favoriteStatus;
