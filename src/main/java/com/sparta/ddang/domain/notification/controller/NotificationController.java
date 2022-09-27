@@ -11,7 +11,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 public class NotificationController {
     private final NotificationService notificationService;
 
-    @GetMapping(value = "/subscribe/{memberId}", produces = "text/event-stream")
+    @RequestMapping(value = "/subscribe/{memberId}", produces = "text/event-stream", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     public SseEmitter subscribe(@PathVariable Long memberId,
                                 @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
