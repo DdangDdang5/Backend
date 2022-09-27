@@ -97,7 +97,13 @@ public class Auction extends Timestamped { // 19개
     private boolean auctionStatus; // true
 
     @Column
-    private boolean participantStatus ;
+    private boolean participantStatus;
+
+    @Column
+    private boolean auctionDone;
+
+    @Column
+    private boolean reviewDone;
 
     @Column
     private String chatRoomId;
@@ -135,7 +141,8 @@ public class Auction extends Timestamped { // 19개
         this.direct = auctionRequestDto.isDirect();
         this.delivery = auctionRequestDto.isDelivery();
         this.auctionStatus = true;
-
+        this.auctionDone = false;
+        this.reviewDone = false;
     }
 
     public Auction(List<MultiImage> multiImages){
@@ -220,5 +227,11 @@ public class Auction extends Timestamped { // 19개
 
     }
 
+    public void changeAuctionDone() {
+        this.auctionDone = true;
+    }
 
+    public void changeReviewDone() {
+        this.reviewDone = true;
+    }
 }
