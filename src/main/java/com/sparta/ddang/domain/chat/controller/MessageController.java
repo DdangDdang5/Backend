@@ -8,9 +8,7 @@ import com.sparta.ddang.domain.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -49,7 +47,7 @@ public class MessageController {
 //    }
 
     //이전 채팅 기록 조회
-    @GetMapping("/chat/message/{roomId}")
+    @RequestMapping(value = "/chat/message/{roomId}", method = RequestMethod.GET)
     public ResponseDto<?> getMessage(@PathVariable String roomId) {
         return chatService.getMessages(roomId);
     }
