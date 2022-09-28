@@ -7,10 +7,13 @@ import lombok.Builder;
 import lombok.Getter;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Getter
 @Entity
-public class ChatMessage extends TimestampedChat {
+public class ChatMessage extends TimestampedChat implements Serializable {
+
+    private static final long serialVersionUID = 6494678977089006639L;
 
     public enum MessageType {
         ENTER, TALK, QUIT
@@ -42,10 +45,14 @@ public class ChatMessage extends TimestampedChat {
     @Column
     private String profileImgUrl;
 
+    @Column
+    private String createdAtString;
+
+
     public ChatMessage(){}
 
     @Builder
-    public ChatMessage(ChatMessageDto chatMessageDto, String nickName, String profileImgUrl){
+    public ChatMessage(ChatMessageDto chatMessageDto, String nickName, String profileImgUrl, String createdAtString){
 
         this.type = chatMessageDto.getType();
         this.roomId = chatMessageDto.getRoomId();
@@ -53,6 +60,23 @@ public class ChatMessage extends TimestampedChat {
         this.message = chatMessageDto.getMessage();
         this.nickName = nickName;
         this.profileImgUrl = profileImgUrl;
+        this.createdAtString = createdAtString;
+
+    }
+
+    public ChatMessage(ChatMessage chatMessage){
+
+        this.type = chatMessage.getType();
+        this.roomId = chatMessage.getRoomId();
+        this.sender = chatMessage.getSender();
+        this.message = chatMessage.getMessage();
+        this.nickName = chatMessage.getNickName();
+        this.profileImgUrl = chatMessage.getProfileImgUrl();
+
+
+
+
+
 
     }
 

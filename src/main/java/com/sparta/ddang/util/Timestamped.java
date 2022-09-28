@@ -11,12 +11,11 @@ import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
 
-@Setter
 @Getter
+@Setter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class Timestamped {
-
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @CreatedDate
@@ -25,5 +24,7 @@ public abstract class Timestamped {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @LastModifiedDate
     private LocalDateTime modifiedAt;
+
+
 
 }

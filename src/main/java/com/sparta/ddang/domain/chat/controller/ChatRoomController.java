@@ -1,14 +1,16 @@
 package com.sparta.ddang.domain.chat.controller;
 
 import com.sparta.ddang.domain.chat.dto.ChatRoomDto;
+import com.sparta.ddang.domain.chat.entity.ChatRoom;
+import com.sparta.ddang.domain.chat.service.ChatRoomService;
 import com.sparta.ddang.domain.chat.service.ChatService;
 import com.sparta.ddang.domain.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
@@ -19,8 +21,10 @@ import java.util.List;
 public class ChatRoomController {
     private final ChatService chatService;
 
+    private final ChatRoomService chatRoomService;
+
     // 채팅 리스트 화면
-    @GetMapping("/room")
+    @RequestMapping(value = "/room", method = RequestMethod.GET)
     public String rooms(Model model) {
 
         return "chat/room";
@@ -28,13 +32,13 @@ public class ChatRoomController {
     }
 
     // 모든 채팅방 목록 반환
-    @GetMapping("/rooms")
+    @RequestMapping(value = "/rooms", method = RequestMethod.GET)
     @ResponseBody
-    public List<ChatRoomDto> room() {
-        return chatService.findAllRoom();
+    public List<ChatRoom> room() {
+        return chatRoomService.findAllRoom();
     }
 
-    @GetMapping("/rooms/all")
+    @RequestMapping(value = "/rooms/all", method = RequestMethod.GET)
     @ResponseBody
     public ResponseDto<?> roomAll() {
         return chatService.findAllRoomAll();
@@ -48,14 +52,14 @@ public class ChatRoomController {
 //    }
 
     // 채팅방 입장 화면
-    @GetMapping("/room/enter/{roomId}")
+    @RequestMapping(value = "/room/enter/{roomId}", method = RequestMethod.GET)
     public String roomDetail(Model model, @PathVariable String roomId) {
         model.addAttribute("roomId", roomId);
         return "chat/roomdetail";
     }
 
     // 특정 채팅방 조회
-    @GetMapping("/room/{roomId}")
+    @RequestMapping(value = "/room/{roomId}", method = RequestMethod.GET)
     @ResponseBody
     public ChatRoomDto roomInfo(@PathVariable String roomId) {
         return chatService.findById(roomId);

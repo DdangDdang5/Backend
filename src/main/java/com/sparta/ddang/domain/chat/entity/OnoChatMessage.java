@@ -20,7 +20,13 @@ public class OnoChatMessage extends TimestampedChat {
     private String roomName;
 
     @Column(nullable = false)
-    private String nickName;
+    private String lastSpeaker;
+
+    @Column(nullable = false)
+    private String seller;
+
+    @Column(nullable = false)
+    private String bidder;
 
     @Column(nullable = false)
     private String message;
@@ -35,15 +41,18 @@ public class OnoChatMessage extends TimestampedChat {
     private Long auctionId;
 
     public OnoChatMessage(){}
-    public OnoChatMessage(String roomId, String roomName,String nickName,
-                          String message,String profileImgUrl,Long auctionId){
+    public OnoChatMessage(String roomId, String roomName,String lastSpeaker,
+                          String message,String profileImgUrl,Long auctionId,
+                          String seller,String bidder){
 
         this.roomId = roomId;
         this.roomName = roomName;
-        this.nickName = nickName;
+        this.lastSpeaker = lastSpeaker;
         this.message = message;
         this.profileImgUrl = profileImgUrl;
         this.auctionId = auctionId;
+        this.seller = seller;
+        this.bidder = bidder;
 
 
     }

@@ -12,6 +12,7 @@ import com.sparta.ddang.domain.category.dto.CategoryResponseDto;
 import com.sparta.ddang.domain.category.entity.Category;
 import com.sparta.ddang.domain.category.repository.CategoryRepository;
 import com.sparta.ddang.domain.chat.dto.ChatRoomDto;
+import com.sparta.ddang.domain.chat.service.ChatRoomService;
 import com.sparta.ddang.domain.chat.service.ChatService;
 import com.sparta.ddang.domain.dto.ResponseDto;
 import com.sparta.ddang.domain.favorite.dto.FavoriteResponseDto;
@@ -24,6 +25,8 @@ import com.sparta.ddang.domain.member.repository.MemberRepository;
 import com.sparta.ddang.domain.mulltiimg.awsS3exceptionhandler.FileTypeErrorException;
 import com.sparta.ddang.domain.mulltiimg.entity.MultiImage;
 import com.sparta.ddang.domain.mulltiimg.repository.MultiImgRepository;
+import com.sparta.ddang.domain.notification.entity.NotificationType;
+import com.sparta.ddang.domain.notification.service.NotificationService;
 import com.sparta.ddang.domain.participant.entity.Participant;
 import com.sparta.ddang.domain.participant.repository.ParticipantRepository;
 import com.sparta.ddang.domain.region.dto.RegionOnlyResponseDto;
@@ -95,6 +98,10 @@ public class AuctionService {
 
     private final RecentSearchRepository recentSearchRepository;
 
+    private final ChatRoomService chatRoomService;
+
+    private final NotificationService notificationService;
+
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;  // S3 버킷 이름
 
@@ -127,7 +134,7 @@ public class AuctionService {
                             .direct(auction.isDirect())
                             .delivery(auction.isDelivery())
                             .viewerCnt(auction.getViewerCnt())
-                            .auctionStatus(true)
+                            .auctionStatus(auction.isAuctionStatus())
                             .participantCnt(auction.getParticipantCnt())
                             .participantStatus(auction.isParticipantStatus())
                             //.favoriteStatus(auction.isFavoriteStatus())
@@ -162,10 +169,52 @@ public class AuctionService {
         // 회원일경우 토큰값을 받아오니까 회원정보를 가져옴
         Member member = validateMember(request);
 
+        LocalDateTime now = LocalDateTime.now(); // 클라이언트에서 api를 호출한 시간(현재 기준 시간)
+
+        // 마감입박시간이거나 마감임박시간 이후 일 경우 auctionstatus를 false로 바꿈
+        if (now.isEqual(auction.getDeadline()) || now.isAfter(auction.getDeadline()) ) {
+
+            auction.changeAuctionStatus(false);
+
+            auctionRepository.save(auction);
+
+        }
+
+        //찜하기 카운트 만들기
+        Long favoriteCnt = favoriteRespository.countAllByAuctionId(auctionId);
+
         // 일반인들에게는 토큰이 없음 대신 해당 상세페이지만 보여줌.
         if (null == member) {
 
-            return ResponseDto.success(auction);
+            return ResponseDto.success(
+
+                    AuctionDetailResponseDto.builder()
+                            .auctionId(auction.getId())
+                            .productName(auction.getProductName())
+                            .tags(auction.getTags())
+                            .memberId(auction.getMember().getId())
+                            .nickname(auction.getMember().getNickName())
+                            .profileImgUrl(auction.getMember().getProfileImgUrl())
+                            .title(auction.getTitle())
+                            .content(auction.getContent())
+                            .multiImages(auction.getMultiImages())
+                            .startPrice(auction.getStartPrice())
+                            .nowPrice(auction.getNowPrice())
+                            .auctionPeriod(auction.getAuctionPeriod())
+                            .category(auction.getCategory())
+                            .region(auction.getRegion())
+                            .direct(auction.isDirect())
+                            .delivery(auction.isDelivery())
+                            .viewerCnt(auction.getViewerCnt())
+                            .auctionStatus(auction.isAuctionStatus())
+                            .participantCnt(auction.getParticipantCnt())
+                            .participantStatus(auction.isParticipantStatus())
+                            .favoriteCnt(favoriteCnt)
+                            //.favoriteStatus(auction.isFavoriteStatus())
+                            .createdAt(auction.getCreatedAt())
+                            .modifiedAt(auction.getModifiedAt())
+                            .build()
+            );
 
         }
 
@@ -179,8 +228,75 @@ public class AuctionService {
 
         // 만약 해당 게시글에 방문한적이 있으면 그냥 해당 게시글만 보여줌
         if (viewCntRepository.existsByMemberIdAndAuctionId(memId, aucId)) {
+            // 처음 방문시 찜하기를 했으면
+            if (favoriteRespository.existsByMemberIdAndAuctionId(memId,aucId)) {
 
-            return ResponseDto.success(auction);
+                return ResponseDto.success(
+                        AuctionDetailResponseDto.builder()
+                                .auctionId(auction.getId())
+                                .productName(auction.getProductName())
+                                .tags(auction.getTags())
+                                .memberId(auction.getMember().getId())
+                                .nickname(auction.getMember().getNickName())
+                                .profileImgUrl(auction.getMember().getProfileImgUrl())
+                                .title(auction.getTitle())
+                                .content(auction.getContent())
+                                .multiImages(auction.getMultiImages())
+                                .startPrice(auction.getStartPrice())
+                                .nowPrice(auction.getNowPrice())
+                                .auctionPeriod(auction.getAuctionPeriod())
+                                .category(auction.getCategory())
+                                .region(auction.getRegion())
+                                .direct(auction.isDirect())
+                                .delivery(auction.isDelivery())
+                                .viewerCnt(auction.getViewerCnt())
+                                .auctionStatus(auction.isAuctionStatus())
+                                .participantCnt(auction.getParticipantCnt())
+                                .participantStatus(auction.isParticipantStatus())
+                                .favoriteStatus(true)
+                                .favoriteCnt(favoriteCnt)
+                                .roomId(auction.getChatRoomId())
+                                .bidRoomId(auction.getBidRoomId())
+                                .createdAt(auction.getCreatedAt())
+                                .modifiedAt(auction.getModifiedAt())
+                                .build()
+                );
+
+            } else {  // 찜하기를 안했으면
+
+                return ResponseDto.success(
+                        AuctionDetailResponseDto.builder()
+                                .auctionId(auction.getId())
+                                .productName(auction.getProductName())
+                                .tags(auction.getTags())
+                                .memberId(auction.getMember().getId())
+                                .nickname(auction.getMember().getNickName())
+                                .profileImgUrl(auction.getMember().getProfileImgUrl())
+                                .title(auction.getTitle())
+                                .content(auction.getContent())
+                                .multiImages(auction.getMultiImages())
+                                .startPrice(auction.getStartPrice())
+                                .nowPrice(auction.getNowPrice())
+                                .auctionPeriod(auction.getAuctionPeriod())
+                                .category(auction.getCategory())
+                                .region(auction.getRegion())
+                                .direct(auction.isDirect())
+                                .delivery(auction.isDelivery())
+                                .viewerCnt(auction.getViewerCnt())
+                                .auctionStatus(auction.isAuctionStatus())
+                                .participantCnt(auction.getParticipantCnt())
+                                .participantStatus(auction.isParticipantStatus())
+                                .favoriteStatus(false)
+                                .favoriteCnt(favoriteCnt)
+                                .roomId(auction.getChatRoomId())
+                                .bidRoomId(auction.getBidRoomId())
+                                .createdAt(auction.getCreatedAt())
+                                .modifiedAt(auction.getModifiedAt())
+                                .build()
+                );
+
+            }
+
 
         }
 
@@ -245,11 +361,44 @@ public class AuctionService {
 
         }
 
+
+
 //        ChatMessageDto chatMessageDto = new ChatMessageDto();
 //        chatMessageDto.addMember(member.getNickName(), member.getProfileImgUrl());
 //        chatService.save(chatMessageDto);
 
-        return ResponseDto.success(auction);
+        return ResponseDto.success(
+
+                AuctionDetailResponseDto.builder()
+                        .auctionId(auction.getId())
+                        .productName(auction.getProductName())
+                        .tags(auction.getTags())
+                        .memberId(auction.getMember().getId())
+                        .nickname(auction.getMember().getNickName())
+                        .profileImgUrl(auction.getMember().getProfileImgUrl())
+                        .title(auction.getTitle())
+                        .content(auction.getContent())
+                        .multiImages(auction.getMultiImages())
+                        .startPrice(auction.getStartPrice())
+                        .nowPrice(auction.getNowPrice())
+                        .auctionPeriod(auction.getAuctionPeriod())
+                        .category(auction.getCategory())
+                        .region(auction.getRegion())
+                        .direct(auction.isDirect())
+                        .delivery(auction.isDelivery())
+                        .viewerCnt(auction.getViewerCnt())
+                        .auctionStatus(auction.isAuctionStatus())
+                        .participantCnt(auction.getParticipantCnt())
+                        .participantStatus(auction.isParticipantStatus())
+                        .favoriteStatus(false)
+                        .favoriteCnt(favoriteCnt)
+                        .roomId(auction.getChatRoomId())
+                        .bidRoomId(auction.getBidRoomId())
+                        .createdAt(auction.getCreatedAt())
+                        .modifiedAt(auction.getModifiedAt())
+                        .build()
+        );
+
 
 
     }
@@ -422,7 +571,7 @@ public class AuctionService {
         // 경매 게시글 생성시 동시에 채팅방 개설
         String auchatName = "경매" + auction.getId() + "번방";
 
-        ChatRoomDto chatRoomDto = chatService.createRoom(auchatName);
+        ChatRoomDto chatRoomDto = chatRoomService.createRoom(auchatName);
 
         //채팅방 아이디 필요하면 resposne하기
         System.out.println("경매채팅방 아이디 : " + chatRoomDto.getRoomId());
@@ -433,7 +582,7 @@ public class AuctionService {
         // 경매 게시글 생성시 동시에 채팅방 개설
         String aucBidName = "경매 호가" + auction.getId() + "번방";
 
-        ChatRoomDto chatRoomDto1 = chatService.createRoom(aucBidName);
+        ChatRoomDto chatRoomDto1 = chatRoomService.createRoom(aucBidName);
 
         //채팅방 아이디 필요하면 resposne하기
         System.out.println("경매 호가방 아이디 : " + chatRoomDto1.getRoomId());
@@ -456,6 +605,11 @@ public class AuctionService {
 //                        .build()
 //        );
 
+        List<Member> receiverList = memberRepository.findAll();
+        for (Member receiver : receiverList) {
+            log.info("받는사람 닉네임 >>> "+receiver.getNickName());
+            notificationService.send(receiver, NotificationType.BID, "새로운 경매가 시작되었습니다!");
+        }
 
         return ResponseDto.success(
                 AuctionChatResponseDto.builder()
@@ -962,6 +1116,8 @@ public class AuctionService {
                             .participantCnt(participant.getAuction().getParticipantCnt())
                             .participantStatus(participant.getAuction().isParticipantStatus())
                             .auctionStatus(participant.getAuction().isAuctionStatus())
+                            .auctionDone(participant.getAuction().isAuctionDone())
+                            .reviewDone(participant.getAuction().isReviewDone())
                             .createdAt(participant.getAuction().getCreatedAt())
                             .modifiedAt(participant.getAuction().getModifiedAt())
                             .build()
@@ -1001,7 +1157,7 @@ public class AuctionService {
 
             return ResponseDto.success(
                     FavoriteResponseDto.builder()
-                            .autionId(auction.getId())
+                            .auctionId(auction.getId())
                             .memberId(auction.getMember().getId())
                             .nickname(member.getNickName())
                             .favoriteStatus(false)
@@ -1016,7 +1172,7 @@ public class AuctionService {
 
         return ResponseDto.success(
                 FavoriteResponseDto.builder()
-                        .autionId(auction.getId())
+                        .auctionId(auction.getId())
                         .memberId(auction.getMember().getId())
                         .nickname(member.getNickName())
                         .favoriteStatus(true)
@@ -1120,6 +1276,8 @@ public class AuctionService {
                             .participantCnt(auction.getParticipantCnt())
                             .participantStatus(auction.isParticipantStatus())
                             .auctionStatus(auction.isAuctionStatus())
+                            .auctionDone(auction.isAuctionDone())
+                            .reviewDone(auction.isReviewDone())
                             .createdAt(auction.getCreatedAt())
                             .modifiedAt(auction.getModifiedAt())
                             .build()
@@ -1249,6 +1407,7 @@ public class AuctionService {
     public ResponseDto<?> getSearchTitle(String title, HttpServletRequest request) {
 
         Member member = validateMember(request);
+
         //비회원 경매 게시물 검색
         if (null == member) {
 
@@ -1256,7 +1415,18 @@ public class AuctionService {
 
             List<AuctionResponseDto> auctionResponseDtoList = new ArrayList<>();
 
+            LocalDateTime now = LocalDateTime.now(); // 클라이언트에서 api를 호출한 시간(현재 기준 시간)
+
             for (Auction auction : auctionList) {
+
+                // 마감입박시간이거나 마감임박시간 이후 일 경우 auctionstatus를 false로 바꿈
+                if (now.isEqual(auction.getDeadline()) || now.isAfter(auction.getDeadline()) ) {
+
+                    auction.changeAuctionStatus(false);
+
+                    auctionRepository.save(auction);
+
+                }
 
                 auctionResponseDtoList.add(
                         AuctionResponseDto.builder()
@@ -1309,12 +1479,22 @@ public class AuctionService {
         }
 
         // 회원 경매 게시물 검색
-
         List<Auction> auctionList = auctionRepository.findByTitleContaining(title);
 
         List<AuctionResponseDto> auctionResponseDtoList = new ArrayList<>();
 
+        LocalDateTime now = LocalDateTime.now(); // 클라이언트에서 api를 호출한 시간(현재 기준 시간)
+
         for (Auction auction : auctionList) {
+
+            // 마감입박시간이거나 마감임박시간 이후 일 경우 auctionstatus를 false로 바꿈
+            if (now.isEqual(auction.getDeadline()) || now.isAfter(auction.getDeadline()) ) {
+
+                auction.changeAuctionStatus(false);
+
+                auctionRepository.save(auction);
+
+            }
 
             auctionResponseDtoList.add(
                     AuctionResponseDto.builder()
@@ -1353,9 +1533,9 @@ public class AuctionService {
 
             RecentSearch recentSearch = recentSearchRepository.findByMemberIdAndSearchWord(member.getId(), title);
 
-            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime recentSearchNow = LocalDateTime.now();
 
-            recentSearch.updateTime(now);
+            recentSearch.updateTime(recentSearchNow);
 
         }
 
@@ -1388,6 +1568,12 @@ public class AuctionService {
     public ResponseDto<?> getSearchRecent(HttpServletRequest request) {
 
         Member member = validateMember(request);
+
+        if (member == null){
+
+            return ResponseDto.success("회원에게만 제공되는 서비스입니다.");
+
+        }
 
         List<RecentSearch> recentSearches = recentSearchRepository.findAllByMemberIdOrderByModifiedAtDesc(member.getId());
 
@@ -1439,11 +1625,6 @@ public class AuctionService {
 
     }
 
-
-
-
-
-
     // 낙찰자 조회 및 낙찰자와 판매자 채팅방 개설
     @Transactional
     public ResponseDto<?> getBidder(Long auctionId) {
@@ -1459,12 +1640,14 @@ public class AuctionService {
         System.out.println("bidder: " + bidder.getNickName());
 
         // 채팅방 생성
-        ChatRoomDto chatRoomDto = chatService.createRoom("경매" + auctionId + "방 1:1 채팅방");
+        ChatRoomDto chatRoomDto = chatRoomService.createRoom("경매" + auctionId + "방 1:1 채팅방");
 
         auction.addAuctionOnoRoomId(chatRoomDto.getRoomId());
 
-        auctionRepository.save(auction);
+        // 경매 종료
+        auction.changeAuctionStatus(false);
 
+        auctionRepository.save(auction);
 
         return ResponseDto.success(
                 BidderResponseDto.builder()
@@ -1489,8 +1672,21 @@ public class AuctionService {
         // top4만 저장하는 dto
         List<AuctionRankResponseDto> auctionRankResponseDtoList = new ArrayList<>();
 
+        LocalDateTime now = LocalDateTime.now(); // 클라이언트에서 api를 호출한 시간(현재 기준 시간)
+
         // for문으로 viewCnt 순으로 정렬
         for (Auction auction : auctionList) {
+
+            // 마감임박시간이거나 마감임박시간 이후 일 경우 auctionstatus를 false로 바꿈
+            if (now.isEqual(auction.getDeadline()) || now.isAfter(auction.getDeadline()) ) {
+
+                auction.changeAuctionStatus(false);
+
+                auctionRepository.save(auction);
+
+                continue;
+
+            }
 
             auctionRankResponseDtos.add(
                     AuctionRankResponseDto.builder()
@@ -1669,7 +1865,9 @@ public class AuctionService {
 
 
     }
-    // 마감입박 경매 3개
+
+    // 마감임박 경매 3개
+    @Transactional
     public ResponseDto<?> getDeadlineAuctions() {
         LocalDateTime now = LocalDateTime.now(); // 클라이언트에서 api를 호출한 시간(현재 기준 시간)
         List<Auction> auctions = auctionRepository.findAllByOrderByDeadlineAsc();
@@ -1677,7 +1875,18 @@ public class AuctionService {
 
         for (Auction auction : auctions) {
             System.out.println("auctionDeadline: " + auction.getDeadline());
-            if (now.isBefore(auction.getDeadline())) {
+            
+            // 마감입박시간이거나 마감임박시간 이후 일 경우 auctionstatus를 false로 바꿈
+            if (now.isEqual(auction.getDeadline()) || now.isAfter(auction.getDeadline()) ) {
+
+                auction.changeAuctionStatus(false);
+
+                auctionRepository.save(auction);
+
+            }
+
+            // 마감임박 시간 전인 경매게시물 이면서 auctionstatus가 true인 것만 검색해서 조회.
+            if (now.isBefore(auction.getDeadline()) && auction.isAuctionStatus() == true) {
                 deadlineAuctionResponseDtoList.add(
                         DeadlineAuctionResponseDto.builder()
                                 .title(auction.getTitle())
@@ -1700,6 +1909,7 @@ public class AuctionService {
         return ResponseDto.success(deadlineAuctionResponseDtoList);
     }
 
+    @Transactional
     public ResponseDto<?> reviewAuction(Long auctionId, ReviewRequestDto reviewRequestDto, HttpServletRequest request) {
         if (null == request.getHeader("Authorization")) {
             return ResponseDto.fail("로그인이 필요합니다.");
@@ -1717,6 +1927,9 @@ public class AuctionService {
         JoinPrice joinPrice = joinPriceList.get(0);
         Member bidder = checkMember(joinPrice.getMemberId());
 
+        auction.changeReviewDone();
+        auctionRepository.save(auction);
+
         if (member.getId().equals(seller.getId())) {
             bidder.updateTrustPoint(reviewRequestDto.getTrustPoint());
             memberRepository.save(bidder);
@@ -1730,6 +1943,28 @@ public class AuctionService {
         }
 
         return ResponseDto.fail("문제가 발생했습니다.");
+    }
+
+    @Transactional
+    public ResponseDto<?> doneAuction(Long auctionId, HttpServletRequest request) {
+
+        if (null == request.getHeader("Authorization")) {
+            return ResponseDto.fail("로그인이 필요합니다.");
+        }
+
+        Member member = validateMember(request);
+        if (null == member) {
+            return ResponseDto.fail("Token이 유효하지 않습니다.");
+        }
+
+        Auction auction = checkAuction(auctionId);
+        auction.changeAuctionDone();
+        auctionRepository.save(auction);
+
+        DoneAuctionResponseDto doneAuctionResponseDto =
+                new DoneAuctionResponseDto(auction.getId(), auction.isAuctionDone());
+
+        return ResponseDto.success(doneAuctionResponseDto);
     }
 
 //======================== 회원 정보 및 경매 정보 ========================
@@ -1840,6 +2075,5 @@ public class AuctionService {
         }
         log.info("File delete fail");
     }
-
 
 }

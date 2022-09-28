@@ -2,8 +2,6 @@ package com.sparta.ddang.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -24,6 +22,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/wss/chat")
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
+
         // Heartbeat Message : 프록시가 커넥션이 끊겼다고 판단하지 않도록 한다
 
     }

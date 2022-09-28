@@ -237,6 +237,13 @@ public class AuctionController {
 
     }
 
+    // 마감임박 경매 4개 조회
+    @RequestMapping(value = "/auction/deadline",method = RequestMethod.GET)
+    public ResponseDto<?> getDeadlineAuctions() {
+        return auctionService.getDeadlineAuctions();
+    }
+
+
     //최신 경매 조회(3개)
     // /auction/new-release
     @RequestMapping(value = "/auction/new-release", method = RequestMethod.GET)
@@ -253,21 +260,20 @@ public class AuctionController {
     //--> 소켓이 아닌 리스폰스 값으로 반환하기
 
     // 1:1채팅 방 목록 -> 해당 메시지를 전달하는 것과 같음.
-    @GetMapping("/ono/{nickname}")
+    @RequestMapping(value = "/ono/{nickname}", method = RequestMethod.GET)
     public ResponseDto<?> getOnoMessage(@PathVariable String nickname) {
         return chatService.getOnoMessages(nickname);
     }
 
-    // 마감임박 경매 4개 조회
-    @GetMapping("/auction/deadline")
-    public ResponseDto<?> getDeadlineAuctions() {
-        return auctionService.getDeadlineAuctions();
-    }
-
-    @PostMapping("/auction/{auctionId}/review")
+    @RequestMapping(value = "/auction/{auctionId}/review", method=RequestMethod.POST)
     public ResponseDto<?> reviewAuction(@PathVariable Long auctionId,
                                         @RequestBody ReviewRequestDto reviewRequestDto,
                                         HttpServletRequest request) {
-        return ResponseDto.success(auctionService.reviewAuction(auctionId, reviewRequestDto, request));
+        return auctionService.reviewAuction(auctionId, reviewRequestDto, request);
+    }
+
+    @RequestMapping(value = "/auction/{auctionId}/done", method = RequestMethod.GET)
+    public ResponseDto<?> doneAuction(@PathVariable Long auctionId, HttpServletRequest request) {
+        return auctionService.doneAuction(auctionId, request);
     }
 }
