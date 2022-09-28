@@ -25,8 +25,6 @@ import com.sparta.ddang.domain.member.repository.MemberRepository;
 import com.sparta.ddang.domain.mulltiimg.awsS3exceptionhandler.FileTypeErrorException;
 import com.sparta.ddang.domain.mulltiimg.entity.MultiImage;
 import com.sparta.ddang.domain.mulltiimg.repository.MultiImgRepository;
-import com.sparta.ddang.domain.notification.dto.NotificationResponseDto;
-import com.sparta.ddang.domain.notification.entity.Notification;
 import com.sparta.ddang.domain.notification.entity.NotificationType;
 import com.sparta.ddang.domain.notification.service.NotificationService;
 import com.sparta.ddang.domain.participant.entity.Participant;
@@ -49,20 +47,15 @@ import com.sparta.ddang.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -1123,6 +1116,8 @@ public class AuctionService {
                             .participantCnt(participant.getAuction().getParticipantCnt())
                             .participantStatus(participant.getAuction().isParticipantStatus())
                             .auctionStatus(participant.getAuction().isAuctionStatus())
+                            .auctionDone(participant.getAuction().isAuctionDone())
+                            .reviewDone(participant.getAuction().isReviewDone())
                             .createdAt(participant.getAuction().getCreatedAt())
                             .modifiedAt(participant.getAuction().getModifiedAt())
                             .build()
@@ -1281,6 +1276,8 @@ public class AuctionService {
                             .participantCnt(auction.getParticipantCnt())
                             .participantStatus(auction.isParticipantStatus())
                             .auctionStatus(auction.isAuctionStatus())
+                            .auctionDone(auction.isAuctionDone())
+                            .reviewDone(auction.isReviewDone())
                             .createdAt(auction.getCreatedAt())
                             .modifiedAt(auction.getModifiedAt())
                             .build()
@@ -1680,12 +1677,14 @@ public class AuctionService {
         // for문으로 viewCnt 순으로 정렬
         for (Auction auction : auctionList) {
 
-            // 마감입박시간이거나 마감임박시간 이후 일 경우 auctionstatus를 false로 바꿈
+            // 마감임박시간이거나 마감임박시간 이후 일 경우 auctionstatus를 false로 바꿈
             if (now.isEqual(auction.getDeadline()) || now.isAfter(auction.getDeadline()) ) {
 
                 auction.changeAuctionStatus(false);
 
                 auctionRepository.save(auction);
+
+                continue;
 
             }
 
@@ -1866,7 +1865,9 @@ public class AuctionService {
 
 
     }
+
     // 마감임박 경매 3개
+    @Transactional
     public ResponseDto<?> getDeadlineAuctions() {
         LocalDateTime now = LocalDateTime.now(); // 클라이언트에서 api를 호출한 시간(현재 기준 시간)
         List<Auction> auctions = auctionRepository.findAllByOrderByDeadlineAsc();
@@ -1902,15 +1903,13 @@ public class AuctionService {
                 );
             }
 
-
-
-
             if (deadlineAuctionResponseDtoList.size() >= 4) break;
         }
 
         return ResponseDto.success(deadlineAuctionResponseDtoList);
     }
 
+    @Transactional
     public ResponseDto<?> reviewAuction(Long auctionId, ReviewRequestDto reviewRequestDto, HttpServletRequest request) {
         if (null == request.getHeader("Authorization")) {
             return ResponseDto.fail("로그인이 필요합니다.");
@@ -1928,6 +1927,9 @@ public class AuctionService {
         JoinPrice joinPrice = joinPriceList.get(0);
         Member bidder = checkMember(joinPrice.getMemberId());
 
+        auction.changeReviewDone();
+        auctionRepository.save(auction);
+
         if (member.getId().equals(seller.getId())) {
             bidder.updateTrustPoint(reviewRequestDto.getTrustPoint());
             memberRepository.save(bidder);
@@ -1941,6 +1943,28 @@ public class AuctionService {
         }
 
         return ResponseDto.fail("문제가 발생했습니다.");
+    }
+
+    @Transactional
+    public ResponseDto<?> doneAuction(Long auctionId, HttpServletRequest request) {
+
+        if (null == request.getHeader("Authorization")) {
+            return ResponseDto.fail("로그인이 필요합니다.");
+        }
+
+        Member member = validateMember(request);
+        if (null == member) {
+            return ResponseDto.fail("Token이 유효하지 않습니다.");
+        }
+
+        Auction auction = checkAuction(auctionId);
+        auction.changeAuctionDone();
+        auctionRepository.save(auction);
+
+        DoneAuctionResponseDto doneAuctionResponseDto =
+                new DoneAuctionResponseDto(auction.getId(), auction.isAuctionDone());
+
+        return ResponseDto.success(doneAuctionResponseDto);
     }
 
 //======================== 회원 정보 및 경매 정보 ========================

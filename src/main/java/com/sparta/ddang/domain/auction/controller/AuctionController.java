@@ -1,14 +1,11 @@
 package com.sparta.ddang.domain.auction.controller;
 
 import com.sparta.ddang.domain.auction.dto.request.*;
-import com.sparta.ddang.domain.auction.entity.Auction;
 import com.sparta.ddang.domain.auction.service.AuctionService;
 import com.sparta.ddang.domain.chat.service.ChatService;
 import com.sparta.ddang.domain.dto.ResponseDto;
-import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import reactor.core.publisher.Flux;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -267,11 +264,16 @@ public class AuctionController {
     public ResponseDto<?> getOnoMessage(@PathVariable String nickname) {
         return chatService.getOnoMessages(nickname);
     }
+
     @RequestMapping(value = "/auction/{auctionId}/review", method=RequestMethod.POST)
     public ResponseDto<?> reviewAuction(@PathVariable Long auctionId,
                                         @RequestBody ReviewRequestDto reviewRequestDto,
                                         HttpServletRequest request) {
-        return ResponseDto.success(auctionService.reviewAuction(auctionId, reviewRequestDto, request));
+        return auctionService.reviewAuction(auctionId, reviewRequestDto, request);
     }
 
+    @RequestMapping(value = "/auction/{auctionId}/done", method = RequestMethod.GET)
+    public ResponseDto<?> doneAuction(@PathVariable Long auctionId, HttpServletRequest request) {
+        return auctionService.doneAuction(auctionId, request);
+    }
 }
