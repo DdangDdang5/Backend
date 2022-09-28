@@ -384,7 +384,7 @@ public class ChatService {
                         = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(),
                         lastChat.getNickName() ,lastChat.getMessage(),
                         lastChat.getProfileImgUrl(),auction.getId(),
-                        auction.getMember().getNickName(),nickname);
+                        auction.getMember().getNickName(),nickname,lastChat.getCreatedAt());
 
                 onoChatMessageRepository.save(onoChatMessage);
 
@@ -398,7 +398,7 @@ public class ChatService {
                         = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(),
                         lastChat.getNickName() ,lastChat.getMessage(),
                         lastChat.getProfileImgUrl(),auction.getId(),
-                        auction.getMember().getNickName(),nickname);
+                        auction.getMember().getNickName(),nickname,lastChat.getCreatedAt());
 
                 onoChatMessageRepository.save(onoChatMessage);
 
@@ -428,7 +428,7 @@ public class ChatService {
                                 .roomName(onoChatMessage.getRoomName())
                                 .message(onoChatMessage.getMessage())
                                 .profileImg(onoChatMessage.getProfileImgUrl())
-                                .createdAt(onoChatMessage.getCreatedAt())
+                                .lastMessageTime(onoChatMessage.getLastMessageTime())
                                 .auctionId(auction.getId())
                                 .auctionTitle(auction.getTitle())
                                 .multiImages(auction.getMultiImages())

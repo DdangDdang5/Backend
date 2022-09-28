@@ -4,6 +4,7 @@ import com.sparta.ddang.util.TimestampedChat;
 import lombok.Getter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -34,6 +35,9 @@ public class OnoChatMessage extends TimestampedChat {
     @Column
     private String profileImgUrl;
 
+    @Column
+    private LocalDateTime lastMessageTime;
+
     //@JoinColumn(name = "auction_id")
 //    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
 //    private Auction auction;
@@ -43,7 +47,7 @@ public class OnoChatMessage extends TimestampedChat {
     public OnoChatMessage(){}
     public OnoChatMessage(String roomId, String roomName,String lastSpeaker,
                           String message,String profileImgUrl,Long auctionId,
-                          String seller,String bidder){
+                          String seller,String bidder,LocalDateTime lastMessageTime){
 
         this.roomId = roomId;
         this.roomName = roomName;
@@ -53,7 +57,7 @@ public class OnoChatMessage extends TimestampedChat {
         this.auctionId = auctionId;
         this.seller = seller;
         this.bidder = bidder;
-
+        this.lastMessageTime = lastMessageTime;
 
     }
 
