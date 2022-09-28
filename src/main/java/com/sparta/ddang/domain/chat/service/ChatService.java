@@ -140,7 +140,7 @@ public class ChatService {
         LocalDateTime now = LocalDateTime.now();
         String createdAtString = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.KOREA));
 
-        ChatMessage chatMessage = new ChatMessage(message, nickName, profileImg,createdAtString);
+        ChatMessage chatMessage = new ChatMessage(message, nickName, profileImg, createdAtString);
 
         ChatRoom chatRoom = chatRoomJpaRepository.findByRoomId(chatMessage.getRoomId());
 
@@ -154,7 +154,7 @@ public class ChatService {
         //redis에 저장
         ChatMessage chatMessageRedis = chatMessageService.save(chatMessage);
 
-        System.out.println("==================redis 시간 :============"+chatMessageRedis.getCreatedAt());
+        System.out.println("==================redis 시간 :============" + chatMessageRedis.getCreatedAt());
 
 
         System.out.println("===============================================");
@@ -200,7 +200,7 @@ public class ChatService {
         LocalDateTime now = LocalDateTime.now();
         String createdAtString = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.KOREA));
 
-        BidMessage bidMessage = new BidMessage(message, nickName,createdAtString);
+        BidMessage bidMessage = new BidMessage(message, nickName, createdAtString);
 
         //db에 저장
         bidMessageRepository.save(bidMessage);
@@ -208,7 +208,7 @@ public class ChatService {
         //redis에 저장
         BidMessage bidMessageRedis = chatMessageService.saveBid(bidMessage);
 
-        System.out.println("==================redis 시간 :============"+bidMessageRedis.getCreatedAt());
+        System.out.println("==================redis 시간 :============" + bidMessageRedis.getCreatedAt());
 
         Long nowPrice = Long.parseLong(bidMessage.getMessage());
 
@@ -357,52 +357,95 @@ public class ChatService {
     public ResponseDto<?> getOnoMessages(String nickname) {
 
         String ono = "1:1";
-        List<ChatMessage> chatMessages = chatMessageJpaRepository.findAllByNickNameAndRoomNameContainingOrderByCreatedAtDesc(nickname,ono);
+        List<ChatMessage> chatMessages = chatMessageJpaRepository.findAllByNickNameAndRoomNameContainingOrderByCreatedAtDesc(nickname, ono);
 
         //List<OnoChatMessageDto> onoChatMessageDtos = new ArrayList<>();
 
 
-        for (ChatMessage chatMessage : chatMessages){
+        for (ChatMessage chatMessage : chatMessages) {
 
             // 내가 참가한 그방의 마지막 메시지를 조회해옴
             List<ChatMessage> messageList = chatMessageJpaRepository.findAllByRoomId(chatMessage.getRoomId());
-            ChatMessage lastChat = messageList.get(messageList.size()-1);
+            ChatMessage lastChat = messageList.get(messageList.size() - 1);
 
-            if (!onoChatMessageRepository.existsByRoomId(lastChat.getRoomId())){
-                //onoChatMessageRepository.deleteAllByRoomIdAndNickName(lastChat.getRoomId(), lastChat.getNickName());
+            if (lastChat.getMessage().equals("")) {
+                lastChat = messageList.get(messageList.size() - 2);
 
-                Auction auction = auctionRepository.findByOnoRoomId(lastChat.getRoomId());
-                // lastChat.getNickName() : 마지막 발언자
-                //  auction.getMember().getNickName() : 경매 게시자
-                //  nickname : chatmessage에서 nickname을 검색한 채팅방에서
-                //  nickname이 있는 채팅방에서 닉네임을 포함안 onoChatMessage 새로 생성한후 저장
-                // 그러면 만약 그채팅방에 메시지를 입력하면 ChatMessage에 nickname에 해당하는
-                // 채팅방Id가 있을 것이고
-                // nickname을 검색했을때 onoChatMessage에 닉네임이 포함되어 저장되면서 해당 닉네임이 있는
-                // 채팅방을 검색할 수 있다.
-                OnoChatMessage onoChatMessage
-                        = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(),
-                        lastChat.getNickName() ,lastChat.getMessage(),
-                        lastChat.getProfileImgUrl(),auction.getId(),
-                        auction.getMember().getNickName(),nickname,lastChat.getCreatedAt());
+                if (!onoChatMessageRepository.existsByRoomId(lastChat.getRoomId())) {
+                    //onoChatMessageRepository.deleteAllByRoomIdAndNickName(lastChat.getRoomId(), lastChat.getNickName());
 
-                onoChatMessageRepository.save(onoChatMessage);
+                    Auction auction = auctionRepository.findByOnoRoomId(lastChat.getRoomId());
+                    // lastChat.getNickName() : 마지막 발언자
+                    //  auction.getMember().getNickName() : 경매 게시자
+                    //  nickname : chatmessage에서 nickname을 검색한 채팅방에서
+                    //  nickname이 있는 채팅방에서 닉네임을 포함안 onoChatMessage 새로 생성한후 저장
+                    // 그러면 만약 그채팅방에 메시지를 입력하면 ChatMessage에 nickname에 해당하는
+                    // 채팅방Id가 있을 것이고
+                    // nickname을 검색했을때 onoChatMessage에 닉네임이 포함되어 저장되면서 해당 닉네임이 있는
+                    // 채팅방을 검색할 수 있다.
+                    OnoChatMessage onoChatMessage
+                            = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(),
+                            lastChat.getNickName(), lastChat.getMessage(),
+                            lastChat.getProfileImgUrl(), auction.getId(),
+                            auction.getMember().getNickName(), nickname, lastChat.getCreatedAt());
+
+                    onoChatMessageRepository.save(onoChatMessage);
+
+                } else {
+
+                    onoChatMessageRepository.deleteAllByRoomId(lastChat.getRoomId());
+
+                    Auction auction = auctionRepository.findByOnoRoomId(lastChat.getRoomId());
+
+                    OnoChatMessage onoChatMessage
+                            = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(),
+                            lastChat.getNickName(), lastChat.getMessage(),
+                            lastChat.getProfileImgUrl(), auction.getId(),
+                            auction.getMember().getNickName(), nickname, lastChat.getCreatedAt());
+
+                    onoChatMessageRepository.save(onoChatMessage);
+
+                }
 
             } else {
 
-                onoChatMessageRepository.deleteAllByRoomId(lastChat.getRoomId());
+                if (!onoChatMessageRepository.existsByRoomId(lastChat.getRoomId())) {
+                    //onoChatMessageRepository.deleteAllByRoomIdAndNickName(lastChat.getRoomId(), lastChat.getNickName());
 
-                Auction auction = auctionRepository.findByOnoRoomId(lastChat.getRoomId());
+                    Auction auction = auctionRepository.findByOnoRoomId(lastChat.getRoomId());
+                    // lastChat.getNickName() : 마지막 발언자
+                    //  auction.getMember().getNickName() : 경매 게시자
+                    //  nickname : chatmessage에서 nickname을 검색한 채팅방에서
+                    //  nickname이 있는 채팅방에서 닉네임을 포함안 onoChatMessage 새로 생성한후 저장
+                    // 그러면 만약 그채팅방에 메시지를 입력하면 ChatMessage에 nickname에 해당하는
+                    // 채팅방Id가 있을 것이고
+                    // nickname을 검색했을때 onoChatMessage에 닉네임이 포함되어 저장되면서 해당 닉네임이 있는
+                    // 채팅방을 검색할 수 있다.
+                    OnoChatMessage onoChatMessage
+                            = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(),
+                            lastChat.getNickName(), lastChat.getMessage(),
+                            lastChat.getProfileImgUrl(), auction.getId(),
+                            auction.getMember().getNickName(), nickname, lastChat.getCreatedAt());
 
-                OnoChatMessage onoChatMessage
-                        = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(),
-                        lastChat.getNickName() ,lastChat.getMessage(),
-                        lastChat.getProfileImgUrl(),auction.getId(),
-                        auction.getMember().getNickName(),nickname,lastChat.getCreatedAt());
+                    onoChatMessageRepository.save(onoChatMessage);
 
-                onoChatMessageRepository.save(onoChatMessage);
+                } else {
 
+                    onoChatMessageRepository.deleteAllByRoomId(lastChat.getRoomId());
+
+                    Auction auction = auctionRepository.findByOnoRoomId(lastChat.getRoomId());
+
+                    OnoChatMessage onoChatMessage
+                            = new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(),
+                            lastChat.getNickName(), lastChat.getMessage(),
+                            lastChat.getProfileImgUrl(), auction.getId(),
+                            auction.getMember().getNickName(), nickname, lastChat.getCreatedAt());
+
+                    onoChatMessageRepository.save(onoChatMessage);
+
+                }
             }
+
 
         }
 
@@ -413,7 +456,7 @@ public class ChatService {
 
         List<OnoChatMessageDto> onoChatMessageDtos = new ArrayList<>();
 
-        for (OnoChatMessage onoChatMessage : onoChatMessages){
+        for (OnoChatMessage onoChatMessage : onoChatMessages) {
 
             Auction auction = auctionRepository.findById(onoChatMessage.getAuctionId()).orElseThrow(
                     () -> new IllegalArgumentException("해당 게시물 없음.")
@@ -489,7 +532,6 @@ public class ChatService {
 //
 //        return lastMessages;
 //    }
-
 
 
 }
