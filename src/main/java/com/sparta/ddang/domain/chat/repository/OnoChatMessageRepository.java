@@ -3,6 +3,8 @@ package com.sparta.ddang.domain.chat.repository;
 import com.sparta.ddang.domain.chat.entity.OnoChatMessage;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface OnoChatMessageRepository extends JpaRepository<OnoChatMessage,Long> {
 
     //boolean existsByRoomIdAndNickName(String roomId, String nickName);
@@ -16,4 +18,6 @@ public interface OnoChatMessageRepository extends JpaRepository<OnoChatMessage,L
     void deleteAllByRoomId(String roomId);
 
     //List<OnoChatMessage> findAllByNickName(String nickName);
+
+    List<OnoChatMessage> findAllByOrderByLastMessageTimeDesc();
 }

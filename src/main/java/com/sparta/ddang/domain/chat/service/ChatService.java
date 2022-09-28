@@ -364,12 +364,28 @@ public class ChatService {
 
         for (ChatMessage chatMessage : chatMessages) {
 
+
             // 내가 참가한 그방의 마지막 메시지를 조회해옴
             List<ChatMessage> messageList = chatMessageJpaRepository.findAllByRoomId(chatMessage.getRoomId());
             ChatMessage lastChat = messageList.get(messageList.size() - 1);
 
+            ArrayList<ChatMessage> lastchat1 = new ArrayList<>();
+
             if (lastChat.getMessage().equals("")) {
-                lastChat = messageList.get(messageList.size() - 2);
+
+                for (int i = 0; i < messageList.size(); i++) {
+
+                    if (!messageList.get(messageList.size() -1 -i).getMessage().equals("")){
+
+                        lastchat1.add(messageList.get(messageList.size() -1 -i));
+                        break;
+
+                    }
+                }
+
+                //lastChat = messageList.get(messageList.size() - 2);
+
+                lastChat = lastchat1.get(0);
 
                 if (!onoChatMessageRepository.existsByRoomId(lastChat.getRoomId())) {
                     //onoChatMessageRepository.deleteAllByRoomIdAndNickName(lastChat.getRoomId(), lastChat.getNickName());
@@ -451,7 +467,8 @@ public class ChatService {
 
         // 방번호를가져와야 되는데 어떻게 가져오지?
 
-        List<OnoChatMessage> onoChatMessages = onoChatMessageRepository.findAll();
+        //List<OnoChatMessage> onoChatMessages = onoChatMessageRepository.findAll();
+        List<OnoChatMessage> onoChatMessages = onoChatMessageRepository.findAllByOrderByLastMessageTimeDesc();
         //OnoChatMessage lastChat = onoChatMessages.get(onoChatMessages.size()-1);
 
         List<OnoChatMessageDto> onoChatMessageDtos = new ArrayList<>();
