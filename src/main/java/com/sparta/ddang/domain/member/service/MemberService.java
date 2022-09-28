@@ -364,14 +364,78 @@ public class MemberService {
         
         Member member1 = checkNickname(requestDto.getNickName());
 
-        if (member1 != null) {
-            return ResponseDto.fail("닉네임이 존재합니다.");
-        }      
+//        if (member1 != null) {
+//            return ResponseDto.fail("닉네임이 존재합니다.");
+//        }
 
         String profileImgUrl = member.getProfileImgUrl();
 
+
         if (!multipartFile.isEmpty()) {
             profileImgUrl = s3UploadService.upload(multipartFile, "DdangDdang/profileImg");
+        }
+
+        // 공통된 닉네임이 있을때
+        if (member1 != null) {
+
+//            if (member1.getNickName().equals(requestDto.getNickName())){
+//
+//                return ResponseDto.fail("닉네임이 존재합니다.");
+//            }
+
+            if (member1.getProfileImgUrl() == null){
+
+                member1.update(member1.getNickName(), profileImgUrl);
+
+                memberRepository.save(member);
+
+                return ResponseDto.success(
+                        MypageResponseDto.builder()
+                                .memberId(member.getId())
+                                .email(member.getEmail())
+                                .nickname(member.getNickName())
+                                .profileImgUrl(profileImgUrl)
+                                .build()
+                );
+            }
+
+
+            if (!member1.getProfileImgUrl().equals(profileImgUrl)){
+
+                member1.update(member1.getNickName(), profileImgUrl);
+
+                memberRepository.save(member);
+
+                return ResponseDto.success(
+                        MypageResponseDto.builder()
+                                .memberId(member.getId())
+                                .email(member.getEmail())
+                                .nickname(member.getNickName())
+                                .profileImgUrl(profileImgUrl)
+                                .build()
+                );
+
+            }
+
+                //return ResponseDto.fail("닉네임이 존재합니다.");
+
+        }
+
+        if(requestDto.getNickName() == null || requestDto.getNickName().equals("")){
+
+            member.update(member.getNickName(), profileImgUrl);
+
+            memberRepository.save(member);
+
+            return ResponseDto.success(
+                    MypageResponseDto.builder()
+                            .memberId(member.getId())
+                            .email(member.getEmail())
+                            .nickname(member.getNickName())
+                            .profileImgUrl(profileImgUrl)
+                            .build()
+            );
+
         }
 
         member.update(requestDto.getNickName(), profileImgUrl);
