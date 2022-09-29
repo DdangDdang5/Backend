@@ -1999,8 +1999,9 @@ public class AuctionService {
 
         Auction auction = checkAuction(auctionId);
 
-        DoneAuctionResponseDto doneAuctionResponseDto =
-                new DoneAuctionResponseDto(auction.getId(), auction.isSellerDone(), auction.isBidderDone());
+        boolean isSeller = member.getId().equals(auction.getMember().getId());
+
+        DoneAuctionResponseDto doneAuctionResponseDto = new DoneAuctionResponseDto(auction.getId(), auction.isSellerDone(), auction.isBidderDone(), isSeller);
 
         return ResponseDto.success(doneAuctionResponseDto);
     }
