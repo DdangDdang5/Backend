@@ -584,8 +584,6 @@ public class AuctionService {
                 regionRepository.save(reg22);
                 Region reg23 = new Region("종로구", 0L);
                 regionRepository.save(reg23);
-                Region reg24 = new Region("성동구", 0L);
-                regionRepository.save(reg24);
                 Region reg25 = new Region("중구", 0L);
                 regionRepository.save(reg25);
                 Region reg26 = new Region("중랑구", 0L);

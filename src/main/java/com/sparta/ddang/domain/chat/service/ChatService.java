@@ -235,6 +235,7 @@ public class ChatService {
 
 
         } else {
+        
             Participant participant = new Participant(member, auction);
 
             participantRepository.save(participant);
@@ -243,11 +244,13 @@ public class ChatService {
 
             auction.updateParticipantCnt(participantCnt);
 
+
             auctionRepository.save(auction);
 
             JoinPrice joinPrice = new JoinPrice(member.getId(), auction.getId(), nowPrice);
 
             joinPriceRepository.save(joinPrice);
+
 
             System.out.println("===============================================");
             System.out.println(bidMessage.getType());
@@ -263,6 +266,7 @@ public class ChatService {
             System.out.println("================================bidMessage roomid :" + bidMessage.getRoomId());
 
             redisPublisher.publishBid(ChatRoomService.getTopic(bidMessage.getRoomId()), bidMessage);
+            
         }
 
     }
