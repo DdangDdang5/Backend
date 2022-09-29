@@ -12,6 +12,8 @@ import com.sparta.ddang.domain.category.dto.CategoryResponseDto;
 import com.sparta.ddang.domain.category.entity.Category;
 import com.sparta.ddang.domain.category.repository.CategoryRepository;
 import com.sparta.ddang.domain.chat.dto.ChatRoomDto;
+import com.sparta.ddang.domain.chat.entity.ChatMessage;
+import com.sparta.ddang.domain.chat.repository.ChatMessageJpaRepository;
 import com.sparta.ddang.domain.chat.service.ChatRoomService;
 import com.sparta.ddang.domain.chat.service.ChatService;
 import com.sparta.ddang.domain.dto.ResponseDto;
@@ -102,6 +104,8 @@ public class AuctionService {
 
     private final NotificationService notificationService;
 
+    private final ChatMessageJpaRepository chatMessageJpaRepository;
+
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;  // S3 버킷 이름
 
@@ -171,6 +175,26 @@ public class AuctionService {
 
         LocalDateTime now = LocalDateTime.now(); // 클라이언트에서 api를 호출한 시간(현재 기준 시간)
 
+        // 현재 채팅방에 있는 사람들 수 카운트하기 위해 해당 경매 채팅방 번호 받아옴.
+        String auctionChatRoomId = auction.getChatRoomId();
+
+        List<ChatMessage> chatMessages = chatMessageJpaRepository.findAllByRoomId(auctionChatRoomId);
+
+        ArrayList<String> nickChk = new ArrayList<>();
+
+        for (ChatMessage chatMessage : chatMessages){
+
+            if(!nickChk.contains(chatMessage.getNickName())) {
+
+                nickChk.add(chatMessage.getNickName());
+
+            }
+
+        }
+        
+        // 해당 채팅방에 있는 사람 수 카운트
+        int nickCnt = nickChk.size();
+
         // 마감입박시간이거나 마감임박시간 이후 일 경우 auctionstatus를 false로 바꿈
         if (now.isEqual(auction.getDeadline()) || now.isAfter(auction.getDeadline()) ) {
 
@@ -213,6 +237,7 @@ public class AuctionService {
                             //.favoriteStatus(auction.isFavoriteStatus())
                             .createdAt(auction.getCreatedAt())
                             .modifiedAt(auction.getModifiedAt())
+                            .chatPeopleCnt(nickCnt)
                             .build()
             );
 
@@ -259,6 +284,7 @@ public class AuctionService {
                                 .bidRoomId(auction.getBidRoomId())
                                 .createdAt(auction.getCreatedAt())
                                 .modifiedAt(auction.getModifiedAt())
+                                .chatPeopleCnt(nickCnt)
                                 .build()
                 );
 
@@ -292,6 +318,7 @@ public class AuctionService {
                                 .bidRoomId(auction.getBidRoomId())
                                 .createdAt(auction.getCreatedAt())
                                 .modifiedAt(auction.getModifiedAt())
+                                .chatPeopleCnt(nickCnt)
                                 .build()
                 );
 
@@ -396,6 +423,7 @@ public class AuctionService {
                         .bidRoomId(auction.getBidRoomId())
                         .createdAt(auction.getCreatedAt())
                         .modifiedAt(auction.getModifiedAt())
+                        .chatPeopleCnt(nickCnt)
                         .build()
         );
 

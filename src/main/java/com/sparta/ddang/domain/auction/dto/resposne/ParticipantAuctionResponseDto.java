@@ -2,7 +2,6 @@ package com.sparta.ddang.domain.auction.dto.resposne;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.ddang.domain.mulltiimg.entity.MultiImage;
-import com.sparta.ddang.domain.tag.entity.Tags;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,14 +12,12 @@ import java.util.List;
 @Getter
 @Setter
 @Builder // 이건 빌더를 써야될것 같아서 사용함.
-public class AuctionDetailResponseDto {
+public class ParticipantAuctionResponseDto {
 
     //”auctionId”: 1,
     private Long auctionId;
 
     private String productName;
-
-    private Tags tags;
 
     //”memberId”: 1,
     private Long memberId;
@@ -40,6 +37,8 @@ public class AuctionDetailResponseDto {
     private Long nowPrice;
     //”auctionPeriod”: 3,
     private Long auctionPeriod;
+    //마감일
+    private LocalDateTime deadline;
     //”category”: “가구”,
     private String category;
     //”region”: “용산구”,
@@ -56,16 +55,17 @@ public class AuctionDetailResponseDto {
     private boolean auctionStatus;
     //”participantStatus”: false,
     private boolean participantStatus;
+    //거래 종료 상태.
+    private boolean auctionDone;
+    //평가 종료 상태.
+    private boolean reviewDone;
+    //1:1채팅방 아이디
+    private String onoRoomId;
+    //낙찰자 여부
+    private boolean isBidder;
 
     //”favoriteStatus”: false,
-    private boolean favoriteStatus;
-
-    private Long favoriteCnt;
-
-    private String roomId;
-    private String bidRoomId;
-
-    private int chatPeopleCnt;
+    //private boolean favoriteStatus;
 
     //”createdAt”: “2022-08-27 15:30:00”,
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
@@ -73,6 +73,5 @@ public class AuctionDetailResponseDto {
     //”modifiedAt”: “2022-08-27 15:30:00”
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime modifiedAt;
-
 
 }

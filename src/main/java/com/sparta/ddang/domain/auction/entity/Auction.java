@@ -216,7 +216,6 @@ public class Auction extends Timestamped { // 19개
     }
 
     public LocalDateTime calcDeadLine(LocalDateTime now, Long auctionPeriod) {
-        //LocalDateTime deadline = now.plusDays(auctionPeriod);
         LocalDateTime deadline = now.plusMinutes(auctionPeriod);
         return deadline;
     }

@@ -2,11 +2,15 @@ package com.sparta.ddang.domain.pagination.service;
 
 
 import com.sparta.ddang.domain.auction.dto.resposne.AuctionResponseDto;
+import com.sparta.ddang.domain.auction.dto.resposne.ParticipantAuctionResponseDto;
 import com.sparta.ddang.domain.auction.entity.Auction;
 import com.sparta.ddang.domain.auction.repository.AuctionRepository;
+import com.sparta.ddang.domain.auction.service.AuctionService;
 import com.sparta.ddang.domain.dto.ResponseDto;
 import com.sparta.ddang.domain.favorite.entity.Favorite;
 import com.sparta.ddang.domain.favorite.repository.FavoriteRespository;
+import com.sparta.ddang.domain.joinprice.entity.JoinPrice;
+import com.sparta.ddang.domain.joinprice.repository.JoinPriceRepository;
 import com.sparta.ddang.domain.member.entity.Member;
 import com.sparta.ddang.domain.participant.entity.Participant;
 import com.sparta.ddang.domain.participant.repository.ParticipantRepository;
@@ -36,15 +40,23 @@ public class PagingService {
 
     private final FavoriteRespository favoriteRespository;
 
+    private final AuctionService auctionService;
+
+    private final JoinPriceRepository joinPriceRepository;
+
 
     public PagingService(AuctionRepository auctionRepository, TokenProvider tokenProvider,
                          ParticipantRepository participantRepository,
-                         FavoriteRespository favoriteRespository) {
+                         FavoriteRespository favoriteRespository,
+                         AuctionService auctionService,
+                         JoinPriceRepository joinPriceRepository) {
 
         this.auctionRepository = auctionRepository;
         this.tokenProvider = tokenProvider;
         this.participantRepository = participantRepository;
         this.favoriteRespository = favoriteRespository;
+        this.auctionService = auctionService;
+        this.joinPriceRepository = joinPriceRepository;
 
     }
 
@@ -315,7 +327,7 @@ public class PagingService {
 
         Page<Participant> participantList = participantRepository.findAllByMember_Id(member.getId(), pageable);
 
-        List<AuctionResponseDto> auctionArrayList = new ArrayList<>();
+        List<ParticipantAuctionResponseDto> auctionArrayList = new ArrayList<>();
 
         LocalDateTime now = LocalDateTime.now(); // 클라이언트에서 api를 호출한 시간(현재 기준 시간)
 
@@ -330,8 +342,14 @@ public class PagingService {
 
             }
 
+            Long auctionId = participant.getAuction().getId();
+            List<JoinPrice> joinPriceList = joinPriceRepository.findAllByAuctionIdOrderByJoinPriceDesc(auctionId);
+            JoinPrice joinPrice = joinPriceList.get(0);
+            Member bidder = auctionService.checkMember(joinPrice.getMemberId());
+            boolean isBidder = member.getId().equals(bidder.getId());
+
             auctionArrayList.add(
-                    AuctionResponseDto.builder()
+                    ParticipantAuctionResponseDto.builder()
                             .auctionId(participant.getAuction().getId())
                             .memberId(participant.getAuction().getMember().getId())
                             .nickname(participant.getAuction().getMember().getNickName())
@@ -352,6 +370,8 @@ public class PagingService {
                             .auctionStatus(participant.getAuction().isAuctionStatus())
                             .createdAt(participant.getAuction().getCreatedAt())
                             .modifiedAt(participant.getAuction().getModifiedAt())
+                            .onoRoomId(participant.getAuction().getOnoRoomId())
+                            .isBidder(isBidder)
                             .build()
             );
 
@@ -488,6 +508,7 @@ public class PagingService {
                             .auctionStatus(auction.isAuctionStatus())
                             .createdAt(auction.getCreatedAt())
                             .modifiedAt(auction.getModifiedAt())
+                            .onoRoomId(auction.getOnoRoomId())
                             .build()
 
             );
