@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder // 이건 빌더를 써야될것 같아서 사용함.
-public class AuctionResponseDto {
+public class ParticipantAuctionResponseDto {
 
     //”auctionId”: 1,
     private Long auctionId;
@@ -59,8 +59,10 @@ public class AuctionResponseDto {
     private boolean auctionDone;
     //평가 종료 상태.
     private boolean reviewDone;
-    //1:1 채팅방 룸아이디
+    //1:1채팅방 아이디
     private String onoRoomId;
+    //낙찰자 여부
+    private boolean isBidder;
 
     //”favoriteStatus”: false,
     //private boolean favoriteStatus;
