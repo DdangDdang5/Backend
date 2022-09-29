@@ -17,4 +17,5 @@ public class NotificationController {
                                 @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
         return notificationService.subscribe(memberId, lastEventId);
     }
+
 }
