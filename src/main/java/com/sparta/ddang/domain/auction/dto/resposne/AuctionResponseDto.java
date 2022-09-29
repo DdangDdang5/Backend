@@ -59,6 +59,8 @@ public class AuctionResponseDto {
     private boolean auctionDone;
     //평가 종료 상태.
     private boolean reviewDone;
+    //1:1 채팅방 룸아이디
+    private String onoRoomId;
 
     //”favoriteStatus”: false,
     //private boolean favoriteStatus;

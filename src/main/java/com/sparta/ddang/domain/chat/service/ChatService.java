@@ -18,6 +18,8 @@ import com.sparta.ddang.domain.joinprice.entity.JoinPrice;
 import com.sparta.ddang.domain.joinprice.repository.JoinPriceRepository;
 import com.sparta.ddang.domain.member.entity.Member;
 import com.sparta.ddang.domain.member.repository.MemberRepository;
+import com.sparta.ddang.domain.participant.entity.Participant;
+import com.sparta.ddang.domain.participant.repository.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -57,6 +59,7 @@ public class ChatService {
 
     private final OnoChatMessageRepository onoChatMessageRepository;
 
+    private final ParticipantRepository participantRepository;
 
     //채팅방 생성 원본
 //    @Transactional
@@ -191,9 +194,11 @@ public class ChatService {
         System.out.println(message.getMessage());
         System.out.println("===============================================");
 
-        Optional<Member> member = memberRepository.findByNickName(message.getSender());
+        Member member = memberRepository.findByNickName(message.getSender()).orElseThrow(
+                () -> new IllegalArgumentException("해당 닉네임 없음")
+        );
 
-        String nickName = member.get().getNickName();
+        String nickName = member.getNickName();
 
         System.out.println("닉네임" + nickName);
 
@@ -218,11 +223,36 @@ public class ChatService {
 
         auction.updateJoinPrice(nowPrice);
 
+        if (participantRepository.existsByMemberIdAndAuctionId(member.getId(), auction.getId())) {
+
+            auctionRepository.save(auction);
+
+            JoinPrice joinPrice = new JoinPrice(member.getId(), auction.getId(), nowPrice);
+
+            joinPriceRepository.save(joinPrice);
+
+            redisPublisher.publishBid(ChatRoomService.getTopic(bidMessage.getRoomId()), bidMessage);
+
+
+        }
+
+
+        Participant participant = new Participant(member, auction);
+
+        participantRepository.save(participant);
+
+        Long participantCnt = participantRepository.countAllByAuctionId(auction.getId());
+
+        auction.updateParticipantCnt(participantCnt);
+
+
         auctionRepository.save(auction);
 
-        JoinPrice joinPrice = new JoinPrice(member.get().getId(), auction.getId(), nowPrice);
+        JoinPrice joinPrice = new JoinPrice(member.getId(), auction.getId(), nowPrice);
 
         joinPriceRepository.save(joinPrice);
+
+
 
 
         System.out.println("===============================================");
@@ -364,12 +394,28 @@ public class ChatService {
 
         for (ChatMessage chatMessage : chatMessages) {
 
+
             // 내가 참가한 그방의 마지막 메시지를 조회해옴
             List<ChatMessage> messageList = chatMessageJpaRepository.findAllByRoomId(chatMessage.getRoomId());
             ChatMessage lastChat = messageList.get(messageList.size() - 1);
 
+            ArrayList<ChatMessage> lastchat1 = new ArrayList<>();
+
             if (lastChat.getMessage().equals("")) {
-                lastChat = messageList.get(messageList.size() - 2);
+
+                for (int i = 0; i < messageList.size(); i++) {
+
+                    if (!messageList.get(messageList.size() -1 -i).getMessage().equals("")){
+
+                        lastchat1.add(messageList.get(messageList.size() -1 -i));
+                        break;
+
+                    }
+                }
+
+                //lastChat = messageList.get(messageList.size() - 2);
+
+                lastChat = lastchat1.get(0);
 
                 if (!onoChatMessageRepository.existsByRoomId(lastChat.getRoomId())) {
                     //onoChatMessageRepository.deleteAllByRoomIdAndNickName(lastChat.getRoomId(), lastChat.getNickName());
@@ -451,7 +497,8 @@ public class ChatService {
 
         // 방번호를가져와야 되는데 어떻게 가져오지?
 
-        List<OnoChatMessage> onoChatMessages = onoChatMessageRepository.findAll();
+        //List<OnoChatMessage> onoChatMessages = onoChatMessageRepository.findAll();
+        List<OnoChatMessage> onoChatMessages = onoChatMessageRepository.findAllByOrderByLastMessageTimeDesc();
         //OnoChatMessage lastChat = onoChatMessages.get(onoChatMessages.size()-1);
 
         List<OnoChatMessageDto> onoChatMessageDtos = new ArrayList<>();
