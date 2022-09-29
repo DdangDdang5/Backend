@@ -210,8 +210,6 @@ public class AuctionService {
         //찜하기 카운트 만들기
         Long favoriteCnt = favoriteRespository.countAllByAuctionId(auctionId);
 
-        String trustGrade = memberService.calcGrade(member.getTrustPoint());
-
         // 일반인들에게는 토큰이 없음 대신 해당 상세페이지만 보여줌.
         if (null == member) {
 
@@ -243,7 +241,6 @@ public class AuctionService {
                             .createdAt(auction.getCreatedAt())
                             .modifiedAt(auction.getModifiedAt())
                             .chatPeopleCnt(nickCnt)
-                            .trustGrade(trustGrade)
                             .build()
             );
 
@@ -256,6 +253,8 @@ public class AuctionService {
 
         // 해당 경매 게시글 번호를 가져옴
         Long aucId = auctionId;
+
+        String trustGrade = memberService.calcGrade(member.getTrustPoint());
 
         // 만약 해당 게시글에 방문한적이 있으면 그냥 해당 게시글만 보여줌
         if (viewCntRepository.existsByMemberIdAndAuctionId(memId, aucId)) {
