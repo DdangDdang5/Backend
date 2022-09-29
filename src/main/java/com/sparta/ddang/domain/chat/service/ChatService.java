@@ -234,41 +234,40 @@ public class ChatService {
             redisPublisher.publishBid(ChatRoomService.getTopic(bidMessage.getRoomId()), bidMessage);
 
 
+        } else {
+
+            Participant participant = new Participant(member, auction);
+
+            participantRepository.save(participant);
+
+            Long participantCnt = participantRepository.countAllByAuctionId(auction.getId());
+
+            auction.updateParticipantCnt(participantCnt);
+
+
+            auctionRepository.save(auction);
+
+            JoinPrice joinPrice = new JoinPrice(member.getId(), auction.getId(), nowPrice);
+
+            joinPriceRepository.save(joinPrice);
+
+
+            System.out.println("===============================================");
+            System.out.println(bidMessage.getType());
+            System.out.println(bidMessage.getRoomId());
+            System.out.println(bidMessage.getSender());
+            System.out.println(bidMessage.getMessage());
+            System.out.println(bidMessage.getCreatedAt());
+            System.out.println(bidMessage.getNickName());
+            System.out.println("===============================================");
+
+            //sendingOperations.convertAndSend("/topic/chat/room/" + bidMessage.getRoomId(), bidMessage);
+
+            System.out.println("================================bidMessage roomid :" + bidMessage.getRoomId());
+
+            redisPublisher.publishBid(ChatRoomService.getTopic(bidMessage.getRoomId()), bidMessage);
+
         }
-
-
-        Participant participant = new Participant(member, auction);
-
-        participantRepository.save(participant);
-
-        Long participantCnt = participantRepository.countAllByAuctionId(auction.getId());
-
-        auction.updateParticipantCnt(participantCnt);
-
-
-        auctionRepository.save(auction);
-
-        JoinPrice joinPrice = new JoinPrice(member.getId(), auction.getId(), nowPrice);
-
-        joinPriceRepository.save(joinPrice);
-
-
-
-
-        System.out.println("===============================================");
-        System.out.println(bidMessage.getType());
-        System.out.println(bidMessage.getRoomId());
-        System.out.println(bidMessage.getSender());
-        System.out.println(bidMessage.getMessage());
-        System.out.println(bidMessage.getCreatedAt());
-        System.out.println(bidMessage.getNickName());
-        System.out.println("===============================================");
-
-        //sendingOperations.convertAndSend("/topic/chat/room/" + bidMessage.getRoomId(), bidMessage);
-
-        System.out.println("================================bidMessage roomid :" + bidMessage.getRoomId());
-
-        redisPublisher.publishBid(ChatRoomService.getTopic(bidMessage.getRoomId()), bidMessage);
     }
 
 
