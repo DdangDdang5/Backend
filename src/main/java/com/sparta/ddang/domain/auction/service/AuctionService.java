@@ -24,6 +24,7 @@ import com.sparta.ddang.domain.joinprice.entity.JoinPrice;
 import com.sparta.ddang.domain.joinprice.repository.JoinPriceRepository;
 import com.sparta.ddang.domain.member.entity.Member;
 import com.sparta.ddang.domain.member.repository.MemberRepository;
+import com.sparta.ddang.domain.member.service.MemberService;
 import com.sparta.ddang.domain.mulltiimg.awsS3exceptionhandler.FileTypeErrorException;
 import com.sparta.ddang.domain.mulltiimg.entity.MultiImage;
 import com.sparta.ddang.domain.mulltiimg.repository.MultiImgRepository;
@@ -105,6 +106,8 @@ public class AuctionService {
     private final NotificationService notificationService;
 
     private final ChatMessageJpaRepository chatMessageJpaRepository;
+
+    private final MemberService memberService;
 
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;  // S3 버킷 이름
@@ -251,6 +254,8 @@ public class AuctionService {
         // 해당 경매 게시글 번호를 가져옴
         Long aucId = auctionId;
 
+        String trustGrade = memberService.calcGrade(member.getTrustPoint());
+
         // 만약 해당 게시글에 방문한적이 있으면 그냥 해당 게시글만 보여줌
         if (viewCntRepository.existsByMemberIdAndAuctionId(memId, aucId)) {
             // 처음 방문시 찜하기를 했으면
@@ -285,6 +290,7 @@ public class AuctionService {
                                 .createdAt(auction.getCreatedAt())
                                 .modifiedAt(auction.getModifiedAt())
                                 .chatPeopleCnt(nickCnt)
+                                .trustGrade(trustGrade)
                                 .build()
                 );
 
@@ -319,6 +325,7 @@ public class AuctionService {
                                 .createdAt(auction.getCreatedAt())
                                 .modifiedAt(auction.getModifiedAt())
                                 .chatPeopleCnt(nickCnt)
+                                .trustGrade(trustGrade)
                                 .build()
                 );
 
@@ -424,6 +431,7 @@ public class AuctionService {
                         .createdAt(auction.getCreatedAt())
                         .modifiedAt(auction.getModifiedAt())
                         .chatPeopleCnt(nickCnt)
+                        .trustGrade(trustGrade)
                         .build()
         );
 
@@ -1142,7 +1150,7 @@ public class AuctionService {
                             .participantCnt(participant.getAuction().getParticipantCnt())
                             .participantStatus(participant.getAuction().isParticipantStatus())
                             .auctionStatus(participant.getAuction().isAuctionStatus())
-                            .auctionDone(participant.getAuction().isAuctionDone())
+//                            .auctionDone(participant.getAuction().isAuctionDone())
                             .reviewDone(participant.getAuction().isReviewDone())
                             .createdAt(participant.getAuction().getCreatedAt())
                             .modifiedAt(participant.getAuction().getModifiedAt())
@@ -1302,7 +1310,7 @@ public class AuctionService {
                             .participantCnt(auction.getParticipantCnt())
                             .participantStatus(auction.isParticipantStatus())
                             .auctionStatus(auction.isAuctionStatus())
-                            .auctionDone(auction.isAuctionDone())
+//                            .auctionDone(auction.isAuctionDone())
                             .reviewDone(auction.isReviewDone())
                             .createdAt(auction.getCreatedAt())
                             .modifiedAt(auction.getModifiedAt())
@@ -1953,19 +1961,25 @@ public class AuctionService {
         JoinPrice joinPrice = joinPriceList.get(0);
         Member bidder = checkMember(joinPrice.getMemberId());
 
-        auction.changeReviewDone();
-        auctionRepository.save(auction);
-
         if (member.getId().equals(seller.getId())) {
             bidder.updateTrustPoint(reviewRequestDto.getTrustPoint());
             memberRepository.save(bidder);
+            auction.changeSellerDone();
+            auctionRepository.save(auction);
             return ResponseDto.success("판매자가 낙찰자 평가하기 완료");
         }
 
         if (member.getId().equals(bidder.getId())) {
             seller.updateTrustPoint(reviewRequestDto.getTrustPoint());
             memberRepository.save(seller);
+            auction.changeBidderDone();
+            auctionRepository.save(auction);
             return ResponseDto.success("낙찰자가 판매자 평가하기 완료");
+        }
+
+        if (auction.isSellerDone() && auction.isBidderDone()) {
+            auction.changeReviewDone();
+            auctionRepository.save(auction);
         }
 
         return ResponseDto.fail("문제가 발생했습니다.");
@@ -1984,11 +1998,10 @@ public class AuctionService {
         }
 
         Auction auction = checkAuction(auctionId);
-        auction.changeAuctionDone();
-        auctionRepository.save(auction);
 
-        DoneAuctionResponseDto doneAuctionResponseDto =
-                new DoneAuctionResponseDto(auction.getId(), auction.isAuctionDone());
+        boolean isSeller = member.getId().equals(auction.getMember().getId());
+
+        DoneAuctionResponseDto doneAuctionResponseDto = new DoneAuctionResponseDto(auction.getId(), auction.isSellerDone(), auction.isBidderDone(), isSeller);
 
         return ResponseDto.success(doneAuctionResponseDto);
     }
