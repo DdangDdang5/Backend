@@ -67,6 +67,8 @@ public class AuctionDetailResponseDto {
 
     private int chatPeopleCnt;
 
+    private String trustGrade;
+
     //”createdAt”: “2022-08-27 15:30:00”,
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createdAt;
