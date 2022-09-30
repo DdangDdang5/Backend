@@ -138,7 +138,7 @@ public class ChatService {
         System.out.println("프로필 이미지" + profileImg);
 
         //redis저장시 db에 있는 createdAt, modifiedAt을 꺼내와서 넣지를 못함.
-        // 아래 생성자로 생성한 데이터만 저장됨. 
+        // 아래 생성자로 생성한 데이터만 저장됨.
         // timestamped에서 상속받는데도 불구하고 시간만 빼고 아래에 있는 데이터는 다 저장이됨.
         LocalDateTime now = LocalDateTime.now();
         String createdAtString = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.KOREA));
@@ -185,90 +185,89 @@ public class ChatService {
             chatRoomService.enterChatRoom(message.getRoomId());
 //            message.setMessage(message.getSender() + "님이 입장하였습니다.");
             //message.setMessage("0");
-        }
-
-        System.out.println("===============================================");
-        System.out.println(message.getType());
-        System.out.println(message.getRoomId());
-        System.out.println(message.getSender());
-        System.out.println(message.getMessage());
-        System.out.println("===============================================");
-
-        Member member = memberRepository.findByNickName(message.getSender()).orElseThrow(
-                () -> new IllegalArgumentException("해당 닉네임 없음")
-        );
-
-        String nickName = member.getNickName();
-
-        System.out.println("닉네임" + nickName);
-
-        LocalDateTime now = LocalDateTime.now();
-        String createdAtString = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.KOREA));
-
-        BidMessage bidMessage = new BidMessage(message, nickName, createdAtString);
-
-        //db에 저장
-        bidMessageRepository.save(bidMessage);
-
-        //redis에 저장
-        BidMessage bidMessageRedis = chatMessageService.saveBid(bidMessage);
-
-        System.out.println("==================redis 시간 :============" + bidMessageRedis.getCreatedAt());
-
-        Long nowPrice = Long.parseLong(bidMessage.getMessage());
-
-        Auction auction = auctionRepository.findByBidRoomId(bidMessage.getRoomId());
-
-        //Auction auction = auctionRepository.findByMember(member);
-
-        auction.updateJoinPrice(nowPrice);
-
-        if (participantRepository.existsByMemberIdAndAuctionId(member.getId(), auction.getId())) {
-
-            auctionRepository.save(auction);
-
-            JoinPrice joinPrice = new JoinPrice(member.getId(), auction.getId(), nowPrice);
-
-            joinPriceRepository.save(joinPrice);
-
-            redisPublisher.publishBid(ChatRoomService.getTopic(bidMessage.getRoomId()), bidMessage);
-
-
         } else {
-        
-            Participant participant = new Participant(member, auction);
-
-            participantRepository.save(participant);
-
-            Long participantCnt = participantRepository.countAllByAuctionId(auction.getId());
-
-            auction.updateParticipantCnt(participantCnt);
-
-
-            auctionRepository.save(auction);
-
-            JoinPrice joinPrice = new JoinPrice(member.getId(), auction.getId(), nowPrice);
-
-            joinPriceRepository.save(joinPrice);
-
-
             System.out.println("===============================================");
-            System.out.println(bidMessage.getType());
-            System.out.println(bidMessage.getRoomId());
-            System.out.println(bidMessage.getSender());
-            System.out.println(bidMessage.getMessage());
-            System.out.println(bidMessage.getCreatedAt());
-            System.out.println(bidMessage.getNickName());
+            System.out.println(message.getType());
+            System.out.println(message.getRoomId());
+            System.out.println(message.getSender());
+            System.out.println(message.getMessage());
             System.out.println("===============================================");
 
-            //sendingOperations.convertAndSend("/topic/chat/room/" + bidMessage.getRoomId(), bidMessage);
+            Member member = memberRepository.findByNickName(message.getSender()).orElseThrow(
+                    () -> new IllegalArgumentException("해당 닉네임 없음")
+            );
 
-            System.out.println("================================bidMessage roomid :" + bidMessage.getRoomId());
+            String nickName = member.getNickName();
 
-            redisPublisher.publishBid(ChatRoomService.getTopic(bidMessage.getRoomId()), bidMessage);
-            
+            System.out.println("닉네임" + nickName);
+
+            LocalDateTime now = LocalDateTime.now();
+            String createdAtString = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.KOREA));
+
+            BidMessage bidMessage = new BidMessage(message, nickName, createdAtString);
+
+            //db에 저장
+            bidMessageRepository.save(bidMessage);
+
+            //redis에 저장
+            BidMessage bidMessageRedis = chatMessageService.saveBid(bidMessage);
+
+            System.out.println("==================redis 시간 :============" + bidMessageRedis.getCreatedAt());
+
+            Long nowPrice = Long.parseLong(bidMessage.getMessage());
+
+            Auction auction = auctionRepository.findByBidRoomId(bidMessage.getRoomId());
+
+            //Auction auction = auctionRepository.findByMember(member);
+
+            auction.updateJoinPrice(nowPrice);
+
+            if (participantRepository.existsByMemberIdAndAuctionId(member.getId(), auction.getId())) {
+
+                auctionRepository.save(auction);
+
+                JoinPrice joinPrice = new JoinPrice(member.getId(), auction.getId(), nowPrice);
+
+                joinPriceRepository.save(joinPrice);
+
+                redisPublisher.publishBid(ChatRoomService.getTopic(bidMessage.getRoomId()), bidMessage);
+
+
+            } else {
+
+                Participant participant = new Participant(member, auction);
+
+                participantRepository.save(participant);
+
+                Long participantCnt = participantRepository.countAllByAuctionId(auction.getId());
+
+                auction.updateParticipantCnt(participantCnt);
+
+
+                auctionRepository.save(auction);
+
+                JoinPrice joinPrice = new JoinPrice(member.getId(), auction.getId(), nowPrice);
+
+                joinPriceRepository.save(joinPrice);
+
+
+                System.out.println("===============================================");
+                System.out.println(bidMessage.getType());
+                System.out.println(bidMessage.getRoomId());
+                System.out.println(bidMessage.getSender());
+                System.out.println(bidMessage.getMessage());
+                System.out.println(bidMessage.getCreatedAt());
+                System.out.println(bidMessage.getNickName());
+                System.out.println("===============================================");
+
+                //sendingOperations.convertAndSend("/topic/chat/room/" + bidMessage.getRoomId(), bidMessage);
+
+                System.out.println("================================bidMessage roomid :" + bidMessage.getRoomId());
+
+                redisPublisher.publishBid(ChatRoomService.getTopic(bidMessage.getRoomId()), bidMessage);
+
+            }
         }
-
     }
 
 
