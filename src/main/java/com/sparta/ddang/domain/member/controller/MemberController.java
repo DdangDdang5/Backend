@@ -22,6 +22,12 @@ public class MemberController {
 
     private final MemberService memberService;
 
+
+    @GetMapping("/ci")
+    public ResponseDto<?> successCI() {
+        String successStr = "자동배포 성공!!!";
+        return ResponseDto.success(successStr);
+    }
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
     public ResponseDto<?> signup(@RequestBody MemberRequestDto requestDto) throws IOException {
         return memberService.createMember(requestDto);
