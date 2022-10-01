@@ -565,15 +565,15 @@ public class MemberService {
 
     public String calcGrade(int trustPoint) {
         if (trustPoint >= 50) {
-            return "rainbow";
+            return "무지개 망치";
         } else if (trustPoint >= 25) {
-            return "gold";
+            return "금 망치";
         } else if (trustPoint >= 10) {
-            return "silver";
+            return "은 망치";
         } else if (trustPoint >= -9) {
-            return "classic";
+            return "기본 망치";
         } else {
-            return "wood";
+            return "나무 망치";
         }
     }
 

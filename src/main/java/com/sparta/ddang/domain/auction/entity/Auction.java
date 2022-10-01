@@ -100,7 +100,10 @@ public class Auction extends Timestamped { // 19개
     private boolean participantStatus;
 
     @Column
-    private boolean auctionDone;
+    private boolean sellerDone; //판매자가 낙찰자 평가하기 종료 = true
+
+    @Column
+    private boolean bidderDone; //낙찰자가 판매자 평가하기 종료 = true
 
     @Column
     private boolean reviewDone;
@@ -141,7 +144,8 @@ public class Auction extends Timestamped { // 19개
         this.direct = auctionRequestDto.isDirect();
         this.delivery = auctionRequestDto.isDelivery();
         this.auctionStatus = true;
-        this.auctionDone = false;
+        this.sellerDone = false;
+        this.bidderDone = false;
         this.reviewDone = false;
     }
 
@@ -226,8 +230,12 @@ public class Auction extends Timestamped { // 19개
 
     }
 
-    public void changeAuctionDone() {
-        this.auctionDone = true;
+    public void changeSellerDone() {
+        this.sellerDone = true;
+    }
+
+    public void changeBidderDone() {
+        this.bidderDone = true;
     }
 
     public void changeReviewDone() {
