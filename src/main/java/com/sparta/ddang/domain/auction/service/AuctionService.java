@@ -254,6 +254,7 @@ public class AuctionService {
         // 해당 경매 게시글 번호를 가져옴
         Long aucId = auctionId;
 
+        // 212번째 줄에 있던것을 여기로 옮김.
         String trustGrade = memberService.calcGrade(member.getTrustPoint());
 
         // 만약 해당 게시글에 방문한적이 있으면 그냥 해당 게시글만 보여줌
