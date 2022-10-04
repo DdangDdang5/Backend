@@ -24,16 +24,12 @@ public class ChatRoom extends Timestamped implements Serializable {
     @Column
     private String roomName;
 
-    public ChatRoom(){
-
-    }
+    public ChatRoom(){}
 
     @Builder
     public ChatRoom(ChatRoomDto chatRoomDto){
-
         this.roomId = chatRoomDto.getRoomId();
         this.roomName = chatRoomDto.getRoomName();
-
     }
 
 }

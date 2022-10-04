@@ -6,10 +6,10 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 public class LoginRequestDto {
-
     @NotBlank
     private String email;
 
     @NotBlank
     private String password;
+
 }

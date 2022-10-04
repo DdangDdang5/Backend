@@ -11,30 +11,20 @@ import java.util.List;
 @Getter
 @Setter
 public class OnoChatMessageDto {
-
     private String roomId;
-
     private String roomName;
-
     private String profileImg;
-
     private String message;
-
     private LocalDateTime lastMessageTime;
-
     private Long auctionId;
-
     private String auctionTitle;
-
     private List<MultiImage> multiImages;
-
 
     @Builder
     public OnoChatMessageDto(String roomId,String roomName,
                              String profileImg,LocalDateTime lastMessageTime,
                              String message, Long auctionId,String auctionTitle,
                              List<MultiImage> multiImages){
-
         this.roomId = roomId;
         this.roomName = roomName;
         this.profileImg = profileImg;
@@ -43,8 +33,6 @@ public class OnoChatMessageDto {
         this.auctionTitle = auctionTitle;
         this.multiImages = multiImages;
         this.lastMessageTime = lastMessageTime;
-
     }
-
 
 }

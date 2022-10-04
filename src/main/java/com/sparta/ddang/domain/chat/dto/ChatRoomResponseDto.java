@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class ChatRoomResponseDto {
-
     private String roomId;
     private String roomName;
     private LocalDateTime createdAt;
@@ -18,14 +17,9 @@ public class ChatRoomResponseDto {
     @Builder
     public ChatRoomResponseDto(String roomId,String roomName,
                                LocalDateTime createdAt){
-
         this.roomId = roomId;
         this.roomName = roomName;
         this.createdAt = createdAt;
-
     }
-
-
-
 
 }

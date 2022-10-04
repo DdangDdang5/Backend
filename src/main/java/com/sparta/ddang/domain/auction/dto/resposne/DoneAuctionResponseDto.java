@@ -7,7 +7,6 @@ public class DoneAuctionResponseDto {
     private Long auctionId;
     private boolean sellerDone;
     private boolean bidderDone;
-
     private boolean isSeller;
 
     public DoneAuctionResponseDto() {}

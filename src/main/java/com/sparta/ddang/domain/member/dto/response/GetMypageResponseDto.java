@@ -6,7 +6,6 @@ import lombok.Getter;
 
 @Getter
 public class GetMypageResponseDto {
-
     private Long memberId;
     private String email;
     private String nickname;
@@ -32,4 +31,5 @@ public class GetMypageResponseDto {
         this.myFavoriteCnt = myFavoriteCnt;
         this.trustGrade = trustGrade;
     }
+
 }
