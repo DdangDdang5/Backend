@@ -5,7 +5,6 @@ import lombok.Getter;
 
 @Getter
 public class TrustpointResponseDto {
-
     private Long memberId;
     private int trustPoint;
     private String trustGrade;

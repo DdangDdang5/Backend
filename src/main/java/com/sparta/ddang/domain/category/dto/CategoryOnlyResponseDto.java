@@ -5,15 +5,11 @@ import lombok.Getter;
 
 @Getter
 public class CategoryOnlyResponseDto {
-
     private String categoryName;
-
 
     @Builder
     public CategoryOnlyResponseDto(String categoryName){
-
         this.categoryName = categoryName;
-
     }
 
 }

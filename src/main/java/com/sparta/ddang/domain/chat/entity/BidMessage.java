@@ -14,7 +14,6 @@ public class BidMessage extends TimestampedChat implements Serializable {
 
     private static final long serialVersionUID = 6494678977089006639L;
 
-
     public enum MessageType {
         ENTER, TALK, QUIT
     }
@@ -45,17 +44,12 @@ public class BidMessage extends TimestampedChat implements Serializable {
 
     @Builder
     public BidMessage(BidMessageDto bidMessageDto,String nickName,String createdAtString){
-
         this.type = bidMessageDto.getType();
         this.roomId = bidMessageDto.getRoomId();
         this.sender = bidMessageDto.getSender();
         this.message = bidMessageDto.getMessage();
         this.nickName = nickName;
         this.createdAtString = createdAtString;
-
-
-
     }
-
 
 }

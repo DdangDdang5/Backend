@@ -11,7 +11,6 @@ import java.util.Collection;
 
 @Getter
 public class MemberDetails implements UserDetails {
-
   private Member member;
 
   public MemberDetails(Member member) {
@@ -55,4 +54,5 @@ public class MemberDetails implements UserDetails {
   public boolean isEnabled() {
     return true;
   }
+
 }

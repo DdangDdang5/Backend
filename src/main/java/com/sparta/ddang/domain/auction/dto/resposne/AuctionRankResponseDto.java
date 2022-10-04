@@ -12,33 +12,16 @@ import java.util.List;
 @Setter
 @Builder
 public class AuctionRankResponseDto {
-
     private Long auctionId;
-
     private Long memberId;
-
     private String title;
-
     private String content;
-
-    //private String category;
-
     private String region;
-
     private Long auctionPeriod;
-
     private LocalDateTime createdAt;
-
     private Long nowPrice;
-
     private Long viewerCnt;
-
     private boolean delivery;
-
     private boolean direct;
-
     private List<MultiImage> multiImages;
-
-
-
 }

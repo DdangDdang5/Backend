@@ -20,22 +20,16 @@ public class Region {
     @ColumnDefault("0")
     private Long viewerCnt;
 
-
-    public Region(){
-
-    }
+    public Region(){}
 
     public Region(String region, Long viewerCnt){
-
         this.region = region;
         this.viewerCnt = viewerCnt;
-
     }
-
 
     public void updateRegionCnt(String regi) {
         this.region = regi;
         this.viewerCnt += 1;
-
     }
+
 }

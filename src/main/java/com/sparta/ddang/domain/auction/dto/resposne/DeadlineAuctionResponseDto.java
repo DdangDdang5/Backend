@@ -9,7 +9,6 @@ import java.util.List;
 
 @Getter
 public class DeadlineAuctionResponseDto {
-
     private String title;
     private String content;
     private Long nowPrice;
@@ -20,6 +19,8 @@ public class DeadlineAuctionResponseDto {
     private boolean delivery;
     private String region;
     private LocalDateTime deadline;
+
+    public DeadlineAuctionResponseDto() {}
 
     @Builder
     public DeadlineAuctionResponseDto(String title, String content, Long nowPrice,
@@ -36,6 +37,4 @@ public class DeadlineAuctionResponseDto {
         this.region = region;
         this.deadline = deadline;
     }
-
-    public DeadlineAuctionResponseDto() {}
 }

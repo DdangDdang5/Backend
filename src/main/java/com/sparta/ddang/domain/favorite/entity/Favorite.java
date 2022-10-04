@@ -23,17 +23,11 @@ public class Favorite extends Timestamped {
     @ManyToOne (fetch = FetchType.LAZY)
     Auction auction;
 
-    public Favorite(){
-
-    }
+    public Favorite(){}
 
     public Favorite(Member member, Auction auction){
-
         this.member = member;
         this.auction = auction;
-
-
     }
-
 
 }

@@ -5,7 +5,6 @@ import lombok.Getter;
 
 @Getter
 public class BidderResponseDto {
-
     private Long auctionId;
     private String seller;
     private String bidder;

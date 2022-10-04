@@ -6,11 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface RecentSearchRepository extends JpaRepository<RecentSearch,Long> {
-
     boolean existsByMemberIdAndSearchWord(Long memberId,String searchWord);
-
     RecentSearch findByMemberIdAndSearchWord(Long memberId,String searchWord);
-
     List<RecentSearch> findAllByMemberIdOrderByModifiedAtDesc(Long memberId);
 
 }

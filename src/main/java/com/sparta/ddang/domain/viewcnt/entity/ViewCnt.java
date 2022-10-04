@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Getter
 @Entity
-@DynamicInsert // 디폴트가 null일때 나머지만 insert
+@DynamicInsert
 public class ViewCnt {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,23 +17,14 @@ public class ViewCnt {
     @Column(nullable = false)
     private Long memberId;
 
-//    @JoinColumn(name = "auction_id", nullable = false)
-//    @ManyToOne(fetch = FetchType.LAZY)
-
     @Column(nullable = false)
     private Long auctionId;
 
-
     public ViewCnt(Long memId,Long aucId){
-
         this.memberId = memId;
         this.auctionId = aucId;
-
-
     }
 
+    public ViewCnt() {}
 
-    public ViewCnt() {
-
-    }
 }

@@ -1,24 +1,17 @@
 package com.sparta.ddang.domain.member.dto.response;
 
-
 import lombok.Builder;
 import lombok.Getter;
 
 
-
 @Getter
 public class KakaoUserInfoDto {
-
-    //private Long id;
     private String email;
     private String nickname;
     private String kakaoProImg;
     private boolean isKakao;
 
-
-    public KakaoUserInfoDto(){
-
-    }
+    public KakaoUserInfoDto(){}
 
     @Builder
     public KakaoUserInfoDto(String nickname,String email,String kakaoProImg,boolean isKakao){
@@ -26,10 +19,6 @@ public class KakaoUserInfoDto {
         this.email = email;
         this.kakaoProImg = kakaoProImg;
         this.isKakao = isKakao;
-
     }
-
-
-
 
 }

@@ -8,7 +8,6 @@ import java.util.List;
 
 @Getter
 public class MyPageLookupResponseDto {
-
     private Long memberId;
     private String email;
     private String nickname;
@@ -22,14 +21,12 @@ public class MyPageLookupResponseDto {
     public MyPageLookupResponseDto(Long memberId, String email,
                                    String nickname, String profileImgUrl, String trustGrade,
                                    List<AuctionResponseDto> auctionResponseDtoList){
-
         this.memberId = memberId;
         this.email = email;
         this.nickname = nickname;
         this.profileImgUrl= profileImgUrl;
         this.trustGrade = trustGrade;
         this.auctionResponseDtoList = auctionResponseDtoList;
-
     }
 
 }

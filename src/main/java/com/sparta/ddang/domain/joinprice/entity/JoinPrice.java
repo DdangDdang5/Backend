@@ -26,11 +26,9 @@ public class JoinPrice {
 
     @Builder
     public JoinPrice(Long memberId, Long auctionId, Long joinPrice){
-
         this.memberId = memberId;
         this.auctionId = auctionId;
         this.joinPrice = joinPrice;
-
     }
 
 }

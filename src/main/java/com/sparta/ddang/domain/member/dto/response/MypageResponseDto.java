@@ -9,7 +9,6 @@ public class MypageResponseDto {
     private String email;
     private String nickname;
     private String profileImgUrl;
-    //private String phoneNum;
 
     @Builder
     public MypageResponseDto(Long memberId, String email, String nickname, String profileImgUrl) {
@@ -17,7 +16,6 @@ public class MypageResponseDto {
         this.email = email;
         this.nickname = nickname;
         this.profileImgUrl = profileImgUrl;
-
     }
 
     public MypageResponseDto() {}
