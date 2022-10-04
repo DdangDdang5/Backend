@@ -23,15 +23,11 @@ public class PopularSearch {
     public PopularSearch(){}
 
     public PopularSearch(String searchWord){
-
         this.searchWord = searchWord;
-
     }
 
     public void addSearchWordCnt(){
-
         this.searchWordCnt += 1;
-
     }
 
 }

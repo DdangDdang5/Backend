@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface JoinPriceRepository extends JpaRepository<JoinPrice,Long> {
     List<JoinPrice> findAllByAuctionIdOrderByJoinPriceDesc(Long auctionId);
+
 }

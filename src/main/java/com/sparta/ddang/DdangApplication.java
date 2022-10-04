@@ -9,10 +9,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @SpringBootApplication
 public class DdangApplication {
 
-//	public static void main(String[] args) {
-//		SpringApplication.run(DdangApplication.class, args);
-//	}
-
 	public static final String APPLICATION_LOCATIONS = "spring.config.location="
 			+ "classpath:application.properties,"
 			+ "classpath:application-alpha.yml,"
@@ -23,8 +19,5 @@ public class DdangApplication {
 				.properties(APPLICATION_LOCATIONS)
 				.run(args);
 	}
-
-
-
 
 }

@@ -21,24 +21,17 @@ public class Category {
     @ColumnDefault("0")
     private Long viewerCnt;
 
-    public Category(){
-
-
-    }
+    public Category(){}
 
     @Builder
     public Category(String category, Long viewerCnt){
-
         this.category = category;
         this.viewerCnt = viewerCnt;
-
-
     }
 
     public void updateCateCnt(String cate){
         this.category = cate;
         this.viewerCnt += 1;
-
     }
 
 }

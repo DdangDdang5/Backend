@@ -8,11 +8,10 @@ import java.util.Optional;
 
 public interface ChatRoomJpaRepository extends JpaRepository<ChatRoom,Long> {
     List<ChatRoom> findAllByOrderByCreatedAtDesc();
-
     ChatRoom findByRoomId(String roomId);
-
     List<ChatRoom> findAllByRoomName(String roomName);
     Optional<ChatRoom> findByRoomName(String roomName);
+
 }
 
 

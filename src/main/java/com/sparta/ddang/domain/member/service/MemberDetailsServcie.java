@@ -25,4 +25,5 @@ public class MemberDetailsServcie implements UserDetailsService {
                 .map(MemberDetails::new)
                 .orElseThrow(() -> new UsernameNotFoundException("nickName not found"));
     }
+
 }

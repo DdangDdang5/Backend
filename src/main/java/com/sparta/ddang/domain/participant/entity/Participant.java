@@ -23,16 +23,11 @@ public class Participant extends Timestamped {
     @ManyToOne (fetch = FetchType.LAZY)
     Auction auction;
 
-    public Participant(){
-
-    }
+    public Participant(){}
 
     public Participant(Member member, Auction auction){
-
         this.member = member;
         this.auction = auction;
-
-
     }
 
 }

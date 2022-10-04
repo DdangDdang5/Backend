@@ -8,36 +8,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface AuctionRepository extends JpaRepository<Auction,Long> {
-
     List<Auction> findAllByOrderByModifiedAtDesc();
     List<Auction> findAllByOrderByCreatedAtDesc();
     List<Auction> findAllByOrderByViewerCntDesc();
-
     List<Auction> findAllByCategory(String category);
     List<Auction> findAllByRegion(String region);
-
     List<Auction> findAllByCategoryAndRegion(String category,String region);
-
     List<Auction> findAllByMember_Id(Long memberId);
-
     List<Auction> findByTitleContaining(String title);
-
     Page<Auction> findAllByCategory(String category, Pageable pageable);
-
     Page<Auction> findAllByRegion(String region, Pageable pageable);
-
-    Page<Auction> findAllByCategoryAndRegion(String category,String region,
-                                             Pageable pageable);
-
+    Page<Auction> findAllByCategoryAndRegion(String category,String region, Pageable pageable);
     Page<Auction> findAllByMember_Id(Long memberId, Pageable pageable);
-
     Long countAllByMemberId(Long memberId);
-
-    // Auction findByMember(Optional<Member> member);
     Auction findByBidRoomId(String bidRoomId);
-
     Auction findByOnoRoomId(String onoRoomId);
-
     List<Auction> findAllByOrderByDeadlineAsc();
-
 }

@@ -27,29 +27,20 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class TokenProvider {
-
   private static final String AUTHORITIES_KEY = "auth";
   private static final String BEARER_TYPE = "bearer";
-  private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24;            //24시간
-//  private static final long REFRESH_TOKEN_EXPRIRE_TIME = 1000 * 60 * 60 * 24 * 7;     //7일
-
+  private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24;  //24시간
   private final Key key;
-
   private final MemberDetailsServcie memberDetailsServcie;
 
   public TokenProvider(@Value("${jwt.secret}") String secretKey,
                        MemberDetailsServcie memberDetailsServcie) {
-//    this.refreshTokenRepository = refreshTokenRepository;
     this.memberDetailsServcie = memberDetailsServcie;
     byte[] keyBytes = Decoders.BASE64.decode(secretKey);
     this.key = Keys.hmacShaKeyFor(keyBytes);
   }
 
   public TokenDto generateTokenDto(Member member) {
-//    String authorities = authentication.getAuthorities().stream()
-//        .map(GrantedAuthority::getAuthority)
-//        .collect(Collectors.joining(","));
-
     long now = (new Date().getTime());
 
     Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
@@ -60,28 +51,11 @@ public class TokenProvider {
         .signWith(key, SignatureAlgorithm.HS256)
         .compact();
 
-//    String refreshToken = Jwts.builder()
-//        .setExpiration(new Date(now + REFRESH_TOKEN_EXPRIRE_TIME))
-//        .signWith(key, SignatureAlgorithm.HS256)
-//        .compact();
-
-//    Member member = ((UserDetailsImpl) authentication.getPrincipal()).getMember();
-
-//    RefreshToken refreshTokenObject = RefreshToken.builder()
-//        .id(member.getId())
-//        .member(member)
-//        .value(refreshToken)
-//        .build();
-
-//    refreshTokenRepository.save(refreshTokenObject);
-
     return TokenDto.builder()
         .grantType(BEARER_TYPE)
         .accessToken(accessToken)
         .accessTokenExpiresIn(accessTokenExpiresIn.getTime())
-//        .refreshToken(refreshToken)
         .build();
-
   }
 
   public Authentication getAuthentication(String accessToken) {
@@ -134,25 +108,8 @@ public class TokenProvider {
     }
   }
 
-//  @Transactional(readOnly = true)
-//  public RefreshToken isPresentRefreshToken(Member member) {
-//    Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByMember(member);
-//    return optionalRefreshToken.orElse(null);
-//  }
-
-//  @Transactional
-//  public ResponseDto<?> deleteRefreshToken(Member member) {
-//    RefreshToken refreshToken = isPresentRefreshToken(member);
-//    if (null == refreshToken) {
-//      return ResponseDto.fail("TOKEN_NOT_FOUND", "refresh token not found");
-//    }
-
-//    refreshTokenRepository.delete(refreshToken);
-//    return ResponseDto.success("success");
-//  }
-
-  // 토큰에서 회원 정보 추출
   public String getMemberPk(String token) {
     return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
   }
+
 }

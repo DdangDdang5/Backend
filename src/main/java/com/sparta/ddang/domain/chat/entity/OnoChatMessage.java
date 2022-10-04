@@ -38,17 +38,14 @@ public class OnoChatMessage extends TimestampedChat {
     @Column
     private LocalDateTime lastMessageTime;
 
-    //@JoinColumn(name = "auction_id")
-//    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-//    private Auction auction;
     @Column
     private Long auctionId;
 
     public OnoChatMessage(){}
+
     public OnoChatMessage(String roomId, String roomName,String lastSpeaker,
                           String message,String profileImgUrl,Long auctionId,
                           String seller,String bidder,LocalDateTime lastMessageTime){
-
         this.roomId = roomId;
         this.roomName = roomName;
         this.lastSpeaker = lastSpeaker;
@@ -58,12 +55,6 @@ public class OnoChatMessage extends TimestampedChat {
         this.seller = seller;
         this.bidder = bidder;
         this.lastMessageTime = lastMessageTime;
-
     }
-
-    public void updateMessage(){
-
-    }
-
 
 }

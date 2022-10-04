@@ -4,12 +4,8 @@ import lombok.Getter;
 
 @Getter
 public class AuctionUpdateRequestDto {
-
     private String title;
     private String productName;
     private String content;
     private String region;
-
-
-
 }

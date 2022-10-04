@@ -6,7 +6,6 @@ import lombok.Getter;
 
 @Getter
 public class NotificationResponseDto {
-
     private Long notificationId;
     private String content;
     private NotificationType notificationType;
@@ -30,4 +29,5 @@ public class NotificationResponseDto {
                 notification.getIsRead()
         );
     }
+
 }

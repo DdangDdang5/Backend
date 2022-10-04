@@ -5,17 +5,13 @@ import lombok.Getter;
 
 @Getter
 public class PopularSearchResponseDto {
-
     private String searchWord;
     private Long searchWordCnt;
 
     @Builder
     public PopularSearchResponseDto(String searchWord,Long searchWordCnt){
-
         this.searchWord = searchWord;
         this.searchWordCnt = searchWordCnt;
-
-
     }
 
 }

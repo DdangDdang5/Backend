@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 public class RedisPublisher {
-
     private final RedisTemplate<String, Object> redisTemplate;
 
     public void publish(ChannelTopic topic, ChatMessage message) {
@@ -19,6 +18,6 @@ public class RedisPublisher {
 
     public void publishBid(ChannelTopic topic, BidMessage message) {
         redisTemplate.convertAndSend(topic.getTopic(), message);
-        //redisTemplate.convertAndSend("/topic/chat/room/" + message.getRoomId(), message);
     }
+
 }

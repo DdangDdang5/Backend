@@ -7,20 +7,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RegionRepository extends JpaRepository<Region,Long> {
-
     boolean existsByRegion(String region);
-
     Optional<Region> findByRegion(String regi);
-
     void deleteByRegion(String region);
-
     List<Region> findAllByOrderByViewerCntDesc();
-
     List<Region> findAllByOrderByRegionAsc();
-
-
-    //Long countAllByRegion();
-    //Long countAll();
-
 
 }

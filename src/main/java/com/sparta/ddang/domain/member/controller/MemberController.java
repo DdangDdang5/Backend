@@ -19,7 +19,6 @@ import java.io.IOException;
 @RequestMapping("/member")
 @RequiredArgsConstructor
 public class MemberController {
-
     private final MemberService memberService;
 
 
@@ -50,17 +49,10 @@ public class MemberController {
         return memberService.login(requestDto, response);
     }
 
-    //  <button id="login-kakao-btn" onclick="location.href='https://kauth.kakao.com/oauth/authorize?client_id=0e615a5250af79c8016d4690ed0abe7c&redirect_uri=http://localhost:8080/member/kakao/callback&response_type=code'">
-    //  <button id="login-kakao-btn" onclick="location.href='https://kauth.kakao.com/oauth/authorize?client_id=0e615a5250af79c8016d4690ed0abe7c&redirect_uri=https://sysgood.shop/member/kakao/callback&response_type=code'">
-    //        카카오로 로그인하기
-    //    </button>
-
     @RequestMapping(value = "/kakao/callback", method = RequestMethod.GET)
     public ResponseDto<?> kakaoLogin(@RequestParam String code,
                                      HttpServletResponse response) throws JsonProcessingException {
-
         return memberService.kakaoLogin(code,response);
-
     }
 
     @RequestMapping(value = "/{memberId}/mypage", method = RequestMethod.GET)
@@ -73,15 +65,14 @@ public class MemberController {
         return memberService.editMypage(memberId, requestDto, multipartFile);
     }
 
-    // 다른 회원 정보 조회하기
     @RequestMapping(value = "/{memberId}/lookup", method = RequestMethod.GET)
     public ResponseDto<?> lookUpNickName(@PathVariable Long memberId) {
         return memberService.lookUpmemberId(memberId);
     }
 
-    // 회원 신뢰도 조회하기
     @RequestMapping(value = "/{memberId}/trust-point", method = RequestMethod.GET)
     public ResponseDto<?> getTrustPoint(@PathVariable Long memberId) {
         return memberService.getTrustPoint(memberId);
     }
+
 }

@@ -10,7 +10,6 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Component
 @RequiredArgsConstructor
 public class NotificationListener {
-
     private final NotificationService notificationService;
 
     @TransactionalEventListener
@@ -19,4 +18,5 @@ public class NotificationListener {
         notificationService.send(requestDto.getReceiver(), requestDto.getNotificationType(),
                 requestDto.getContent());
     }
+
 }

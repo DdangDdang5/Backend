@@ -48,14 +48,10 @@ public class Tags {
     @Column(name = "auction_id")
     Long auctionId;
 
-    public Tags(){
-
-    }
+    public Tags(){}
 
     @Builder
-    public Tags(Long memberId, Long auctionId,AuctionTagsRequestDto auctionTagsRequestDto
-                ){
-
+    public Tags(Long memberId, Long auctionId,AuctionTagsRequestDto auctionTagsRequestDto){
         this.tag1 = auctionTagsRequestDto.getTag1();
         this.tag2 = auctionTagsRequestDto.getTag2();
         this.tag3 = auctionTagsRequestDto.getTag3();
@@ -64,24 +60,19 @@ public class Tags {
         this.tag6 = auctionTagsRequestDto.getTag6();
         this.memberId =memberId;
         this.auctionId = auctionId;
-
-
     }
 
     public void updateTags(AuctionTagsRequestDto auctionTagsRequestDto){
-
         this.tag1 = auctionTagsRequestDto.getTag1();
         this.tag2 = auctionTagsRequestDto.getTag2();
         this.tag3 = auctionTagsRequestDto.getTag3();
         this.tag4 = auctionTagsRequestDto.getTag4();
         this.tag5 = auctionTagsRequestDto.getTag5();
         this.tag6 = auctionTagsRequestDto.getTag6();
-
     }
 
     public void addAuctionId(Long auctionId) {
-
         this.auctionId = auctionId;
-
     }
+
 }

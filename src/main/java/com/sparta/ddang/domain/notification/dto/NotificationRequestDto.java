@@ -6,7 +6,6 @@ import lombok.Getter;
 
 @Getter
 public class NotificationRequestDto {
-
     private Member receiver;
     private NotificationType notificationType;
     private String content;

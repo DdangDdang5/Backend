@@ -6,18 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface OnoChatMessageRepository extends JpaRepository<OnoChatMessage,Long> {
-
-    //boolean existsByRoomIdAndNickName(String roomId, String nickName);
-
-    //List<OnoChatMessage> findAllByBidderAndSeller(String nickName);
-
     boolean existsByRoomId(String roomId);
-
-    //void deleteAllByRoomIdAndNickName(String roomId, String nickName);
-
     void deleteAllByRoomId(String roomId);
-
-    //List<OnoChatMessage> findAllByNickName(String nickName);
-
     List<OnoChatMessage> findAllByOrderByLastMessageTimeDesc();
+
 }

@@ -22,22 +22,15 @@ public class RecentSearch extends Timestamped {
     @Column(nullable = false)
     private String searchWord;
 
-
     public RecentSearch(){}
 
-
     public RecentSearch(Long memberId,String searchWord){
-
         this.memberId = memberId;
         this.searchWord = searchWord;
-
     }
 
     public void updateTime(LocalDateTime now){
-
         this.setModifiedAt(now);
-
     }
-
 
 }

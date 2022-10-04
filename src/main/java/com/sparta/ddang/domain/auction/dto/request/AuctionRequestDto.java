@@ -6,27 +6,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AuctionRequestDto {
-
-    //”memberId”: 1,
-
     private String productName;
-
     private String title;
-
     private String content;
-
     private Long startPrice;
-
     private Long auctionPeriod;
-
     private String category;
-
     private String region;
-
     private boolean direct;
-
     private boolean delivery;
-
-
-
 }

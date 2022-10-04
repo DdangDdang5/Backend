@@ -28,17 +28,11 @@ public class Member extends Timestamped {
     @Column(nullable = false)
     private String password;
 
-//    @Column(nullable = false, unique = true)
-//    private String phoneNum;
-
     @Column
     private String profileImgUrl;
 
     @Column
     private boolean isKakao;
-
-//    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-//    private List<Auction> auctionList;
 
     @Column
     private int trustPoint;
@@ -49,10 +43,8 @@ public class Member extends Timestamped {
     }
 
     public void update(String nickName, String profileImgUrl) {
-
         this.nickName = nickName;
         this.profileImgUrl = profileImgUrl;
-
     }
 
     @Builder
@@ -72,7 +64,6 @@ public class Member extends Timestamped {
     public void updateTrustPoint(int trustPoint) {
         this.trustPoint += trustPoint;
     }
-
 
     public Member() {}
 }

@@ -6,7 +6,6 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 public class MemberRequestDto {
-
     @NotBlank
     private String email;
 
@@ -16,14 +15,10 @@ public class MemberRequestDto {
     @NotBlank
     private String password;
 
-//    @NotBlank
-//    private String phoneNum;
-
     public MemberRequestDto(String email, String nickName, String password) {
         this.email = email;
         this.nickName = nickName;
         this.password = password;
-
     }
 
     public MemberRequestDto() {}
