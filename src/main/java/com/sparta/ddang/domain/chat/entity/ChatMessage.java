@@ -48,12 +48,10 @@ public class ChatMessage extends TimestampedChat implements Serializable {
     @Column
     private String createdAtString;
 
-
     public ChatMessage(){}
 
     @Builder
     public ChatMessage(ChatMessageDto chatMessageDto, String nickName, String profileImgUrl, String createdAtString){
-
         this.type = chatMessageDto.getType();
         this.roomId = chatMessageDto.getRoomId();
         this.sender = chatMessageDto.getSender();
@@ -61,30 +59,19 @@ public class ChatMessage extends TimestampedChat implements Serializable {
         this.nickName = nickName;
         this.profileImgUrl = profileImgUrl;
         this.createdAtString = createdAtString;
-
     }
 
     public ChatMessage(ChatMessage chatMessage){
-
         this.type = chatMessage.getType();
         this.roomId = chatMessage.getRoomId();
         this.sender = chatMessage.getSender();
         this.message = chatMessage.getMessage();
         this.nickName = chatMessage.getNickName();
         this.profileImgUrl = chatMessage.getProfileImgUrl();
-
-
-
-
-
-
     }
 
     public void addChatRoomName(String roomName){
-
         this.roomName = roomName;
-
-
     }
 
 }

@@ -51,18 +51,13 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class MemberService {
-
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
     private final S3UploadService s3UploadService;
-
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-
     private final AuctionRepository auctionRepository;
-
     private final ParticipantRepository participantRepository;
-
     private final FavoriteRespository favoriteRespository;
 
     @Value("${kakao.appkey}")
@@ -70,7 +65,6 @@ public class MemberService {
 
     @Transactional
     public ResponseDto<?> createMember(MemberRequestDto requestDto) throws IOException {
-
         if (null != checkEmail(requestDto.getEmail())) {
             return ResponseDto.fail("이미 존재하는 이메일입니다.");
         }
@@ -92,57 +86,41 @@ public class MemberService {
                         .isKakao(member.isKakao())
                         .build()
         );
-
-
     }
 
-
-    // 이메일 중복확인.
     @Transactional
     public ResponseDto<?> emailCheck(EmailRequestDto email) {
-
         String emailCheck = email.getEmail();
 
         if (emailCheck.equals("")) {
-
             return ResponseDto.success("이메일을 입력해주세요.");
-
         }
         if (!emailCheck.contains("@")) {
             return ResponseDto.success("이메일 형식이 아닙니다.");
         }
-
-        if (null != checkEmail(emailCheck)) { // 이메일 중복이면
+        if (null != checkEmail(emailCheck)) {
             return ResponseDto.success(false);
-        } else { // 이메일 중복 아니면
+        } else {
             return ResponseDto.success(true);
         }
     }
 
-
-    // 닉네임 중복확인.
     @Transactional
     public ResponseDto<?> nickNameCheck(NicknameRequestDto nickname) {
-
         String nickNameCheck = nickname.getNickName();
 
         if (nickNameCheck.equals("")) {
             log.info("빈값이다.");
             return ResponseDto.success("닉네임을 입력해주세요");
-
         } else {
             log.info("빈값이 아니다.");
-            if (null != checkNickname(nickNameCheck)) { // 넥네임 중복이면
+            if (null != checkNickname(nickNameCheck)) {
                 return ResponseDto.success(false);
-            } else { // 닉네임 중복 아니면
+            } else {
                 return ResponseDto.success(true);
             }
-
         }
-
-
     }
-
 
     @Transactional
     public ResponseDto<?> login(LoginRequestDto requestDto, HttpServletResponse response) {
@@ -166,20 +144,13 @@ public class MemberService {
                         .isKakao(member.isKakao())
                         .build()
         );
-
     }
-
 
     @Transactional
     public ResponseDto<?> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
-
         String accessToken = getAccessToken(code);
-
         KakaoUserInfoDto kakaoUserInfoDto = getKakaoUserInfo(accessToken);
-
         Member member = registerKakaoUserIfNeeded(kakaoUserInfoDto);
-
-        // 4. 강제 로그인 처리
         forceLogin(member);
 
         TokenDto tokenDto = tokenProvider.generateTokenDto(member);
@@ -195,29 +166,25 @@ public class MemberService {
                         .tokenDto(tokenDto)
                         .build()
         );
-
-
     }
-
 
     @Transactional
     public String getAccessToken(String code) throws JsonProcessingException {
-
         // 1. "인가 코드"로 "액세스 토큰" 요청
+
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
         // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", kakaoAppKey);
-        //body.add("redirect_uri", "http://localhost:8080/member/kakao/callback");
         body.add("redirect_uri", "https://www.ddangddang.world/member/kakao/callback");
-//        body.add("redirect_uri", "https://sysgood.shop/member/kakao/callback");
         body.add("code", code);
+
         // HTTP 요청 보내기
-        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
-                new HttpEntity<>(body, headers);
+        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(body, headers);
         RestTemplate rt = new RestTemplate();
         ResponseEntity<String> response = rt.exchange(
                 "https://kauth.kakao.com/oauth/token",
@@ -225,6 +192,7 @@ public class MemberService {
                 kakaoTokenRequest,
                 String.class
         );
+
         // HTTP 응답 (JSON) -> 액세스 토큰 파싱
         String responseBody = response.getBody();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -236,12 +204,13 @@ public class MemberService {
 
     @Transactional
     public KakaoUserInfoDto getKakaoUserInfo(String accessToken) throws JsonProcessingException {
-
         // 2. 토큰으로 카카오 API 호출
+
         // HTTP Header 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
         // HTTP 요청 보내기
         HttpEntity<MultiValueMap<String, String>> kakaoUserInfoRequest = new HttpEntity<>(headers);
         RestTemplate rt = new RestTemplate();
@@ -255,57 +224,31 @@ public class MemberService {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(responseBody);
 
-        System.out.println(jsonNode);
-
         Long id = jsonNode.get("id").asLong();
-        String nickname = jsonNode.get("properties")
-                .get("nickname").asText();
-        String email = jsonNode.get("kakao_account")
-                .get("email").asText();
-
+        String nickname = jsonNode.get("properties").get("nickname").asText();
+        String email = jsonNode.get("kakao_account").get("email").asText();
         String profileImg = jsonNode.get("properties").get("profile_image").asText();
-
-        System.out.println("카카오 사용자 정보: " + id + ", " + nickname + ", " + email + "," + profileImg);
 
         KakaoUserInfoDto kakaoUserInfoDto = new KakaoUserInfoDto(nickname, email, profileImg, true);
 
         return kakaoUserInfoDto;
-
     }
 
     @Transactional
     public Member registerKakaoUserIfNeeded(KakaoUserInfoDto kakaoUserInfoDto) {
-
         String femail = kakaoUserInfoDto.getEmail();
         Member kakaoMember = memberRepository.findByEmail(femail)
                 .orElse(null);
 
-//        Member kakaoMember = memberRepository.findByEmail(femail).orElseThrow(
-//                () -> new IllegalArgumentException("이미 가입한 이메일입니다.")
-//        );
-
-        // 회원가입
-        // username: kakao nickname
         if (kakaoMember == null) {
-
             String nickname = kakaoUserInfoDto.getNickname() + "kakao" + UUID.randomUUID().toString();
-
             String password = UUID.randomUUID().toString();
-
-            System.out.println("aaa" + UUID.randomUUID());
-
             String encodedpassword = passwordEncoder.encode(password);
-
             String email = kakaoUserInfoDto.getEmail();
-
             String profileImg = kakaoUserInfoDto.getKakaoProImg();
-
-            //UserRoleEnum role = UserRoleEnum.USER;
-
             kakaoMember = new Member(email, nickname, encodedpassword, profileImg, true);
 
             memberRepository.save(kakaoMember);
-
         }
 
         return kakaoMember;
@@ -320,16 +263,13 @@ public class MemberService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-
     @Transactional
     public ResponseDto<?> getMypage(Long memberId, HttpServletRequest request) {
-
         if (null == request.getHeader("Authorization")) {
             return ResponseDto.fail("로그인이 필요합니다.");
         }
 
         Member member = checkMemberId(memberId);
-
         if (null == member) {
             return ResponseDto.fail("존재하지 않는 아이디입니다.");
         }
@@ -357,36 +297,20 @@ public class MemberService {
     @Transactional
     public ResponseDto<?> editMypage(Long memberId, MemberRequestDto requestDto, MultipartFile multipartFile) throws IOException {
         Member member = checkMemberId(memberId);
-        
         if (member == null) {
             return ResponseDto.fail("존재하지 않는 회원입니다.");
         }       
         
         Member member1 = checkNickname(requestDto.getNickName());
-
-//        if (member1 != null) {
-//            return ResponseDto.fail("닉네임이 존재합니다.");
-//        }
-
         String profileImgUrl = member.getProfileImgUrl();
-
 
         if (!multipartFile.isEmpty()) {
             profileImgUrl = s3UploadService.upload(multipartFile, "DdangDdang/profileImg");
         }
 
-        // 공통된 닉네임이 있을때
         if (member1 != null) {
-
-//            if (member1.getNickName().equals(requestDto.getNickName())){
-//
-//                return ResponseDto.fail("닉네임이 존재합니다.");
-//            }
-
             if (member1.getProfileImgUrl() == null){
-
                 member1.update(member1.getNickName(), profileImgUrl);
-
                 memberRepository.save(member);
 
                 return ResponseDto.success(
@@ -398,12 +322,9 @@ public class MemberService {
                                 .build()
                 );
             }
-
 
             if (!member1.getProfileImgUrl().equals(profileImgUrl)){
-
                 member1.update(member1.getNickName(), profileImgUrl);
-
                 memberRepository.save(member);
 
                 return ResponseDto.success(
@@ -414,17 +335,11 @@ public class MemberService {
                                 .profileImgUrl(profileImgUrl)
                                 .build()
                 );
-
             }
-
-                //return ResponseDto.fail("닉네임이 존재합니다.");
-
         }
 
         if(requestDto.getNickName() == null || requestDto.getNickName().equals("")){
-
             member.update(member.getNickName(), profileImgUrl);
-
             memberRepository.save(member);
 
             return ResponseDto.success(
@@ -435,11 +350,9 @@ public class MemberService {
                             .profileImgUrl(profileImgUrl)
                             .build()
             );
-
         }
 
         member.update(requestDto.getNickName(), profileImgUrl);
-
         memberRepository.save(member);
 
         return ResponseDto.success(
@@ -454,21 +367,16 @@ public class MemberService {
 
     @Transactional
     public ResponseDto<?> lookUpmemberId(Long memberId) {
-
         Member member = checkOthermemberId(memberId);
-
         if (member == null){
             return ResponseDto.fail("존재하지 않는 회원입니다.");
         }
 
         List<Auction> auctionList = auctionRepository.findAllByMember_Id(member.getId());
-
         List<AuctionResponseDto> auctionResponseDtoList = new ArrayList<>();
 
         for (Auction auction : auctionList){
-
             auctionResponseDtoList.add(
-
                     AuctionResponseDto.builder()
                             .auctionId(auction.getId())
                             .productName(auction.getProductName())
@@ -489,13 +397,10 @@ public class MemberService {
                             .auctionStatus(true)
                             .participantCnt(auction.getParticipantCnt())
                             .participantStatus(auction.isParticipantStatus())
-                            //.favoriteStatus(auction.isFavoriteStatus())
                             .createdAt(auction.getCreatedAt())
                             .modifiedAt(auction.getModifiedAt())
                             .build()
             );
-
-
         }
 
         String trustGrade = calcGrade(member.getTrustPoint());
@@ -510,13 +415,10 @@ public class MemberService {
                         .auctionResponseDtoList(auctionResponseDtoList)
                         .build()
         );
-
     }
 
     public ResponseDto<?> getTrustPoint(Long memberId) {
-
         Member member = checkMemberId(memberId);
-
         if (member == null){
             return ResponseDto.fail("존재하지 않는 회원입니다.");
         }
@@ -531,7 +433,6 @@ public class MemberService {
                         .trustGrade(trustGrade)
                         .build()
         );
-
     }
 
     @Transactional(readOnly = true)
@@ -565,18 +466,17 @@ public class MemberService {
 
     public String calcGrade(int trustPoint) {
         if (trustPoint >= 50) {
-            return "rainbow";
+            return "무지개 망치";
         } else if (trustPoint >= 25) {
-            return "gold";
+            return "금 망치";
         } else if (trustPoint >= 10) {
-            return "silver";
+            return "은 망치";
         } else if (trustPoint >= -9) {
-            return "classic";
+            return "기본 망치";
         } else {
-            return "wood";
+            return "나무 망치";
         }
     }
-
 
 }
 

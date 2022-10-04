@@ -7,7 +7,6 @@ import lombok.ToString;
 @Getter
 @ToString
 public class ResponseDto<T> {
-
     private int statusCode;
     private String msg;
     private T data;
@@ -30,4 +29,5 @@ public class ResponseDto<T> {
         this.msg = msg;
         this.data = data;
     }
+    
 }

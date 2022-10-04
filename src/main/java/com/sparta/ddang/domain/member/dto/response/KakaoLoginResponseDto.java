@@ -6,7 +6,6 @@ import lombok.Getter;
 
 @Getter
 public class KakaoLoginResponseDto {
-
     private Long memberId;
     private String email;
     private String nickname;
@@ -14,9 +13,7 @@ public class KakaoLoginResponseDto {
     private boolean isKakao;
     private TokenDto tokenDto;
 
-    public KakaoLoginResponseDto(){
-
-    }
+    public KakaoLoginResponseDto(){}
 
     @Builder
     public KakaoLoginResponseDto(Long memberId, String email, String nickname,
@@ -28,10 +25,7 @@ public class KakaoLoginResponseDto {
         this.kakaoProImg = kakaoProImg;
         this.isKakao = isKakao;
         this.tokenDto = tokenDto;
-
-
     }
-
 
 }
 

@@ -5,12 +5,16 @@ import lombok.Getter;
 @Getter
 public class DoneAuctionResponseDto {
     private Long auctionId;
-    private boolean auctionDone;
+    private boolean sellerDone;
+    private boolean bidderDone;
+    private boolean isSeller;
 
     public DoneAuctionResponseDto() {}
 
-    public DoneAuctionResponseDto(Long auctionId, boolean auctionDone) {
+    public DoneAuctionResponseDto(Long auctionId, boolean sellerDone, boolean bidderDone, boolean isSeller) {
         this.auctionId = auctionId;
-        this.auctionDone = auctionDone;
+        this.sellerDone = sellerDone;
+        this.bidderDone = bidderDone;
+        this.isSeller = isSeller;
     }
 }

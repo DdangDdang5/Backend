@@ -8,7 +8,6 @@ public class MemberResponseDto {
     private Long memberId;
     private String email;
     private String nickName;
-
     private boolean isKakao;
 
     @Builder

@@ -5,14 +5,11 @@ import lombok.Getter;
 
 @Getter
 public class RegionOnlyResponseDto {
-
     private String region;
-
 
     @Builder
     public RegionOnlyResponseDto(String region){
-
         this.region = region;
-
     }
+
 }

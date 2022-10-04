@@ -12,10 +12,8 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 public class ChatRoomDto {
-
     private String roomId;
     private String roomName;
-
 
     public static ChatRoomDto create(String name) {
         ChatRoomDto room = new ChatRoomDto();
@@ -29,4 +27,5 @@ public class ChatRoomDto {
         this.roomId = roomId;
         this.roomName = roomName;
     }
+
 }

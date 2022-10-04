@@ -23,9 +23,6 @@ public class Notification extends Timestamped {
     @Embedded
     private NotificationContent content;
 
-//    @Embedded
-//    private RelatedURL url;
-
     @Column(nullable = false)
     private Boolean isRead;
 
@@ -43,7 +40,6 @@ public class Notification extends Timestamped {
         this.receiver = receiver;
         this.notificationType = notificationType;
         this.content = new NotificationContent(content);
-//        this.url = new RelatedURL(url);
         this.isRead = isRead;
     }
 
@@ -51,7 +47,4 @@ public class Notification extends Timestamped {
         return content.getContent();
     }
 
-//    public String getUrl() {
-//        return url.getUrl();
-//    }
 }

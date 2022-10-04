@@ -9,9 +9,6 @@ public class AuctionIdResponseDto {
 
     @Builder
     public AuctionIdResponseDto(Long auctionId){
-
         this.auctionId = auctionId;
-
     }
-
 }
