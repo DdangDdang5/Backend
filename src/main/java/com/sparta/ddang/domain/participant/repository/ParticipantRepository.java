@@ -12,7 +12,9 @@ public interface ParticipantRepository extends JpaRepository<Participant,Long> {
     void deleteByMemberIdAndAuctionId(Long memberId,Long auctionId);
     Long countAllByAuctionId(Long auctionId);
     Long countAllByMemberId(Long memberId);
-    List<Participant> findAllByMember_Id(Long memberId);
-    Page<Participant> findAllByMember_Id(Long memberId, Pageable pageable);
+    //List<Participant> findAllByMember_Id(Long memberId);
+    List<Participant> findAllByMemberId(Long memberId);
+    //Page<Participant> findAllByMember_Id(Long memberId, Pageable pageable);
+    Page<Participant> findAllByMemberId(Long memberId, Pageable pageable);
 
 }

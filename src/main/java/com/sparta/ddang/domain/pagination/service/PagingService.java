@@ -246,6 +246,7 @@ public class PagingService {
     public ResponseDto<?> getJoinPagenation(HttpServletRequest request,
                                             int page, int size, String sortBy,
                                             boolean isAsc) {
+
         if (null == request.getHeader("Authorization")) {
             return ResponseDto.fail("Authorization이 없습니다.");
         }
@@ -263,49 +264,58 @@ public class PagingService {
         Sort sort = Sort.by(direction, sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<Participant> participantList = participantRepository.findAllByMember_Id(member.getId(), pageable);
+        Page<Participant> participantList = participantRepository.findAllByMemberId(member.getId(), pageable);
         List<ParticipantAuctionResponseDto> auctionArrayList = new ArrayList<>();
 
         LocalDateTime now = LocalDateTime.now();
 
         for (Participant participant : participantList) {
-            if (now.isEqual(participant.getAuction().getDeadline()) || now.isAfter(participant.getAuction().getDeadline()) ) {
-                participant.getAuction().changeAuctionStatus(false);
-                auctionRepository.save(participant.getAuction());
+
+            Auction auction = auctionRepository.findById(participant.getAuctionId()).orElse(null);
+
+            if (auctionRepository.existsById(participant.getAuctionId())) {
+
+                if (now.isEqual(auction.getDeadline()) || now.isAfter(auction.getDeadline())) {
+                    auction.changeAuctionStatus(false);
+                    auctionRepository.save(auction);
+                }
+
+                Long auctionId = auction.getId();
+
+                List<JoinPrice> joinPriceList = joinPriceRepository.findAllByAuctionIdOrderByJoinPriceDesc(auctionId);
+                JoinPrice joinPrice = joinPriceList.get(0);
+                Member bidder = auctionService.checkMember(joinPrice.getMemberId());
+                boolean isBidder = member.getId().equals(bidder.getId());
+
+                auctionArrayList.add(
+                        ParticipantAuctionResponseDto.builder()
+                                .auctionId(auction.getId())
+                                .memberId(auction.getMember().getId())
+                                .nickname(auction.getMember().getNickName())
+                                .profileImgUrl(auction.getMember().getProfileImgUrl())
+                                .title(auction.getTitle())
+                                .content(auction.getContent())
+                                .multiImages(auction.getMultiImages())
+                                .startPrice(auction.getStartPrice())
+                                .nowPrice(auction.getNowPrice())
+                                .auctionPeriod(auction.getAuctionPeriod())
+                                .category(auction.getCategory())
+                                .region(auction.getRegion())
+                                .direct(auction.isDirect())
+                                .delivery(auction.isDelivery())
+                                .viewerCnt(auction.getViewerCnt())
+                                .participantCnt(auction.getParticipantCnt())
+                                .participantStatus(auction.isParticipantStatus())
+                                .auctionStatus(auction.isAuctionStatus())
+                                .createdAt(auction.getCreatedAt())
+                                .modifiedAt(auction.getModifiedAt())
+                                .onoRoomId(auction.getOnoRoomId())
+                                .isBidder(isBidder)
+                                .build()
+                );
+
+
             }
-
-            Long auctionId = participant.getAuction().getId();
-            List<JoinPrice> joinPriceList = joinPriceRepository.findAllByAuctionIdOrderByJoinPriceDesc(auctionId);
-            JoinPrice joinPrice = joinPriceList.get(0);
-            Member bidder = auctionService.checkMember(joinPrice.getMemberId());
-            boolean isBidder = member.getId().equals(bidder.getId());
-
-            auctionArrayList.add(
-                    ParticipantAuctionResponseDto.builder()
-                            .auctionId(participant.getAuction().getId())
-                            .memberId(participant.getAuction().getMember().getId())
-                            .nickname(participant.getAuction().getMember().getNickName())
-                            .profileImgUrl(participant.getAuction().getMember().getProfileImgUrl())
-                            .title(participant.getAuction().getTitle())
-                            .content(participant.getAuction().getContent())
-                            .multiImages(participant.getAuction().getMultiImages())
-                            .startPrice(participant.getAuction().getStartPrice())
-                            .nowPrice(participant.getAuction().getNowPrice())
-                            .auctionPeriod(participant.getAuction().getAuctionPeriod())
-                            .category(participant.getAuction().getCategory())
-                            .region(participant.getAuction().getRegion())
-                            .direct(participant.getAuction().isDirect())
-                            .delivery(participant.getAuction().isDelivery())
-                            .viewerCnt(participant.getAuction().getViewerCnt())
-                            .participantCnt(participant.getAuction().getParticipantCnt())
-                            .participantStatus(participant.getAuction().isParticipantStatus())
-                            .auctionStatus(participant.getAuction().isAuctionStatus())
-                            .createdAt(participant.getAuction().getCreatedAt())
-                            .modifiedAt(participant.getAuction().getModifiedAt())
-                            .onoRoomId(participant.getAuction().getOnoRoomId())
-                            .isBidder(isBidder)
-                            .build()
-            );
         }
 
         return ResponseDto.success(auctionArrayList);
