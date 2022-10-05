@@ -808,35 +808,67 @@ public class AuctionService {
             return ResponseDto.fail("참여한 경매 상품이 없습니다.");
         }
 
-        List<Participant> participantList = participantRepository.findAllByMember_Id(member.getId());
+        List<Participant> participantList = participantRepository.findAllByMemberId(member.getId());
         ArrayList<AuctionResponseDto> auctionArrayList = new ArrayList<>();
 
         for (Participant participant : participantList) {
-            auctionArrayList.add(
-                    AuctionResponseDto.builder()
-                            .auctionId(participant.getAuction().getId())
-                            .memberId(participant.getAuction().getMember().getId())
-                            .nickname(participant.getAuction().getMember().getNickName())
-                            .profileImgUrl(participant.getAuction().getMember().getProfileImgUrl())
-                            .title(participant.getAuction().getTitle())
-                            .content(participant.getAuction().getContent())
-                            .multiImages(participant.getAuction().getMultiImages())
-                            .startPrice(participant.getAuction().getStartPrice())
-                            .nowPrice(participant.getAuction().getNowPrice())
-                            .auctionPeriod(participant.getAuction().getAuctionPeriod())
-                            .category(participant.getAuction().getCategory())
-                            .region(participant.getAuction().getRegion())
-                            .direct(participant.getAuction().isDirect())
-                            .delivery(participant.getAuction().isDelivery())
-                            .viewerCnt(participant.getAuction().getViewerCnt())
-                            .participantCnt(participant.getAuction().getParticipantCnt())
-                            .participantStatus(participant.getAuction().isParticipantStatus())
-                            .auctionStatus(participant.getAuction().isAuctionStatus())
-                            .reviewDone(participant.getAuction().isReviewDone())
-                            .createdAt(participant.getAuction().getCreatedAt())
-                            .modifiedAt(participant.getAuction().getModifiedAt())
-                            .build()
-            );
+
+            Auction auction = auctionRepository.findById(participant.getAuctionId()).orElse(null);
+
+            if (auctionRepository.existsById(participant.getAuctionId())) {
+
+                auctionArrayList.add(
+                        AuctionResponseDto.builder()
+                                .auctionId(auction.getId())
+                                .memberId(auction.getMember().getId())
+                                .nickname(auction.getMember().getNickName())
+                                .profileImgUrl(auction.getMember().getProfileImgUrl())
+                                .title(auction.getTitle())
+                                .content(auction.getContent())
+                                .multiImages(auction.getMultiImages())
+                                .startPrice(auction.getStartPrice())
+                                .nowPrice(auction.getNowPrice())
+                                .auctionPeriod(auction.getAuctionPeriod())
+                                .category(auction.getCategory())
+                                .region(auction.getRegion())
+                                .direct(auction.isDirect())
+                                .delivery(auction.isDelivery())
+                                .viewerCnt(auction.getViewerCnt())
+                                .participantCnt(auction.getParticipantCnt())
+                                .participantStatus(auction.isParticipantStatus())
+                                .auctionStatus(auction.isAuctionStatus())
+                                .reviewDone(auction.isReviewDone())
+                                .createdAt(auction.getCreatedAt())
+                                .modifiedAt(auction.getModifiedAt())
+                                .build()
+                );
+//            auctionArrayList.add(
+//                    AuctionResponseDto.builder()
+//                            .auctionId(participant.getAuction().getId())
+//                            .memberId(participant.getAuction().getMember().getId())
+//                            .nickname(participant.getAuction().getMember().getNickName())
+//                            .profileImgUrl(participant.getAuction().getMember().getProfileImgUrl())
+//                            .title(participant.getAuction().getTitle())
+//                            .content(participant.getAuction().getContent())
+//                            .multiImages(participant.getAuction().getMultiImages())
+//                            .startPrice(participant.getAuction().getStartPrice())
+//                            .nowPrice(participant.getAuction().getNowPrice())
+//                            .auctionPeriod(participant.getAuction().getAuctionPeriod())
+//                            .category(participant.getAuction().getCategory())
+//                            .region(participant.getAuction().getRegion())
+//                            .direct(participant.getAuction().isDirect())
+//                            .delivery(participant.getAuction().isDelivery())
+//                            .viewerCnt(participant.getAuction().getViewerCnt())
+//                            .participantCnt(participant.getAuction().getParticipantCnt())
+//                            .participantStatus(participant.getAuction().isParticipantStatus())
+//                            .auctionStatus(participant.getAuction().isAuctionStatus())
+//                            .reviewDone(participant.getAuction().isReviewDone())
+//                            .createdAt(participant.getAuction().getCreatedAt())
+//                            .modifiedAt(participant.getAuction().getModifiedAt())
+//                            .build()
+//            );
+            }
+
         }
 
         return ResponseDto.success(auctionArrayList);

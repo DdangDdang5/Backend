@@ -165,8 +165,8 @@ public class ChatService {
 
             if (lastChat.getMessage().equals("")) {
                 for (int i = 0; i < messageList.size(); i++) {
-                    if (!messageList.get(messageList.size() -1 -i).getMessage().equals("")){
-                        lastchat1.add(messageList.get(messageList.size() -1 -i));
+                    if (!messageList.get(messageList.size() - 1 - i).getMessage().equals("")) {
+                        lastchat1.add(messageList.get(messageList.size() - 1 - i));
                         break;
                     }
                 }
@@ -176,9 +176,9 @@ public class ChatService {
                     Auction auction = auctionRepository.findByOnoRoomId(lastChat.getRoomId());
                     OnoChatMessage onoChatMessage =
                             new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(),
-                                                lastChat.getNickName(), lastChat.getMessage(),
-                                                lastChat.getProfileImgUrl(), auction.getId(),
-                                                auction.getMember().getNickName(), nickname, lastChat.getCreatedAt());
+                                    lastChat.getNickName(), lastChat.getMessage(),
+                                    lastChat.getProfileImgUrl(), auction.getId(),
+                                    auction.getMember().getNickName(), nickname, lastChat.getCreatedAt());
                     onoChatMessageRepository.save(onoChatMessage);
 
                 } else {
@@ -186,9 +186,9 @@ public class ChatService {
                     Auction auction = auctionRepository.findByOnoRoomId(lastChat.getRoomId());
                     OnoChatMessage onoChatMessage =
                             new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(),
-                                                lastChat.getNickName(), lastChat.getMessage(),
-                                                lastChat.getProfileImgUrl(), auction.getId(),
-                                                auction.getMember().getNickName(), nickname, lastChat.getCreatedAt());
+                                    lastChat.getNickName(), lastChat.getMessage(),
+                                    lastChat.getProfileImgUrl(), auction.getId(),
+                                    auction.getMember().getNickName(), nickname, lastChat.getCreatedAt());
                     onoChatMessageRepository.save(onoChatMessage);
                 }
 
@@ -197,9 +197,9 @@ public class ChatService {
                     Auction auction = auctionRepository.findByOnoRoomId(lastChat.getRoomId());
                     OnoChatMessage onoChatMessage =
                             new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(),
-                                                lastChat.getNickName(), lastChat.getMessage(),
-                                                lastChat.getProfileImgUrl(), auction.getId(),
-                                                auction.getMember().getNickName(), nickname, lastChat.getCreatedAt());
+                                    lastChat.getNickName(), lastChat.getMessage(),
+                                    lastChat.getProfileImgUrl(), auction.getId(),
+                                    auction.getMember().getNickName(), nickname, lastChat.getCreatedAt());
                     onoChatMessageRepository.save(onoChatMessage);
 
                 } else {
@@ -207,9 +207,9 @@ public class ChatService {
                     Auction auction = auctionRepository.findByOnoRoomId(lastChat.getRoomId());
                     OnoChatMessage onoChatMessage =
                             new OnoChatMessage(lastChat.getRoomId(), lastChat.getRoomName(),
-                                                lastChat.getNickName(), lastChat.getMessage(),
-                                                lastChat.getProfileImgUrl(), auction.getId(),
-                                                auction.getMember().getNickName(), nickname, lastChat.getCreatedAt());
+                                    lastChat.getNickName(), lastChat.getMessage(),
+                                    lastChat.getProfileImgUrl(), auction.getId(),
+                                    auction.getMember().getNickName(), nickname, lastChat.getCreatedAt());
                     onoChatMessageRepository.save(onoChatMessage);
                 }
             }

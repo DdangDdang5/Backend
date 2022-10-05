@@ -15,19 +15,28 @@ public class Participant extends Timestamped {
     @Id
     private Long id;
 
-    @JoinColumn(name = "member_id" ,nullable = false)
-    @ManyToOne (fetch = FetchType.LAZY)
-    private Member member;
+    //    @JoinColumn(name = "member_id" ,nullable = false)
+//    @ManyToOne (fetch = FetchType.LAZY)
+//    private Member member;
+    @Column(name = "member_id", nullable = false)
+    private Long memberId;
 
-    @JoinColumn (name = "auction_id",nullable = false)
-    @ManyToOne (fetch = FetchType.LAZY)
-    Auction auction;
 
-    public Participant(){}
+    // , orphanRemoval=false
+    @Column(name = "auction_id", nullable = false)
+    private Long auctionId;
 
-    public Participant(Member member, Auction auction){
-        this.member = member;
-        this.auction = auction;
+
+//    @JoinColumn (name = "auction_id",nullable = false)
+//    @ManyToOne (fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+//    private Auction auction;
+
+    public Participant() {
+    }
+
+    public Participant(Member member, Auction auction) {
+        this.memberId = member.getId();
+        this.auctionId = auction.getId();
     }
 
 }
